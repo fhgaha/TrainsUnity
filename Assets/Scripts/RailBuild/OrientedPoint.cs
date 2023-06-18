@@ -20,15 +20,9 @@ namespace Trains
 		}
 
 		//returns vector from global (0; 0) to localSpacePos
-		public Vector3 LocalToWorldPos(Vector3 localSpacePos)
-		{
-			return pos + rot * localSpacePos;
-		}
+		public Vector3 LocalToWorldPos(Vector3 localSpacePos) => pos + rot * localSpacePos;
 
 		//retruns vector from global (0; 0), pointing the same direction as in local coords
-		public Vector3 LocalToWorldVect(Vector3 localSpacePos)
-		{
-			return rot * localSpacePos;
-		}
+		public Vector3 LocalToWorldVect(Vector3 localSpacePos) => rot * localSpacePos;
 	}
 }

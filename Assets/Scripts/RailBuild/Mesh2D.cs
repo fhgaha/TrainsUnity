@@ -20,7 +20,7 @@ namespace Trains
 		public int LineCount => lineIndices.Length;
 
 		/*
-		1/sqrt(2) (or cos 45 deg?) = 0.70710678118
+		1/sqrt(2) (or cos 45 deg?) = 0.70710678118 - its a diagonal normal direction
 
 		shape looks like that:
 		 _		  _
@@ -30,22 +30,22 @@ namespace Trains
 
 		public List<Vertex> testPointSet = new()
 		{
-			new Vertex{point = new Vector2(3, 0), normal = new Vector2(0, 1), u = 0.171f},
-			new Vertex{point = new Vector2(3, 0), normal = new Vector2(-0.70710678118f, 0.70710678118f), u = 0.171f},
-			new Vertex{point = new Vector2(4, 1), normal = new Vector2(-0.70710678118f, 0.70710678118f), u = 0.116f},
-			new Vertex{point = new Vector2(4, 1), normal = new Vector2(0, 1), u = 0.116f},
-			new Vertex{point = new Vector2(5, 1), normal = new Vector2(0, 1), u = 0.077f},
-			new Vertex{point = new Vector2(5, 1), normal = new Vector2(1, 0), u = 0.077f},
-			new Vertex{point = new Vector2(5, -1), normal = new Vector2(1, 0), u = 0f},
-			new Vertex{point = new Vector2(5, -1), normal = new Vector2(0, -1), u = 1f},
-			new Vertex{point = new Vector2(-5, -1), normal = new Vector2(0, -1), u = 0.613f},
-			new Vertex{point = new Vector2(-5, -1), normal = new Vector2(-1, 0), u = 0.574f},
-			new Vertex{point = new Vector2(-5, 1), normal = new Vector2(0, 1), u = 0.497f},
-			new Vertex{point = new Vector2(-5, 1), normal = new Vector2(-1, 0), u = 0.497f},
-			new Vertex{point = new Vector2(-4, 1), normal = new Vector2(0, 1), u = 0.458f},
-			new Vertex{point = new Vector2(-4, 1), normal = new Vector2(0.70710678118f, 0.70710678118f), u = 0.458f},
-			new Vertex{point = new Vector2(-3, 0), normal = new Vector2(0.70710678118f, 0.70710678118f), u = 0.403f},
-			new Vertex{point = new Vector2(-3, 0), normal = new Vector2(0, 1), u = 0.403f},
+			new Vertex{point = new Vector2(3, 0),   normal = new Vector2(0, 1),                             u = 0.171f},
+			new Vertex{point = new Vector2(3, 0),   normal = new Vector2(-0.70710678118f, 0.70710678118f),  u = 0.171f},
+			new Vertex{point = new Vector2(4, 1),   normal = new Vector2(-0.70710678118f, 0.70710678118f),  u = 0.116f},
+			new Vertex{point = new Vector2(4, 1),   normal = new Vector2(0, 1),                             u = 0.116f},
+			new Vertex{point = new Vector2(5, 1),   normal = new Vector2(0, 1),                             u = 0.077f},
+			new Vertex{point = new Vector2(5, 1),   normal = new Vector2(1, 0),                             u = 0.077f},
+			new Vertex{point = new Vector2(5, -1),  normal = new Vector2(1, 0),                             u = 0f},
+			new Vertex{point = new Vector2(5, -1),  normal = new Vector2(0, -1),                            u = 1f},
+			new Vertex{point = new Vector2(-5, -1), normal = new Vector2(0, -1),                            u = 0.613f},
+			new Vertex{point = new Vector2(-5, -1), normal = new Vector2(-1, 0),                            u = 0.574f},
+			new Vertex{point = new Vector2(-5, 1),  normal = new Vector2(0, 1),                             u = 0.497f},
+			new Vertex{point = new Vector2(-5, 1),  normal = new Vector2(-1, 0),                            u = 0.497f},
+			new Vertex{point = new Vector2(-4, 1),  normal = new Vector2(0, 1),                             u = 0.458f},
+			new Vertex{point = new Vector2(-4, 1),  normal = new Vector2(0.70710678118f, 0.70710678118f),   u = 0.458f},
+			new Vertex{point = new Vector2(-3, 0),  normal = new Vector2(0.70710678118f, 0.70710678118f),   u = 0.403f},
+			new Vertex{point = new Vector2(-3, 0),  normal = new Vector2(0, 1),                             u = 0.403f},
 		};
 
 		public List<int> testIndexSet = new()
@@ -62,5 +62,7 @@ namespace Trains
 			}
 			return dist;
 		}
+
+		private static Vertex CreateVertex(Vector2 point, Vector2 normal, float u) => new Vertex() { point = point, normal = normal, u = u };
 	}
 }

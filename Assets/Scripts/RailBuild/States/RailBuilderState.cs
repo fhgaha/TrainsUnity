@@ -36,7 +36,7 @@ namespace Trains
 				}
 			}
 
-			return selectingStart;
+			return this;
 		}
 	}
 
@@ -72,10 +72,11 @@ namespace Trains
 			//on rmb cancel drawing
 			if (Input.GetKeyUp(KeyCode.Mouse1))
 			{
+				//clear drawn segment
 				return selectingStart;
 			}
 
-			return drawingInitialSegment;
+			return this;
 		}
 	}
 
@@ -105,7 +106,7 @@ namespace Trains
 				rb.startPos = rb.endPos;
 				rb.startHeading = rb.endHeading;
 
-				return drawingNoninitialSegment;
+				return this;
 			}
 
 			//on rmb cancel drawing
@@ -114,7 +115,7 @@ namespace Trains
 				return selectingStart;
 			}
 
-			return drawingNoninitialSegment;
+			return this;
 		}
 	}
 }
