@@ -19,6 +19,7 @@ namespace Trains
 		public int VertexCount => vertices.Length;
 		public int LineCount => lineIndices.Length;
 
+
 		/*
 		1/sqrt(2) (or cos 45 deg?) = 0.70710678118 - its a diagonal normal direction
 
@@ -56,6 +57,7 @@ namespace Trains
 		 /		 \
 		/_________\
 		*/
+
 		public List<Vertex> trapezoidVertexSet = new()
 		{
 			CreateVertex(new Vector2(3, 0),     new Vector2(0, 1),                              0.1f),
@@ -84,6 +86,10 @@ namespace Trains
 			return dist;
 		}
 
-		private static Vertex CreateVertex(Vector2 point, Vector2 normal, float u) => new Vertex() { point = point, normal = normal, u = u };
+		private static Vertex CreateVertex(Vector2 point, Vector2 normal, float u)
+		{
+			float scale = 0.3f;
+			return new Vertex() { point = new Vector2(point.x * scale, point.y * scale), normal = normal, u = u };
+		}
 	}
 }
