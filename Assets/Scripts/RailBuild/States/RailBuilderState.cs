@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,18 +21,18 @@ namespace Trains
 			RailBuilderState.rb = rb;
 			return selectingStart;
 		}
-	}
+    }
 
 	public class SelectingStart : RailBuilderState
 	{
-		//move mouse around, click lmb to start drawing
-		public override RailBuilderState HandleInput(Camera camera)
+        //move mouse around, click lmb to start drawing
+        public override RailBuilderState HandleInput(Camera camera)
 		{
 			if (Input.GetKeyUp(KeyCode.Mouse0))
 			{
 				if (Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f))
 				{
-					rb.startPos = hit.point;
+					rb.StartPos = hit.point;
 					return drawingInitialSegment;
 				}
 			}
@@ -42,30 +43,28 @@ namespace Trains
 
 	public class DrawingInitialSegment : RailBuilderState
 	{
-		private Vector3 mousePos;
+		private Vector3 _mousePos;
 
 		public override RailBuilderState HandleInput(Camera camera)
 		{
 			//handle mouse movement
-			if (Input.mousePosition != mousePos)
+			if (Input.mousePosition != _mousePos)
 			{
 				if (Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f))
 				{
-					rb.endPos = hit.point;
-					rb.CalculateStraightPoints(rb.startPos, hit.point);
+					rb.CalculateStraightPoints(rb.StartPos, hit.point);
+					if (rb.points.Count > 0) rb.EndPos = rb.points[^1];
 				}
 
-				mousePos = Input.mousePosition;
+				_mousePos = Input.mousePosition;
 			}
 
 			//on lmb save drawn segment to a rail container
 			if (Input.GetKeyUp(KeyCode.Mouse0))
 			{
-				rb.PutDrawnSegmentToContainer();
-
-				rb.startPos = rb.endPos;
-				rb.startHeading = rb.endHeading;
-
+				rb.PutDrawnSegmentIntoContainer();
+				rb.StartPos = rb.EndPos;
+                rb.startHeading = rb.endHeading;
 				return drawingNoninitialSegment;
 			}
 
@@ -82,30 +81,30 @@ namespace Trains
 
 	public class DrawingNoninitialSegment : RailBuilderState
 	{
-		private Vector3 mousePos;
+		private Vector3 _mousePos;
 
 		public override RailBuilderState HandleInput(Camera camera)
 		{
 			//handle mouse movement
-			if (Input.mousePosition != mousePos)
+			if (Input.mousePosition != _mousePos)
 			{
 				if (Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f))
 				{
-					rb.endPos = hit.point;
-					rb.CalculateDubinsPoints(rb.startPos, hit.point);
+					rb.CalculateCSPoints(rb.StartPos, hit.point);
+					if (rb.points.Count > 0) rb.EndPos = rb.points[^1];
 				}
 
-				mousePos = Input.mousePosition;
+				_mousePos = Input.mousePosition;
 			}
 
 			//on lmb save drawn segment to a rail container
 			if (Input.GetKeyUp(KeyCode.Mouse0))
 			{
-				rb.PutDrawnSegmentToContainer();
+				rb.PutDrawnSegmentIntoContainer();
 
-				rb.startPos = rb.endPos;
+				rb.StartPos = rb.EndPos;
 				rb.startHeading = rb.endHeading;
-
+				
 				return this;
 			}
 

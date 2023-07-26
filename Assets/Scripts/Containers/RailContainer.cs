@@ -11,6 +11,7 @@ namespace Trains
         public void Add(RoadSegment segm)
         {
             RoadSegment copy = Instantiate(segm, transform);
+            copy.points = segm.points;
             
             int lastIndex = segments.Keys.LastOrDefault();
             segments.Add(++lastIndex, copy);

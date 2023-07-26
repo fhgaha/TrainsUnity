@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Trains
 {
     //To keep track of the different paths when debugging
     public enum PathType { RSR, LSL, RSL, LSR, RLR, LRL }
-
 
     //Takes care of all standardized methods related the generating of Dubins paths
     public static class DubinsMath
@@ -237,6 +237,18 @@ namespace Trains
 
                 //Add the new coordinate to the path
                 finalPath.Add(currentPos);
+            }
+        }
+
+        private struct MyStruct
+        {
+            public Vector3 p;
+            public float angle;
+            public float length;
+
+            public override string ToString()
+            {
+                return string.Format("p: {0}, angle: {1}, len: {2}", p, angle, length);
             }
         }
     }

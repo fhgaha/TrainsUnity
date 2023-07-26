@@ -60,14 +60,14 @@ namespace Trains
 
 		public List<Vertex> trapezoidVertexSet = new()
 		{
-			CreateVertex(new Vector2(3, 0),     new Vector2(0, 1),                              0.1f),
-			CreateVertex(new Vector2(3, 0),     new Vector2(0.70710678118f, 0.70710678118f),    0.1f),
-			CreateVertex(new Vector2(5, -2),    new Vector2(0.70710678118f, 0.70710678118f),    0f),
-			CreateVertex(new Vector2(5, -2),    new Vector2(0, -1),                             1f),
-			CreateVertex(new Vector2(-5, -2),   new Vector2(0, -1),                             0.6f),
-			CreateVertex(new Vector2(-5, -2),   new Vector2(-0.70710678118f, 0.70710678118f),   0.6f),
-			CreateVertex(new Vector2(-3, 0),    new Vector2(-0.70710678118f, 0.70710678118f),   0.5f),
-			CreateVertex(new Vector2(-3, 0),    new Vector2(0, 1),                              0.5f),
+			CreateVertex(new Vector2(1, 1),     new Vector2(0, 1),                              0.1f),
+			CreateVertex(new Vector2(1, 1),     new Vector2(0.70710678118f, 0.70710678118f),    0.1f),
+			CreateVertex(new Vector2(2, 0),    new Vector2(0.70710678118f, 0.70710678118f),    0f),
+			CreateVertex(new Vector2(2, 0),    new Vector2(0, -1),                             1f),
+			CreateVertex(new Vector2(-2, 0),   new Vector2(0, -1),                             0.6f),
+			CreateVertex(new Vector2(-2, 0),   new Vector2(-0.70710678118f, 0.70710678118f),   0.6f),
+			CreateVertex(new Vector2(-1, 1),    new Vector2(-0.70710678118f, 0.70710678118f),   0.5f),
+			CreateVertex(new Vector2(-1, 1),    new Vector2(0, 1),                              0.5f),
 		};
 
 		public List<int> trapezoidIndexSet = new() { 7, 0, 1, 2, 3, 4, 5, 6 };
@@ -88,7 +88,7 @@ namespace Trains
 
 		private static Vertex CreateVertex(Vector2 point, Vector2 normal, float u)
 		{
-			float scale = 0.3f;
+			float scale = 1f;
 			return new Vertex() { point = new Vector2(point.x * scale, point.y * scale), normal = normal, u = u };
 		}
 	}

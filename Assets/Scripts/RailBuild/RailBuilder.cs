@@ -5,112 +5,99 @@ using UnityEngine;
 
 namespace Trains
 {
-	public class RailBuilder : MonoBehaviour
-	{
-		public List<Vector3> points;
-		public bool HasPoints => points != null && points.Count > 0;
-		public Vector3 startPos, endPos;
-		public float startHeading, endHeading;
+    public class RailBuilder : MonoBehaviour
+    {
+        public List<Vector3> points;
+        public bool HasPoints => points != null && points.Count > 0;
+        public Vector3 StartPos { get; set; }
+        public Vector3 EndPos { get; set; }
+        public float startHeading, endHeading;
 
-		[SerializeField] private Camera _camera;
-		[SerializeField] private string _stateName;
-		[SerializeField] private LineRenderer _lineRenderer;
-		[SerializeField] private Mesh2D _road2DSO;
-		[SerializeField] private RailContainer _railContainer;
-		[SerializeField] private RoadSegment _segment;
-		private RailBuilderState _state;
-		private DubinsGeneratePaths dubinsPathGenerator = new();
-		
-		private void OnEnable()
-		{
-			_state = RailBuilderState.Init(this);
-		}
+        [SerializeField] private Camera _camera;
+        [SerializeField] private string _stateName;
+        [SerializeField] private LineRenderer _lineRenderer;
+        [SerializeField] private Mesh2D _road2DSO;
+        [SerializeField] private RailContainer _railContainer;
+        [SerializeField] private RoadSegment _segment;
+        private RailBuilderState _state;
+        private DubinsGeneratePaths dubinsPathGenerator = new();
 
-		private void OnDisable()
-		{
-		}
+        private float driveDist = 1f;
 
-		private void Update()
-		{
-			_state = _state.HandleInput(_camera);
-			_stateName = _state.GetType().Name;
+        private void OnEnable()
+        {
+            _state = RailBuilderState.Init(this);
+        }
 
-			if (HasPoints)
-			{
-				//draw line
-				_lineRenderer.positionCount = points.Count;
-				_lineRenderer.SetPositions(points.ToArray());
-			}
-		}
+        private void OnDisable()
+        {
+        }
 
-		public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
-		{
-			startHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
-			endHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
+        private void Update()
+        {
+            _state = _state.HandleInput(_camera);
+            _stateName = _state.GetType().Name;
 
-            List<OneDubinsPath> paths = dubinsPathGenerator.GetAllDubinsPaths(
-				startPos,
-				startHeading * Mathf.Deg2Rad,
-				endPos,
-				endHeading * Mathf.Deg2Rad
-			);
+            if (HasPoints)
+            {
+                //draw line
+                _lineRenderer.positionCount = points.Count;
+                _lineRenderer.SetPositions(points.ToArray());
+            }
+        }
 
-            OneDubinsPath shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+        public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
+        {
+            startHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
+            endHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
 
-			if (shortest != null && shortest.pathCoordinates.Count > 0)
-			{
-				points = shortest.pathCoordinates;
-				_segment.GenerateMesh(points);
-			}
-		}
+            List<Vector3> pts = MyMath.CalculateStraightLine(startPos, endPos, driveDist);
 
-		public void CalculateDubinsPoints(Vector3 startPos, Vector3 endPos)
-		{
-			// startHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
-			endHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
+            if (pts.Count > 0)
+            {
+                points = pts;
+                _segment.GenerateMesh(points);
+            }
+        }
 
-			List<OneDubinsPath> paths = dubinsPathGenerator.GetAllDubinsPaths(
-				startPos,
-				startHeading * Mathf.Deg2Rad,
-				endPos,
-				endHeading * Mathf.Deg2Rad
-			);
+        #region debug
+        private GameObject startHeadingVisual, endHeadingVisual, visual1, visual2;
+        #endregion
+        public void CalculateCSPoints(Vector3 startPos, Vector3 endPos)
+        {
+            endHeading = MyMath.CalculateCSPoints(points, startPos, startHeading, endPos, driveDist, out Vector3 t1, out Vector3 t2);
+            _segment.GenerateMesh(points);
 
-			OneDubinsPath shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+            //PlaceVisual(ref visual1, Color.blue, t1);
+            //PlaceVisual(ref visual2, Color.cyan, t2);
+            //PlaceVisual(ref startHeadingVisual, new Color(0.5f, 1, 0), startPos);
+            //PlaceVisual(ref endHeadingVisual, new Color(1, 0.5f, 0), endPos);
+        }
 
+        #region debug
+        private void PlaceVisual(ref GameObject go, Color color, Vector3 pos)
+        {
+            go = CreateVisual(go, color);
+            go.transform.position = pos;
+            go.transform.SetParent(this.transform);
+        }
 
+        private GameObject CreateVisual(GameObject go, Color color)
+        {
+            if (go != null) return go;
 
-            #region ugly doing same thing twice. not working
+            var visual = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            visual.GetComponent<MeshRenderer>().material.color = color;
+            visual.GetComponent<Collider>().enabled = false;
+            visual.transform.localScale = new Vector3(3f, 5f, 3f);
+            return visual;
+        }
+        #endregion
 
-            //endHeading should be from tangent2 to endPos
-
-            endHeading = Vector3.SignedAngle(Vector3.forward, endPos - shortest.tangent1, Vector3.up);
-
-			paths = dubinsPathGenerator.GetAllDubinsPaths(
-				startPos,
-				startHeading * Mathf.Deg2Rad,
-				endPos,
-				endHeading * Mathf.Deg2Rad
-			);
-
-			shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
-
-            #endregion
-
-
-
-
-			if (shortest != null && shortest.pathCoordinates.Count > 0)
-			{
-				points = shortest.pathCoordinates;
-				_segment.GenerateMesh(points);
-			}
-		}
-
-		public void PutDrawnSegmentToContainer()
-		{
-			_segment.points = points;
-			_railContainer.Add(_segment);
-		}
-	}
+        public void PutDrawnSegmentIntoContainer()
+        {
+            _segment.points = points;
+            _railContainer.Add(_segment);
+        }
+    }
 }
