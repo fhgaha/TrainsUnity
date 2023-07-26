@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Trains
 {
@@ -54,7 +55,10 @@ namespace Trains
             if (pathDataList.Count > 0)
             {
                 //Display all paths with line renderers
-                DebugAllPaths(pathDataList);
+                //DebugAllPaths(pathDataList);
+
+
+                DisplayShortestPath(pathDataList);
             }
 
             //Position the left and right circles
@@ -117,6 +121,7 @@ namespace Trains
             //The coordinates of the path
             List<Vector3> pathCoordinates = pathData.pathCoordinates;
 
+
             //Display the final line
             lineRenderer.SetVertexCount(pathCoordinates.Count);
 
@@ -126,10 +131,39 @@ namespace Trains
             }
         }
 
+        void DisplayShortestPath(List<OneDubinsPath> pathDataList)
+        {
+            DeactivateLineRenderers();
 
-        //Deactivate all line renderers in case a circle is not possible
-        //Then we dont want to show the old circle
-        void DeactivateLineRenderers()
+            var shortest = pathDataList.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+
+            switch (shortest.pathType)
+            {
+                case PathType.LRL:
+                    DisplayPath(shortest, lineLRL);
+                    break;
+                case PathType.RLR:
+                    DisplayPath(shortest, lineRLR);
+                    break;
+                case PathType.LSR:
+                    DisplayPath(shortest, lineLSR);
+                    break;
+                case PathType.RSL:
+                    DisplayPath(shortest, lineRSL);
+                    break;
+                case PathType.RSR:
+                    DisplayPath(shortest, lineRSR);
+                    break;
+                case PathType.LSL:
+                    DisplayPath(shortest, lineLSL);
+                    break;
+            }
+        }
+
+
+            //Deactivate all line renderers in case a circle is not possible
+            //Then we dont want to show the old circle
+            void DeactivateLineRenderers()
         {
             lineLRL.gameObject.SetActive(false);
             lineRLR.gameObject.SetActive(false);

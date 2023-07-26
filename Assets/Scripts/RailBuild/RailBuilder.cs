@@ -48,19 +48,18 @@ namespace Trains
 			startHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
 			endHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
 
-			// Debug.Log("startPos: " + startPos + ", endPos: " + endPos + ", startHeading: " + startHeading + ", endHeading: " + endHeading);
-
-			OneDubinsPath path = dubinsPathGenerator.GetAllDubinsPaths(
+            List<OneDubinsPath> paths = dubinsPathGenerator.GetAllDubinsPaths(
 				startPos,
 				startHeading * Mathf.Deg2Rad,
 				endPos,
 				endHeading * Mathf.Deg2Rad
-			)
-			.FirstOrDefault();
+			);
 
-			if (path != null && path.pathCoordinates.Count > 0)
+            OneDubinsPath shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+
+			if (shortest != null && shortest.pathCoordinates.Count > 0)
 			{
-				points = path.pathCoordinates;
+				points = shortest.pathCoordinates;
 				_segment.GenerateMesh(points);
 			}
 		}
@@ -70,19 +69,40 @@ namespace Trains
 			// startHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
 			endHeading = Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up);
 
-			// Debug.Log("startPos: " + startPos + ", endPos: " + endPos + ", startHeading: " + startHeading + ", endHeading: " + endHeading);
-
-			OneDubinsPath path = dubinsPathGenerator.GetAllDubinsPaths(
+			List<OneDubinsPath> paths = dubinsPathGenerator.GetAllDubinsPaths(
 				startPos,
 				startHeading * Mathf.Deg2Rad,
 				endPos,
 				endHeading * Mathf.Deg2Rad
-			)
-			.FirstOrDefault();
+			);
 
-			if (path != null && path.pathCoordinates.Count > 0)
+			OneDubinsPath shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+
+
+
+            #region ugly doing same thing twice. not working
+
+            //endHeading should be from tangent2 to endPos
+
+            endHeading = Vector3.SignedAngle(Vector3.forward, endPos - shortest.tangent1, Vector3.up);
+
+			paths = dubinsPathGenerator.GetAllDubinsPaths(
+				startPos,
+				startHeading * Mathf.Deg2Rad,
+				endPos,
+				endHeading * Mathf.Deg2Rad
+			);
+
+			shortest = paths.Aggregate((min, next) => next.pathCoordinates.Count < min.pathCoordinates.Count ? next : min);
+
+            #endregion
+
+
+
+
+			if (shortest != null && shortest.pathCoordinates.Count > 0)
 			{
-				points = path.pathCoordinates;
+				points = shortest.pathCoordinates;
 				_segment.GenerateMesh(points);
 			}
 		}

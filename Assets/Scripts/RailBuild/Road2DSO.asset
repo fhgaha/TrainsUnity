@@ -13,28 +13,28 @@ MonoBehaviour:
   m_Name: Road2DSO
   m_EditorClassIdentifier: 
   vertices:
-  - point: {x: 3, y: 0}
+  - point: {x: 0.90000004, y: 0}
     normal: {x: 0, y: 1}
     u: 0.1
-  - point: {x: 3, y: 0}
+  - point: {x: 0.90000004, y: 0}
     normal: {x: 0.70710677, y: 0.70710677}
     u: 0.1
-  - point: {x: 5, y: -2}
+  - point: {x: 1.5, y: -0.6}
     normal: {x: 0.70710677, y: 0.70710677}
     u: 0
-  - point: {x: 5, y: -2}
+  - point: {x: 1.5, y: -0.6}
     normal: {x: 0, y: -1}
     u: 1
-  - point: {x: -5, y: -2}
+  - point: {x: -1.5, y: -0.6}
     normal: {x: 0, y: -1}
     u: 0.6
-  - point: {x: -5, y: -2}
+  - point: {x: -1.5, y: -0.6}
     normal: {x: -0.70710677, y: 0.70710677}
     u: 0.6
-  - point: {x: -3, y: 0}
+  - point: {x: -0.90000004, y: 0}
     normal: {x: -0.70710677, y: 0.70710677}
     u: 0.5
-  - point: {x: -3, y: 0}
+  - point: {x: -0.90000004, y: 0}
     normal: {x: 0, y: 1}
     u: 0.5
   lineIndices: 0700000000000000010000000200000003000000040000000500000006000000
@@ -89,28 +89,28 @@ MonoBehaviour:
     u: 0.403
   testIndexSet: 0f000000000000000100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e000000
   trapezoidVertexSet:
-  - point: {x: 3, y: 0}
+  - point: {x: 0.90000004, y: 0}
     normal: {x: 0, y: 1}
     u: 0.1
-  - point: {x: 3, y: 0}
+  - point: {x: 0.90000004, y: 0}
     normal: {x: 0.70710677, y: 0.70710677}
     u: 0.1
-  - point: {x: 5, y: -2}
+  - point: {x: 1.5, y: -0.6}
     normal: {x: 0.70710677, y: 0.70710677}
     u: 0
-  - point: {x: 5, y: -2}
+  - point: {x: 1.5, y: -0.6}
     normal: {x: 0, y: -1}
     u: 1
-  - point: {x: -5, y: -2}
+  - point: {x: -1.5, y: -0.6}
     normal: {x: 0, y: -1}
     u: 0.6
-  - point: {x: -5, y: -2}
+  - point: {x: -1.5, y: -0.6}
     normal: {x: -0.70710677, y: 0.70710677}
     u: 0.6
-  - point: {x: -3, y: 0}
+  - point: {x: -0.90000004, y: 0}
     normal: {x: -0.70710677, y: 0.70710677}
     u: 0.5
-  - point: {x: -3, y: 0}
+  - point: {x: -0.90000004, y: 0}
     normal: {x: 0, y: 1}
     u: 0.5
   trapezoidIndexSet: 0700000000000000010000000200000003000000040000000500000006000000

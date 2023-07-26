@@ -83,17 +83,16 @@ namespace Trains
 			//RSR and LSL is only working if the circles don't have the same position
 
 			//RSR
-			if (startRightCircle.x != goalRightCircle.x && startRightCircle.z != goalRightCircle.z)
+			if (!(Mathf.Approximately(startRightCircle.x, goalRightCircle.x) && Mathf.Approximately(startRightCircle.z, goalRightCircle.z)))
 			{
 				Get_RSR_Length();
 			}
 
 			//LSL
-			if (startLeftCircle.x != goalLeftCircle.x && startLeftCircle.z != goalLeftCircle.z)
+			if (!(Mathf.Approximately(startLeftCircle.x, goalLeftCircle.x) && !Mathf.Approximately(startLeftCircle.z, goalLeftCircle.z)))
 			{
 				Get_LSL_Length();
-			}
-
+			} 
 
 			//RSL and LSR is only working of the circles don't intersect
 			float comparisonSqr = DubinsMath.turningRadius * 2f * DubinsMath.turningRadius * 2f;
@@ -128,67 +127,40 @@ namespace Trains
 		}
 
 
-		//RSR
-		// void Get_RSR_Length()
-		// {
-		//     //Find both tangent positons
-		//     Vector3 startTangent = Vector3.zero;
-		//     Vector3 goalTangent = Vector3.zero;
+        //RSR
+        void Get_RSR_Length()
+        {
+            //Find both tangent positons
+            Vector3 startTangent = Vector3.zero;
+            Vector3 goalTangent = Vector3.zero;
 
-		//     DubinsMath.LSLorRSR(startRightCircle, goalRightCircle, false, out startTangent, out goalTangent);
+            DubinsMath.LSLorRSR(startRightCircle, goalRightCircle, false, out startTangent, out goalTangent);
 
-		//     //Calculate lengths
-		//     float length1 = DubinsMath.GetArcLength(startRightCircle, startPos, startTangent, false);
+            //Calculate lengths
+            float length1 = DubinsMath.GetArcLength(startRightCircle, startPos, startTangent, false);
 
-		//     float length2 = (startTangent - goalTangent).magnitude;
+            float length2 = (startTangent - goalTangent).magnitude;
 
-		//     float length3 = DubinsMath.GetArcLength(goalRightCircle, goalTangent, goalPos, false);
+            float length3 = DubinsMath.GetArcLength(goalRightCircle, goalTangent, goalPos, false);
 
-		//     //Save the data
-		//     OneDubinsPath pathData = new OneDubinsPath(length1, length2, length3, startTangent, goalTangent, PathType.RSR);
+			if (OnlySecondSegmentHasLength(length1, length2, length3)) return;
 
-		//     //We also need this data to simplify when generating the final path
-		//     pathData.segment2Turning = false;
+            //Save the data
+            OneDubinsPath pathData = new OneDubinsPath(length1, length2, length3, startTangent, goalTangent, PathType.RSR);
 
-		//     //RSR
-		//     pathData.SetIfTurningRight(true, false, true);
+            //We also need this data to simplify when generating the final path
+            pathData.segment2Turning = false;
 
-		//     //Add the path to the collection of all paths
-		//     pathDataList.Add(pathData);
-		// }
+            //RSR
+            pathData.SetIfTurningRight(true, false, true);
 
-
-		void Get_RSR_Length()
-		{
-			//Find both tangent positons
-			Vector3 startTangent = Vector3.zero;
-			Vector3 goalTangent = Vector3.zero;
-
-			DubinsMath.LSLorRSR(startRightCircle, goalRightCircle, false, out startTangent, out goalTangent);
-
-			//Calculate lengths
-			float length1 = DubinsMath.GetArcLength(startRightCircle, startPos, startTangent, false);
-
-			float length2 = (startTangent - goalTangent).magnitude;
-
-			//Save the data
-			OneDubinsPath pathData = new OneDubinsPath(length1, length2, 0f, startTangent, goalPos - startTangent, PathType.RSR);
-
-            Debug.Log("startTangent: " + startTangent + ", goalPos - startTangent: " + (goalPos - startTangent));
-
-			//We also need this data to simplify when generating the final path
-			pathData.segment2Turning = false;
-
-			//RSR
-			pathData.SetIfTurningRight(true, false, true);
-
-			//Add the path to the collection of all paths
-			pathDataList.Add(pathData);
-		}
+            //Add the path to the collection of all paths
+            pathDataList.Add(pathData);
+        }
 
 
-		//LSL
-		void Get_LSL_Length()
+        //LSL
+        void Get_LSL_Length()
 		{
 			//Find both tangent positions
 			Vector3 startTangent = Vector3.zero;
@@ -203,6 +175,8 @@ namespace Trains
 
 			float length3 = DubinsMath.GetArcLength(goalLeftCircle, goalTangent, goalPos, true);
 
+			if (OnlySecondSegmentHasLength(length1, length2, length3)) return;
+
 			//Save the data
 			OneDubinsPath pathData = new OneDubinsPath(length1, length2, length3, startTangent, goalTangent, PathType.LSL);
 
@@ -216,6 +190,8 @@ namespace Trains
 			pathDataList.Add(pathData);
 		}
 
+		private bool OnlySecondSegmentHasLength(float length1, float length2, float length3)
+			=> Mathf.Approximately(length1, 0f) && !Mathf.Approximately(length2, 0f) && Mathf.Approximately(length3, 0f);
 
 		//RSL
 		void Get_RSL_Length()
