@@ -13,36 +13,37 @@ namespace Trains
         public Vector3 EndPos { get; set; }
         public float startHeading, endHeading;
 
-        [SerializeField] private Camera _camera;
-        [SerializeField] private string _stateName;
-        [SerializeField] private LineRenderer _lineRenderer;
-        [SerializeField] private Mesh2D _road2DSO;
-        [SerializeField] private RailContainer _railContainer;
-        [SerializeField] private RoadSegment _segment;
-        private RailBuilderState _state;
+        [SerializeField] private Camera camera;
+        [SerializeField] private string stateName;
+        [SerializeField] private LineRenderer lineRenderer;
+        [SerializeField] private Mesh2D road2DSO;
+        [SerializeField] private RailContainer railContainer;
+        [SerializeField] private RoadSegment segment;
+        private RailBuilderState state;
         private DubinsGeneratePaths dubinsPathGenerator = new();
 
         private float driveDist = 1f;
 
         private void OnEnable()
         {
-            _state = RailBuilderState.Init(this);
+            state = RailBuilderState.Init(this);
         }
 
         private void OnDisable()
         {
+            state = null;
         }
 
         private void Update()
         {
-            _state = _state.HandleInput(_camera);
-            _stateName = _state.GetType().Name;
+            state = state.HandleInput(camera);
+            stateName = state.GetType().Name;
 
             if (HasPoints)
             {
                 //draw line
-                _lineRenderer.positionCount = points.Count;
-                _lineRenderer.SetPositions(points.ToArray());
+                lineRenderer.positionCount = points.Count;
+                lineRenderer.SetPositions(points.ToArray());
             }
         }
 
@@ -56,7 +57,7 @@ namespace Trains
             if (pts.Count > 0)
             {
                 points = pts;
-                _segment.GenerateMesh(points);
+                segment.GenerateMesh(points);
             }
         }
 
@@ -66,7 +67,7 @@ namespace Trains
         public void CalculateCSPoints(Vector3 startPos, Vector3 endPos)
         {
             endHeading = MyMath.CalculateCSPoints(points, startPos, startHeading, endPos, driveDist, out Vector3 t1, out Vector3 t2);
-            _segment.GenerateMesh(points);
+            segment.GenerateMesh(points);
 
             //PlaceVisual(ref visual1, Color.blue, t1);
             //PlaceVisual(ref visual2, Color.cyan, t2);
@@ -96,8 +97,8 @@ namespace Trains
 
         public void PutDrawnSegmentIntoContainer()
         {
-            _segment.points = points;
-            _railContainer.Add(_segment);
+            segment.points = points;
+            railContainer.Add(segment);
         }
     }
 }

@@ -7,11 +7,12 @@ namespace Trains
 {
 	public class RailBuilderState
 	{
-		public virtual RailBuilderState HandleInput(Camera camera) { return this; }
 		public static SelectingStart selectingStart;
 		public static DrawingInitialSegment drawingInitialSegment;
 		public static DrawingNoninitialSegment drawingNoninitialSegment;
 		protected static RailBuilder rb;
+		
+		public virtual RailBuilderState HandleInput(Camera camera) { return this; }
 
 		public static RailBuilderState Init(RailBuilder rb)
 		{
