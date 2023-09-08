@@ -15,7 +15,7 @@ namespace Trains
 
         private void Update()
         {
-            var points = rb.points;
+            var points = rb.Points;
             if (points == null || points.Count < 2) return;
 
             var dirFromStart = (points[0] - points[1]).normalized;

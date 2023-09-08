@@ -43,10 +43,10 @@ namespace Trains
             //Heading is in radians
             float startHeading = startCar.eulerAngles.y * Mathf.Deg2Rad;
             float goalHeading = goalCar.eulerAngles.y * Mathf.Deg2Rad;
-            
+
             //Get all valid Dubins paths
             List<OneDubinsPath> pathDataList = dubinsPathGenerator.GetAllDubinsPaths(
-                startPos, 
+                startPos,
                 startHeading,
                 goalPos,
                 goalHeading);
@@ -55,10 +55,9 @@ namespace Trains
             if (pathDataList.Count > 0)
             {
                 //Display all paths with line renderers
-                //DebugAllPaths(pathDataList);
+                DebugAllPaths(pathDataList);
 
-
-                DisplayShortestPath(pathDataList);
+                //DisplayShortestPath(pathDataList);
             }
 
             //Position the left and right circles
@@ -161,9 +160,9 @@ namespace Trains
         }
 
 
-            //Deactivate all line renderers in case a circle is not possible
-            //Then we dont want to show the old circle
-            void DeactivateLineRenderers()
+        //Deactivate all line renderers in case a circle is not possible
+        //Then we dont want to show the old circle
+        void DeactivateLineRenderers()
         {
             lineLRL.gameObject.SetActive(false);
             lineRLR.gameObject.SetActive(false);

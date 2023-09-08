@@ -18,20 +18,26 @@ namespace Trains
         Vector3 startPos;
         Vector3 goalPos;
         //Heading is in radians
-        float startHeading;
-        float goalHeading;
+        float startHeadingRad;
+        float goalHeadingRad;
 
         //Where we store all path data so we can sort and find the shortest path
         List<OneDubinsPath> pathDataList = new List<OneDubinsPath>();
 
+        public List<OneDubinsPath> GetAllDubinsPaths_UseDegrees(Vector3 startPos, float startHeadingDeg, Vector3 goalPos, float goalHeadingDeg)
+        {
+            //if (startHeadingDeg < 0) startHeadingDeg += 360;
+            //if (goalHeadingDeg < 0) goalHeadingDeg += 360;
+            return GetAllDubinsPaths(startPos, startHeadingDeg * Mathf.Deg2Rad, goalPos, goalHeadingDeg * Mathf.Deg2Rad);
+        }
 
         //Get all valid Dubins paths sorted from shortest to longest
-        public List<OneDubinsPath> GetAllDubinsPaths(Vector3 startPos, float startHeading, Vector3 goalPos, float goalHeading)
+        public List<OneDubinsPath> GetAllDubinsPaths(Vector3 startPos, float startHeadingRad, Vector3 goalPos, float goalHeadingRad)
         {
             this.startPos = startPos;
             this.goalPos = goalPos;
-            this.startHeading = startHeading;
-            this.goalHeading = goalHeading;
+            this.startHeadingRad = startHeadingRad;
+            this.goalHeadingRad = goalHeadingRad;
 
             //Reset the list with all Dubins paths
             pathDataList.Clear();
@@ -63,15 +69,15 @@ namespace Trains
         void PositionLeftRightCircles()
         {
             //Goal pos
-            goalRightCircle = DubinsMath.GetRightCircleCenterPos(goalPos, goalHeading);
+            goalRightCircle = DubinsMath.GetRightCircleCenterPos(goalPos, goalHeadingRad);
 
-            goalLeftCircle = DubinsMath.GetLeftCircleCenterPos(goalPos, goalHeading);
+            goalLeftCircle = DubinsMath.GetLeftCircleCenterPos(goalPos, goalHeadingRad);
 
 
             //Start pos
-            startRightCircle = DubinsMath.GetRightCircleCenterPos(startPos, startHeading);
+            startRightCircle = DubinsMath.GetRightCircleCenterPos(startPos, startHeadingRad);
 
-            startLeftCircle = DubinsMath.GetLeftCircleCenterPos(startPos, startHeading);
+            startLeftCircle = DubinsMath.GetLeftCircleCenterPos(startPos, startHeadingRad);
         }
 
 
@@ -333,7 +339,8 @@ namespace Trains
         {
             for (int i = 0; i < pathDataList.Count; i++)
             {
-                GetTotalPath(pathDataList[i]);
+                MyGetTotalPath(pathDataList[i]);
+                //GetTotalPath(pathDataList[i]);
             }
         }
 
@@ -347,7 +354,7 @@ namespace Trains
             //Start position of the car
             Vector3 currentPos = startPos;
             //Start heading of the car
-            float theta = startHeading;
+            float theta = startHeadingRad;
 
             //We always have to add the first position manually = the position of the car
             finalPath.Add(currentPos);
@@ -392,6 +399,68 @@ namespace Trains
             finalPath.Add(new Vector3(goalPos.x, currentPos.y, goalPos.z));
 
             //Save the final path in the path data
+            pathData.pathCoordinates = finalPath;
+        }
+
+
+        void MyGetTotalPath(OneDubinsPath pathData)
+        {
+            List<Vector3> finalPath = new();
+            float thetaRad = startHeadingRad;
+
+            //first
+            List<Vector3> first = MyMath.CalculateArcPoints(
+                startPos:       startPos,
+                headingDeg:     thetaRad * Mathf.Rad2Deg,
+                arcLength:      pathData.length1,
+                radius:         DubinsMath.turningRadius,
+                isTurningRight: pathData.segment1TurningRight,
+                driveDistance:  DubinsMath.driveDistance);
+
+            Vector3 circlePos = pathData.segment1TurningRight
+                ? DubinsMath.GetRightCircleCenterPos(startPos, startHeadingRad)
+                : DubinsMath.GetLeftCircleCenterPos(startPos, startHeadingRad);
+
+            thetaRad += Vector3.SignedAngle(startPos - circlePos, pathData.tangent1 - circlePos, Vector3.up) * Mathf.Deg2Rad;
+
+            //second
+            List<Vector3> second = new();
+            if (pathData.segment2Turning)
+            {
+                second = MyMath.CalculateArcPoints(
+                    startPos:       pathData.tangent1,
+                    headingDeg:     thetaRad * Mathf.Rad2Deg,
+                    arcLength:      pathData.length2,
+                    radius:         DubinsMath.turningRadius,
+                    isTurningRight: pathData.segment2TurningRight,
+                    driveDistance:  DubinsMath.driveDistance);
+
+                circlePos = pathData.segment2TurningRight
+                    ? DubinsMath.GetRightCircleCenterPos(pathData.tangent1, thetaRad)
+                    : DubinsMath.GetLeftCircleCenterPos(pathData.tangent1, thetaRad);
+
+                thetaRad += Vector3.SignedAngle(pathData.tangent1 - circlePos, pathData.tangent2 - circlePos, Vector3.up) * Mathf.Deg2Rad;
+            }
+            else
+            {
+                MyMath.CalculateStraightLine(second, pathData.tangent1, pathData.tangent2, DubinsMath.driveDistance);
+            }
+
+
+            //third
+            List<Vector3> third = MyMath.CalculateArcPoints(
+                startPos:       pathData.tangent2,
+                headingDeg:     thetaRad * Mathf.Rad2Deg,
+                arcLength:      pathData.length3,
+                radius:         DubinsMath.turningRadius,
+                isTurningRight: pathData.segment3TurningRight,
+                driveDistance:  DubinsMath.driveDistance);
+
+
+            finalPath.AddRange(first);
+            finalPath.AddRange(second);
+            finalPath.AddRange(third);
+
             pathData.pathCoordinates = finalPath;
         }
     }

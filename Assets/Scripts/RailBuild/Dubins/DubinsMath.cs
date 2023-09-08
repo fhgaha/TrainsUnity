@@ -14,10 +14,12 @@ namespace Trains
         //How far we are driving each update, the accuracy will improve if we lower the driveDistance
         //But not too low because rounding errors will appear
         //Is used to generate the coordinates of a path
-        public static float driveDistance = 0.2f;
+        //public static float driveDistance = 0.2f;
         //The radius the car can turn 360 degrees with
-        public static float turningRadius = 11f;
+        //public static float turningRadius = 11f;
 
+        public static float driveDistance = 1f;
+        public static float turningRadius = 11f;
 
         //Calculate center positions of the Right circle
         public static Vector3 GetRightCircleCenterPos(Vector3 carPos, float heading)
@@ -33,13 +35,13 @@ namespace Trains
 
 
         //Calculate center positions of the Left circle
-        public static Vector3 GetLeftCircleCenterPos(Vector3 carPos, float heading)
+        public static Vector3 GetLeftCircleCenterPos(Vector3 carPos, float headingRad)
         {
             Vector3 rightCirclePos = Vector3.zero;
 
             //The circle is 90 degrees (pi/2 radians) to the left of the car's heading
-            rightCirclePos.x = carPos.x + turningRadius * Mathf.Sin(heading - (Mathf.PI / 2f));
-            rightCirclePos.z = carPos.z + turningRadius * Mathf.Cos(heading - (Mathf.PI / 2f));
+            rightCirclePos.x = carPos.x + turningRadius * Mathf.Sin(headingRad - (Mathf.PI / 2f));
+            rightCirclePos.z = carPos.z + turningRadius * Mathf.Cos(headingRad - (Mathf.PI / 2f));
 
             return rightCirclePos;
         }
@@ -237,18 +239,6 @@ namespace Trains
 
                 //Add the new coordinate to the path
                 finalPath.Add(currentPos);
-            }
-        }
-
-        private struct MyStruct
-        {
-            public Vector3 p;
-            public float angle;
-            public float length;
-
-            public override string ToString()
-            {
-                return string.Format("p: {0}, angle: {1}, len: {2}", p, angle, length);
             }
         }
     }
