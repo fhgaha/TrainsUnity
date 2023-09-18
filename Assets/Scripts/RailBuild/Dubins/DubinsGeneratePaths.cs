@@ -410,12 +410,12 @@ namespace Trains
 
             //first
             List<Vector3> first = MyMath.CalculateArcPoints(
-                startPos:       startPos,
-                headingDeg:     thetaRad * Mathf.Rad2Deg,
-                arcLength:      pathData.length1,
-                radius:         DubinsMath.turningRadius,
+                startPos: startPos,
+                headingDeg: thetaRad * Mathf.Rad2Deg,
+                arcLength: pathData.length1,
+                radius: DubinsMath.turningRadius,
                 isTurningRight: pathData.segment1TurningRight,
-                driveDistance:  DubinsMath.driveDistance);
+                driveDistance: DubinsMath.driveDistance);
 
             Vector3 circlePos = pathData.segment1TurningRight
                 ? DubinsMath.GetRightCircleCenterPos(startPos, startHeadingRad)
@@ -428,12 +428,12 @@ namespace Trains
             if (pathData.segment2Turning)
             {
                 second = MyMath.CalculateArcPoints(
-                    startPos:       pathData.tangent1,
-                    headingDeg:     thetaRad * Mathf.Rad2Deg,
-                    arcLength:      pathData.length2,
-                    radius:         DubinsMath.turningRadius,
+                    startPos: pathData.tangent1,
+                    headingDeg: thetaRad * Mathf.Rad2Deg,
+                    arcLength: pathData.length2,
+                    radius: DubinsMath.turningRadius,
                     isTurningRight: pathData.segment2TurningRight,
-                    driveDistance:  DubinsMath.driveDistance);
+                    driveDistance: DubinsMath.driveDistance);
 
                 circlePos = pathData.segment2TurningRight
                     ? DubinsMath.GetRightCircleCenterPos(pathData.tangent1, thetaRad)
@@ -444,17 +444,23 @@ namespace Trains
             else
             {
                 MyMath.CalculateStraightLine(second, pathData.tangent1, pathData.tangent2, DubinsMath.driveDistance);
+
+                if (second.Count >= 2)
+                {
+                    second.RemoveAt(0);
+                    second.RemoveAt(second.Count - 1);
+                }
             }
 
 
             //third
             List<Vector3> third = MyMath.CalculateArcPoints(
-                startPos:       pathData.tangent2,
-                headingDeg:     thetaRad * Mathf.Rad2Deg,
-                arcLength:      pathData.length3,
-                radius:         DubinsMath.turningRadius,
+                startPos: pathData.tangent2,
+                headingDeg: thetaRad * Mathf.Rad2Deg,
+                arcLength: pathData.length3,
+                radius: DubinsMath.turningRadius,
                 isTurningRight: pathData.segment3TurningRight,
-                driveDistance:  DubinsMath.driveDistance);
+                driveDistance: DubinsMath.driveDistance);
 
 
             finalPath.AddRange(first);

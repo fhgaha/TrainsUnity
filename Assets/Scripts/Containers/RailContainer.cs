@@ -8,12 +8,12 @@ namespace Trains
     {
         [SerializeField] private Dictionary<int, RoadSegment> segments = new();
 
-        public void Add(RoadSegment segm)
+        public void Add(RoadSegment original)
         {
-            RoadSegment copy = Instantiate(segm, transform);
-            copy.CopyPoints(segm);
-            copy.SetMesh(segm.GetMesh());
-            copy.SetCollider(segm.GetMesh());
+            RoadSegment copy = Instantiate(original, transform);
+            copy.CopyPoints(original);
+            copy.SetMesh(original.GetMesh());
+            copy.SetCollider(original.GetMesh());
             copy.name = $"Road Segment {copy.GetInstanceID()}";
 
             segments.Add(copy.GetInstanceID(), copy);

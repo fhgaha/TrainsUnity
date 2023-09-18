@@ -36,14 +36,22 @@ namespace Trains
             if (mousePos == hit.point) return;
             //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
 
-            if (rb.DetectedRoad == null)
+            if (rb.DetectedStation != null)
             {
-                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hit.point);
+                //rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.tangent1);
+                rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.tangent1);
+                rb.CalculateDubinsPoints();
             }
             else
+
+            if (rb.DetectedRoad != null)
             {
                 rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
+            }
+            else
+            {
+                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hit.point);
             }
             mousePos = hit.point;
         }

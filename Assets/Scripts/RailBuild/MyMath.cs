@@ -21,14 +21,13 @@ namespace Trains
             Vector3 cur = startPos;
             pts.Add(startPos);
             //we go one segement more so it overlaps a bit with the next segment, meshes will look better but i doubt trains will move smoothly
-            //for (int i = 0; i < segments; i++)
-            for (int i = 0; i < segments + 1; i++)
-                {
+            for (int i = 0; i < segments; i++)
+            //for (int i = 0; i < segments + 1; i++)
+            {
                 cur += driveDistance * dir;
                 pts.Add(cur);
             }
-            //this (and i < segments in for-loop) for some reason creates point that goes back causing mesh to break
-            //pts.Insert(pts.Count - 1, endPos);  //in case last point is not same as endPos
+            //first and last pts included and only once, no need to inject or add lsat point in the end
             return;
         }
 
@@ -36,7 +35,7 @@ namespace Trains
         public static List<Vector3> CalculateArcPoints(Vector3 startPos, float headingDeg, float arcLength, float radius, bool isTurningRight, float driveDistance)
         {
             float parameter = isTurningRight ? 1 : -1; //which side are we going on arc
-            List<Vector3> pts = new() ;
+            List<Vector3> pts = new();
             var anglePar = isTurningRight ? -PI / 2 : PI / 2;
             float theta = headingDeg * Deg2Rad;
             int segments = FloorToInt(arcLength / driveDistance);
@@ -52,6 +51,7 @@ namespace Trains
                 theta += parameter * driveDistance / radius;
                 pts.Add(currentPos);
             }
+
             return pts;
         }
 
@@ -141,8 +141,9 @@ namespace Trains
             }
 
             List<Vector3> straight = new();
-            CalculateStraightLine(straight, arc[^1], endPos, driveDistance);
-            if (straight.Count > 1) straight.RemoveAt(0);
+            Vector3 first = arc.Count > 0 ? arc[^1] : startPos;
+            CalculateStraightLine(straight, first, endPos, driveDistance);
+            if (arc.Count > 0 && straight.Count > 1) straight.RemoveAt(0);
 
             resultPoints.AddRange(arc);
             resultPoints.AddRange(straight);

@@ -9,6 +9,9 @@ namespace Trains
     [RequireComponent(typeof(MeshRenderer))]
     public class RoadSegment : MonoBehaviour
     {
+        public Vector3 StartGlobal => Points[0] + transform.position;
+        public Vector3 EndGlobal => Points[^1] + transform.position;
+        
         [field: SerializeField] public List<Vector3> Points { get; set; }
         public RoadSegmentData data;
         [SerializeField] private Mesh2D shape2D;
@@ -43,16 +46,11 @@ namespace Trains
 
         public void GenerateMeshSafely(List<Vector3> pts)
         {
-            if (pts.Count <= 0) return;
-
             //https://forum.unity.com/threads/when-assigning-mesh-collider-errors-about-doesnt-have-read-write-enabled.1248541/
-
-            meshCollider.sharedMaterial = null;
-            //meshCollider.enabled = false;
+            
+            if (pts.Count <= 0) return;
+            
             GenerateMesh(pts);
-            //UpdateCollider();
-            //meshCollider.enabled = true;
-
             Points = pts;
         }
 

@@ -11,8 +11,13 @@ namespace Trains
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
         public RoadSegment DetectedRoad { get; set; }
+        public Station DetectedStation { get; set; }
         public HeadedPoint start, end;
         public Vector3 tangent1, tangent2;
+        //[field: SerializeField] public Vector3 SnappedStartPos { get; set; }
+        //[field: SerializeField] public Vector3 SnappedStartPos => RailBuilderState.selectingStartState.SnappedStart;
+
+        [SerializeField] private Vector3 snappedStartPos;   //to display in editor
 
         [SerializeField] private Camera cam;
         [SerializeField] private string stateName;  //to display in editor
@@ -21,28 +26,28 @@ namespace Trains
         [SerializeField] private RoadSegment segment;
         private RailBuilderState state;
         private DubinsGeneratePaths dubinsPathGenerator = new();
-        private RoadDetector detector;
+        private Detector detector;
         private float driveDist = 1f;
 
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
         private void Awake()
         {
-            detector = GetComponentInChildren<RoadDetector>();
+            detector = GetComponentInChildren<Detector>();
             detector.Configure(this, segment, cam);
         }
 
         private void Start()
         {
-            detector.OnDetected += RoadDetector_onDetected;
+            detector.OnRoadDetected += RoadDetector_onDetected;
+            detector.OnStationDetected += Detector_OnStationDetected;
 
             gameObject.SetActive(false);
         }
 
-        private void RoadDetector_onDetected(object sender, RoadDetectorEventArgs e)
-        {
-            DetectedRoad = e.Other;
-        }
+        private void Detector_OnStationDetected(object sender, StationDetectorEventArgs e) => DetectedStation = e.Station;
+
+        private void RoadDetector_onDetected(object sender, RoadDetectorEventArgs e) => DetectedRoad = e.Other;
 
         private void OnEnable()
         {
@@ -66,6 +71,9 @@ namespace Trains
                 lineRenderer.positionCount = Points.Count;
                 lineRenderer.SetPositions(Points.ToArray());
             }
+
+            //debug
+            snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;    
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
@@ -112,15 +120,13 @@ namespace Trains
             tangent2 = shortest.tangent2;
             Points = shortest.pathCoordinates;
             segment.GenerateMeshSafely(Points);
-
-            //DebugVisual(ref visual1, Color.blue, tangent1);
-            //DebugVisual(ref visual2, Color.red, tangent2);
-            //DebugVisual(ref visual3, Color.green, start.pos);
-            //DebugVisual(ref visual4, Color.yellow, end.pos);
         }
 
         public void PutDrawnSegmentIntoContainer()
         {
+            Debug.DrawRay(Points[0], 20 * Vector3.up, Color.green, float.PositiveInfinity);
+            Debug.DrawRay(Points[^1], 20 * Vector3.up, Color.red, float.PositiveInfinity);
+
             segment.data = new RoadSegmentData(start, end, tangent1, tangent2);
             segment.Points = Points;
             railContainer.Add(segment);

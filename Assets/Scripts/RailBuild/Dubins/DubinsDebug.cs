@@ -122,7 +122,7 @@ namespace Trains
 
 
             //Display the final line
-            lineRenderer.SetVertexCount(pathCoordinates.Count);
+            lineRenderer.positionCount = pathCoordinates.Count;
 
             for (int i = 0; i < pathCoordinates.Count; i++)
             {

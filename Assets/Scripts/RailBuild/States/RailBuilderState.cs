@@ -63,25 +63,32 @@ namespace Trains
             return new HeadedPoint(closest, heading);
         }
 
-        //TODO: pass closest point instead of mousePos, dont calculate it again here. Tried, Look rotation error occur.
-        public float GetSnappedStartHeading(List<Vector3> pts, Vector3 mousePos, Vector3 dir)
+        public float GetSnappedStartHeading(List<Vector3> pts, Vector3 snapped, Vector3 dir)
         {
-            Vector3 closest = GetClosestPoint(pts, mousePos);
             float heading;
-            int index = pts.IndexOf(closest);
+            int index = pts.IndexOf(snapped);
 
-            if (index == 0)
+            //since detector has some width we need to check not only first or last index but also range of indexes, which will depend on drive distance unfotunatelly
+            bool IsStartEdge = index == 0;
+            bool IsEndEdge = index == pts.Count - 1;
+            if (pts.Count >= 5)
             {
-                heading = Vector3.SignedAngle(Vector3.forward, closest - pts[1], Vector3.up);
+                IsStartEdge = Enumerable.Range(0, 5).Contains(index);
+                IsEndEdge   = Enumerable.Range(pts.Count - 4, pts.Count).Contains(index);
             }
-            else if (index == pts.Count - 1)
+
+            if (IsStartEdge)
             {
-                heading = Vector3.SignedAngle(Vector3.forward, closest - pts[^2], Vector3.up);
+                heading = Vector3.SignedAngle(Vector3.forward, pts[0] - pts[1], Vector3.up);
+            }
+            else if (IsEndEdge)
+            {
+                heading = Vector3.SignedAngle(Vector3.forward, pts[^1] - pts[^2], Vector3.up);
             }
             else
             {
-                Vector3 dir1 = pts[index - 1] - closest;
-                Vector3 dir2 = pts[index + 1] - closest;
+                Vector3 dir1 = pts[index - 1] - snapped;
+                Vector3 dir2 = pts[index + 1] - snapped;
                 float a1 = Vector3.Angle(dir, dir1);
                 float a2 = Vector3.Angle(dir, dir2);
                 Vector3 snappedDir = a1 * a1 <= a2 * a2 ? dir1 : dir2;

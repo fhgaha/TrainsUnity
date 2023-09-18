@@ -7,7 +7,8 @@ namespace Trains
     public class SelectingStart : RailBuilderState
     {
         public Vector3 SnappedStart { get; set; }
-        public RoadSegment SnappedStartRoad { get; set; }
+        public RoadSegment SnappedStartRoad { get; private set; }
+        public List<Vector3> SnappedStartPoints { get; set; } = new();
         public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
 
         //move mouse around, click lmb to start drawing
@@ -17,18 +18,24 @@ namespace Trains
             {
                 if (HitGround(camera, out RaycastHit hit))
                 {
-                    if (rb.DetectedRoad == null)
+                    if (rb.DetectedStation != null)
                     {
-                        rb.start.pos = hit.point;
-                        SnappedStart = Vector3.zero;
-                        SnappedStartRoad = null;
+                        rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point);
+                        SnappedStart = rb.start.pos;
+                        SnappedStartRoad = rb.DetectedStation.segment;
+                        SnappedStartPoints = new List<Vector3> { SnappedStartRoad.StartGlobal, SnappedStartRoad.EndGlobal };
                     }
-                    else
+                    else if (rb.DetectedRoad != null)
                     {
-                        //snap!
                         rb.start.pos = GetClosestPoint(rb.DetectedRoad.Points, hit.point);
                         SnappedStart = rb.start.pos;
                         SnappedStartRoad = rb.DetectedRoad;
+                        SnappedStartPoints = rb.DetectedRoad.Points.Select(p => p).ToList();
+                    }
+                    else
+                    {
+                        rb.start.pos = hit.point;
+                        UnsnapStart();
                     }
                     return drawingInitialSegmentState;
                 }
@@ -41,6 +48,7 @@ namespace Trains
         {
             SnappedStart = Vector3.zero;
             SnappedStartRoad = null;
+            SnappedStartPoints.Clear();
         }
     }
 }
