@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -17,15 +18,105 @@ namespace Trains
 
             HandleMouseMovement(camera);
 
-            //on lmb save drawn segment to a rail container
+            // On LMB release, save drawn segment to a rail container
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
                 rb.PutDrawnSegmentIntoContainer();
+
+                //register in route manager
+                if (selectingStartState.IsStartSnapped)
+                {
+                    if (rb.DetectedStation != null)
+                    {
+                        // TODO
+                    }
+                    else if (rb.DetectedRoad != null)
+                    {
+                        HandleSnappedStartSnappedEnd();
+                    }
+                    else
+                    {
+                        HandleSnappedStartUnsnappedEnd();
+                    }
+                }
+                else
+                {
+                    if (rb.DetectedStation != null)
+                    {
+                        // TODO
+                    }
+                    else if (rb.DetectedRoad != null)
+                    {
+                        HandleUnsnappedStartSnappedEnd();
+                    }
+                    else
+                    {
+                        HandleUnsnappedStartUnsnappedEnd();
+                    }
+                }
+
                 rb.start = rb.end;
                 rb.end = HeadedPoint.Empty;
                 selectingStartState.UnsnapStart();
                 return drawingNoninitialSegmentState;
             }
+
+            void HandleSnappedStartSnappedEnd()
+            {
+                RoadSegment startRoad = selectingStartState.SnappedStartRoad;
+                RoadSegment endRoad = rb.DetectedRoad;
+                Vector3 start = rb.Segment.Start;
+                Vector3 end = rb.Segment.End;
+
+                switch (
+                    (start == startRoad.Start || start == startRoad.End,
+                     end == endRoad.Start || end == endRoad.End)
+                )
+                {
+                    case (true, true):
+                        rb.RegisterC(rb.Segment);
+                        break;
+                    case (false, true):
+                        rb.RegisterIT(roadMidConnected: startRoad, roadEndingConnected: endRoad, newRoad: rb.Segment, connection: start);
+                        break;
+                    case (true, false):
+                        rb.RegisterIT(roadMidConnected: endRoad, roadEndingConnected: startRoad, newRoad: rb.Segment, connection: end);
+                        break;
+                    case (false, false):
+                        rb.RegisterH(selectingStartState.SnappedStartRoad, start, rb.DetectedRoad, end, rb.Segment);
+                        break;
+                }
+            }
+
+            void HandleSnappedStartUnsnappedEnd()
+            {
+                RoadSegment snappedRoad = selectingStartState.SnappedStartRoad;
+                Vector3 start = rb.Segment.Start;
+                Vector3 end = rb.Segment.End;
+                if (start == snappedRoad.Start || start == snappedRoad.End)
+                {
+                    rb.RegisterII(end, start);
+                }
+                else
+                {
+                    rb.RegisterT(end, start, snappedRoad);
+                }
+            }
+
+            void HandleUnsnappedStartSnappedEnd()
+            {
+                if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
+                {
+                    rb.RegisterII(rb.Segment.Start, rb.Segment.End);
+                }
+                else
+                {
+                    // Unsnapped start, end snapped to mid
+                    rb.RegisterT(rb.Segment.Start, rb.Segment.End, rb.DetectedRoad);
+                }
+            }
+
+            void HandleUnsnappedStartUnsnappedEnd() => rb.RegisterI(rb.Segment.Start, rb.Segment.End);
 
             //on rmb cancel drawing
             if (Input.GetKeyUp(KeyCode.Mouse1))
@@ -56,14 +147,8 @@ namespace Trains
 
                 if (rb.DetectedStation != null)
                 {
-                    //just make points for station, dont call it here
-                    //rb.start.heading = GetSnappedStartHeading(
-                    //    new() { selectingStartState.SnappedStartRoad.Start, selectingStartState.SnappedStartRoad.End },
-                    //    selectingStartState.SnappedStart,
-                    //    hit.point - selectingStartState.SnappedStart
-                    //);
-
                     rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.start.pos);
+                    //should be dubins
                     rb.CalculateCSPointsReversed();
                 }
                 else if (rb.DetectedRoad != null)

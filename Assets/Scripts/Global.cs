@@ -10,10 +10,23 @@ namespace Trains
 
         public float DriveDistance { get; private set; } = 1f;
 
+        //void Awake()
+        //{
+        //    if (instance == null)
+        //    {
+        //        DontDestroyOnLoad(gameObject);
+        //        instance = this;
+        //    }
+        //    else
+        //        if (instance != this)
+        //        Destroy(gameObject);
+        //}
+
         private void Start()
         {
             if (Instance == null)
             {
+                DontDestroyOnLoad(gameObject);
                 Instance = this;
             }
             else if (Instance == this)
@@ -22,11 +35,6 @@ namespace Trains
                 //Destroy(gameObject);
             }
 
-            // Теперь нам нужно указать, чтобы объект не уничтожался
-            // при переходе на другую сцену игры
-            DontDestroyOnLoad(gameObject);
-
-            // И запускаем собственно инициализатор
             InitializeManager();
         }
 

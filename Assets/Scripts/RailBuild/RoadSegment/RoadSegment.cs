@@ -9,14 +9,46 @@ namespace Trains
     [RequireComponent(typeof(MeshRenderer))]
     public class RoadSegment : MonoBehaviour
     {
-        public Vector3 StartGlobal => Points[0] + transform.position;
-        public Vector3 EndGlobal => Points[^1] + transform.position;
-        
+        public Vector3 Start = Vector3.zero;
+        public Vector3 End = Vector3.zero;
         [field: SerializeField] public List<Vector3> Points { get; set; }
         public RoadSegmentData data;
         [SerializeField] private Mesh2D shape2D;
         private Mesh mesh;
         private MeshCollider meshCollider;
+
+        public void ConfigureFrom(RoadSegment from)
+        {
+            CopyPoints(from);
+            SetMesh(from.GetMesh());
+            SetCollider(from.GetMesh());
+            name = $"Road Segment {GetInstanceID()}";
+            //to.Points = from.Points;  //we do this on first line
+            Start = from.Start;
+            End = from.End;
+        }
+
+        public void ConfigureFrom(List<Vector3> pts)
+        {
+            Points = pts;
+            GenerateMesh(pts);
+            SetCollider(GetComponent<MeshFilter>().mesh);
+            name = $"Road Segment {GetInstanceID()}";
+            Start = pts[0];
+            End = pts[^1];
+        }
+
+        public static float GetApproxLength(List<Vector3> points)
+        {
+            return points.Count * Global.Instance.DriveDistance;
+
+            //float dist = 0f;
+            //for (int i = 0; i < points.Count - 1; i++)
+            //{
+            //	dist += Vector3.Distance(points[i], points[i + 1]);
+            //}
+            //return dist;
+        }
 
         private void Awake()
         {
@@ -47,17 +79,27 @@ namespace Trains
         public void GenerateMeshSafely(List<Vector3> pts)
         {
             //https://forum.unity.com/threads/when-assigning-mesh-collider-errors-about-doesnt-have-read-write-enabled.1248541/
-            
+
             if (pts.Count <= 0) return;
-            
+
             GenerateMesh(pts);
             Points = pts;
         }
 
-        public void GenerateMesh(List<Vector3> pts)
+        public void GenerateMesh(List<Vector3> pts) 
         {
             mesh.Clear();
 
+            (List<Vector3> verts, List<Vector3> normals, List<Vector2> uvs, List<int> triIndeces) = GenerateMeshValues(pts);
+
+            mesh.SetVertices(verts);
+            mesh.SetNormals(normals);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triIndeces, 0);
+        }
+
+        public (List<Vector3> verts, List<Vector3> normals, List<Vector2> uvs, List<int> triIndeces) GenerateMeshValues(List<Vector3> pts)
+        {
             //oriented points from rail builder points
             List<OrientedPoint> ops = new();
             for (int i = 0; i < pts.Count - 1; i++)
@@ -65,8 +107,15 @@ namespace Trains
                 ops.Add(new OrientedPoint(pos: pts[i], forward: pts[i + 1] - pts[i]));
             }
 
-            //this fixes gaps but makes meshes to overlap
-            if (pts.Count >= 2) ops.Add(new OrientedPoint(pos: pts[^1], forward: pts[^1] - pts[^2]));
+            if (pts.Count >= 2)
+            {
+                Vector3 dir = pts[^1] - pts[^2];
+                //!myFix: last point was ignored lets try to add it some value
+                ops.Add(new OrientedPoint(pos: pts[^1], forward: dir));
+
+                //!myFix: draw one end of mesh one DriveDistance longer. This causes meshes to overlap, but not gaps anymore
+                ops.Add(new OrientedPoint(pos: ops[^1].pos + Global.Instance.DriveDistance * dir, forward: dir));
+            }
 
             //verts, normals and uvs
             float uSpan = shape2D.CalcUspan();
@@ -111,23 +160,13 @@ namespace Trains
                 }
             }
 
-            mesh.SetVertices(verts);
-            mesh.SetNormals(normals);
-            mesh.SetUVs(0, uvs);
-            mesh.SetTriangles(triIndeces, 0);
+            //last set of triangles is ignored?
+
+            return (verts, normals, uvs, triIndeces);
         }
 
-        private float GetApproxLength(List<Vector3> points)
-        {
-            return points.Count * 0.2f;
-
-            //float dist = 0f;
-            //for (int i = 0; i < points.Count - 1; i++)
-            //{
-            //	dist += Vector3.Distance(points[i], points[i + 1]);
-            //}
-            //return dist;
-        }
+        public float GetApproxLength() => GetApproxLength(Points);
+        
 
         //private void OnCollisionEnter(Collision collision) => Debug.Log("OnCollisionEnter from RoadSegment");
 

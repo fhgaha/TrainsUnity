@@ -16,7 +16,12 @@ namespace Trains
             Destroy(copy.GetComponent<Rotator>());
             copy.name = $"Station {copy.GetInstanceID()}";
             copy.SetUpRoadSegment();
-            copy.segment.Points = station.segment.Points.Select(p => station.transform.rotation * p).ToList();
+
+            //copy.segment.Points = station.segment.Points.Select(p => station.transform.rotation * p).ToList();
+
+            copy.segment.Points = station.segment.Points.Select(p => station.transform.rotation * p + station.segment.transform.position).ToList();
+            copy.segment.Start = copy.segment.Points[0];
+            copy.segment.End = copy.segment.Points[^1];
 
             stations.Add(copy.GetInstanceID(), copy);
             

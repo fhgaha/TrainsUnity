@@ -27,8 +27,25 @@ namespace Trains
                 cur += driveDistance * dir;
                 pts.Add(cur);
             }
-            //first and last pts included and only once, no need to inject or add lsat point in the end
+            //first and last pts included and only once, no need to inject or add lsat point in the end     //false for simplest straight segment
+
+            AddEndPos(pts, startPos, endPos);
+
             return;
+        }
+
+        public static void AddEndPos(List<Vector3> pts, Vector3 startPos, Vector3 endPos)
+        {
+            if (pts.Count < 2) return;
+            if (startPos == endPos) return;
+
+            //i want the last pt to be the same as endPos
+            //if last and prelast pts are too close remove prelast pt
+            pts.Add(endPos);
+            if ((pts[^1] - pts[^2]).magnitude < Global.Instance.DriveDistance)
+            {
+                pts.RemoveAt(pts.Count - 2);
+            }
         }
 
         //returns at least one point which is startPos

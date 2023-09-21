@@ -18,5 +18,7 @@ namespace Trains
         }
 
         public Vector3 ToDir() => new Vector3 { x = Mathf.Sin(heading * Mathf.Deg2Rad), z = Mathf.Cos(heading * Mathf.Deg2Rad) }.normalized;
+
+        public override string ToString() => $"HeadedPoint. Pos: {pos}, heading: {heading}";
     }
 }

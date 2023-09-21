@@ -10,20 +10,18 @@ namespace Trains
     {
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
-        public RoadSegment DetectedRoad { get; set; }
+        public RoadSegment DetectedRoad;
         public Station DetectedStation { get; set; }
         public HeadedPoint start, end;
         public Vector3 tangent1, tangent2;
-        //[field: SerializeField] public Vector3 SnappedStartPos { get; set; }
-        //[field: SerializeField] public Vector3 SnappedStartPos => RailBuilderState.selectingStartState.SnappedStart;
 
         [SerializeField] private Vector3 snappedStartPos;   //to display in editor
-
         [SerializeField] private Camera cam;
-        [SerializeField] private string stateName;  //to display in editor
+        [SerializeField] private string stateName;          //to display in editor
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private RailContainer railContainer;
         [SerializeField] private RoadSegment segment;
+        public RoadSegment Segment => segment;
         private RailBuilderState state;
         private DubinsGeneratePaths dubinsPathGenerator = new();
         private Detector detector;
@@ -39,15 +37,23 @@ namespace Trains
 
         private void Start()
         {
-            detector.OnRoadDetected += RoadDetector_onDetected;
-            detector.OnStationDetected += Detector_OnStationDetected;
+            //dont like this. having to get last item of a dictionary every time    //wrong, doesnt work
+            //detector.OnRoadDetected += (sender, e) => { if (railContainer.LastAdded != e.Other) DetectedRoad = e.Other; };
+
+            detector.OnRoadDetected += (sender, e) =>
+            {
+                //we can check if road this.segment.Start is snapped on e.Other ending. if so, do not detect it.
+
+                //if (startIsSnappedOnEndingOf(e.Other)) return;
+
+                DetectedRoad = e.Other;
+
+                //bool startIsSnappedOnEndingOf(RoadSegment other) => other != null && (other.Start == segment.Start || other.End == segment.End);
+            };
+            detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
             gameObject.SetActive(false);
         }
-
-        private void Detector_OnStationDetected(object sender, StationDetectorEventArgs e) => DetectedStation = e.Station;
-
-        private void RoadDetector_onDetected(object sender, RoadDetectorEventArgs e) => DetectedRoad = e.Other;
 
         private void OnEnable()
         {
@@ -73,7 +79,7 @@ namespace Trains
             }
 
             //debug
-            snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;    
+            snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
@@ -82,7 +88,21 @@ namespace Trains
             end = new HeadedPoint(endPos, Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up));
 
             MyMath.CalculateStraightLine(Points, startPos, endPos, driveDist);
+            //UpdateSegmentEndings(Points);
             segment.GenerateMeshSafely(Points);
+        }
+
+        private void UpdatePoints(List<Vector3> pts)
+        {
+            Points = pts;
+            //UpdateSegmentEndings(pts);
+        }
+
+        public void UpdateSegmentEndings() => UpdateSegmentEndings(Points);
+        private void UpdateSegmentEndings(List<Vector3> pts)
+        {
+            segment.Start = pts[0];
+            segment.End = pts[^1];
         }
 
         public void CalculateCSPoints() => CalculateCSPoints(start.pos, start.heading, end.pos);
@@ -90,6 +110,7 @@ namespace Trains
         public void CalculateCSPoints(Vector3 startPos, float startHeading, Vector3 endPos)
         {
             float endHeading = MyMath.CalculateCSPoints(Points, startPos, startHeading, endPos, driveDist, out tangent1, out _, out _);
+            //UpdateSegmentEndings(Points);
             tangent2 = Vector3.positiveInfinity;
             end = new HeadedPoint(endPos, endHeading);
             segment.GenerateMeshSafely(Points);
@@ -104,7 +125,7 @@ namespace Trains
             float reversedStartHeading = MyMath.CalculateCSPoints(ptsReversed, endPos, reversedEndHeading, startPos, driveDist, out tangent1, out _, out _);
             tangent2 = Vector3.positiveInfinity;
             ptsReversed.Reverse();
-            Points = ptsReversed;
+            UpdatePoints(ptsReversed);
             float newStartHeading = MyMath.ClampToPlusMinus180DegreesRange(reversedStartHeading + 180);
 
             start = new HeadedPoint(startPos, newStartHeading);
@@ -118,18 +139,19 @@ namespace Trains
             OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).First();
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
-            Points = shortest.pathCoordinates;
+            UpdatePoints(shortest.pathCoordinates);
             segment.GenerateMeshSafely(Points);
         }
 
         public void PutDrawnSegmentIntoContainer()
         {
-            Debug.DrawRay(Points[0], 20 * Vector3.up, Color.green, float.PositiveInfinity);
-            Debug.DrawRay(Points[^1], 20 * Vector3.up, Color.red, float.PositiveInfinity);
+            //Debug.DrawRay(Points[0], 20 * Vector3.up, Color.green, float.PositiveInfinity);
+            //Debug.DrawRay(Points[^1], 20 * Vector3.up, Color.red, float.PositiveInfinity);
 
-            segment.data = new RoadSegmentData(start, end, tangent1, tangent2);
+            segment.data = new RoadSegmentData(start, end, tangent1, tangent2); //not used
             segment.Points = Points;
-            railContainer.Add(segment);
+            UpdateSegmentEndings();
+            railContainer.AddCreateInstance(segment);
         }
 
         private void DebugVisual(ref GameObject go, Color color, Vector3 pos)
@@ -156,5 +178,149 @@ namespace Trains
             segment.SetMesh(null);
             Points.Clear();
         }
+
+        //public void RegisterI(Vector3 pos1, Vector3 pos2) 
+        //    => RouteManager.Instance.RegisterI(NodeEdgeFactory.CreateEdge(pos1, pos2, segment.GetApproxLength()));
+
+        public void RegisterI(Vector3 start, Vector3 end)
+        {
+            Debug.Log($"RegisterI called");
+            RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
+        }
+
+        public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos)
+        {
+            Debug.Log($"RegisterII called");
+            RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
+        }
+
+        public void RegisterT(Vector3 start, Vector3 connection, RoadSegment otherRoad)
+        {
+            Debug.Log($"RegisterT called");
+            
+            (RoadSegment segment1, RoadSegment segment2) = SplitSegment(otherRoad, connection);
+
+            RouteManager.Instance.RegisterT(
+                start, connection, RoadSegment.GetApproxLength(Points),
+                otherRoad.Start, otherRoad.End,
+                segment1.GetApproxLength(), segment2.GetApproxLength()
+            );
+
+            railContainer.Remove(otherRoad);
+            railContainer.AddDontCreateInstance(segment1);
+            railContainer.AddDontCreateInstance(segment2);
+        }
+
+        public void RegisterH(
+            RoadSegment oldRoad1, Vector3 oldRoad1Connection,
+            RoadSegment oldRoad2, Vector3 oldRoad2Connection,
+            RoadSegment newSegm
+        )
+        {
+            Debug.Log($"RegisterH called");
+
+            //oldRoad2.points does not contain oldRoad2Connection
+            (RoadSegment ae, RoadSegment eb) = SplitSegment(oldRoad1, oldRoad1Connection);
+            (RoadSegment cf, RoadSegment fd) = SplitSegment(oldRoad2, oldRoad2Connection);
+
+            RouteManager.Instance.RegisterH(
+                oldRoad1Connection, oldRoad2Connection, newSegm.GetApproxLength(),
+                oldRoad1.Start, ae.GetApproxLength(),
+                oldRoad1.End, eb.GetApproxLength(),
+                oldRoad2.Start, cf.GetApproxLength(),
+                oldRoad2.End, fd.GetApproxLength()
+            );
+
+            railContainer.Remove(oldRoad1);
+            railContainer.Remove(oldRoad2);
+            railContainer.AddDontCreateInstance(ae);
+            railContainer.AddDontCreateInstance(eb);
+            railContainer.AddDontCreateInstance(cf);
+            railContainer.AddDontCreateInstance(fd);
+        }
+
+        public void RegisterC(RoadSegment newRoad)
+        {
+            Debug.Log($"RegisterC called");
+            RouteManager.Instance.RegisterC(newRoad.Start, newRoad.End, newRoad.GetApproxLength());
+        }
+
+        public void RegisterIT(RoadSegment roadMidConnected, RoadSegment roadEndingConnected, RoadSegment newRoad, Vector3 connection)
+        {
+            Debug.Log($"RegisterIT called");
+
+            (RoadSegment ad, RoadSegment db) = SplitSegment(roadMidConnected, connection);
+            Vector3 end = connection == newRoad.End ? newRoad.Start : newRoad.End;
+            
+            RouteManager.Instance.RegisterIT(
+                connection, ad.GetApproxLength(), db.GetApproxLength(), newRoad.GetApproxLength(),
+                roadMidConnected.Start, roadMidConnected.End, end
+            );
+
+            railContainer.Remove(roadMidConnected);
+            railContainer.AddDontCreateInstance(ad);
+            railContainer.AddDontCreateInstance(db);
+        }
+
+        private (RoadSegment, RoadSegment) SplitSegment(RoadSegment roadToSplit, Vector3 splitPt)
+        {
+            RoadSegment segment1 = Instantiate(roadToSplit, railContainer.transform);
+            RoadSegment segment2 = Instantiate(roadToSplit, railContainer.transform);
+
+            (List<Vector3> splitted1, List<Vector3> splitted2) = SplitPointsInTwoSets(roadToSplit.Points, splitPt);
+
+            segment1.ConfigureFrom(splitted1);
+            segment2.ConfigureFrom(splitted2);
+
+            return (segment1, segment2);
+        }
+
+        private (List<Vector3>, List<Vector3>) SplitPointsInTwoSets(List<Vector3> originalPts, Vector3 splitPt)
+        {
+            List<Vector3> newPts1 = new();
+            List<Vector3> newPts2 = new();
+
+            bool sendToFirst = true;
+            foreach (var p in originalPts)
+            {
+                if (p == splitPt)
+                {
+                    sendToFirst = false;
+                    newPts1.Add(p);
+                }
+
+                if (sendToFirst)
+                    newPts1.Add(p);
+                else
+                    newPts2.Add(p);
+            }
+            return (newPts1, newPts2);
+        }
+
+        private float GetPartialLength(Vector3 from, Vector3 to, List<Vector3> pts)
+        {
+            if (from != pts[0] && from != pts[^1]) throw new Exception($"Point {from} is not start or end of points {pts}");
+
+            List<Vector3> foundPts = new();
+            for (int i = 0; i < pts.Count; i++)
+            {
+                if (pts[i] != from) break;
+
+                foundPts.Add(pts[i]);
+                if (pts[i] == to) break;
+            }
+
+            for (int i = pts.Count - 1; i >= 0; i--)
+            {
+                if (pts[i] != from) break;
+
+                foundPts.Add(pts[i]);
+                if (pts[i] == to) break;
+            }
+            float startToConnectionLength = RoadSegment.GetApproxLength(foundPts);
+            return startToConnectionLength;
+        }
     }
 }
+
+

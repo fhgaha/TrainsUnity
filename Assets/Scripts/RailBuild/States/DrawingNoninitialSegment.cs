@@ -14,6 +14,33 @@ namespace Trains
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
                 rb.PutDrawnSegmentIntoContainer();
+
+                //start is always snapped
+                if (rb.DetectedStation != null)
+                {
+                    //TODO
+                }
+                else if (rb.DetectedRoad != null)
+                {
+                    //snapped start, snapped end
+                    if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
+                    {
+                        rb.RegisterC(rb.Segment);
+                    }
+                    else
+                    {
+                        //ending to mid
+                        rb.RegisterIT(rb.DetectedRoad, null, rb.Segment, rb.Segment.End);
+                    }
+                }
+                else
+                {
+                    rb.RegisterII(rb.Segment.End, rb.Segment.Start);
+                }
+
+                //Debug.DrawRay(rb.start.pos, 20 * Vector3.up, Color.green, float.PositiveInfinity);
+                //Debug.DrawRay(rb.end.pos, 20 * Vector3.up, Color.red, float.PositiveInfinity);
+
                 rb.start = rb.end;
                 rb.end = HeadedPoint.Empty;
 
@@ -42,9 +69,7 @@ namespace Trains
                 rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }
-            else
-
-            if (rb.DetectedRoad != null)
+            else if (rb.DetectedRoad != null)
             {
                 rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();

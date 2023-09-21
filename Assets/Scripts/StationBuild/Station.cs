@@ -7,8 +7,8 @@ namespace Trains
     public class Station : MonoBehaviour
     {
         public RoadSegment segment;
-        public Vector3 Entry1 => segment.StartGlobal;
-        public Vector3 Entry2 => segment.EndGlobal;
+        public Vector3 Entry1 => segment.Start;
+        public Vector3 Entry2 => segment.End;
 
         private void Awake()
         {

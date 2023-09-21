@@ -23,7 +23,7 @@ namespace Trains
                         rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point);
                         SnappedStart = rb.start.pos;
                         SnappedStartRoad = rb.DetectedStation.segment;
-                        SnappedStartPoints = new List<Vector3> { SnappedStartRoad.StartGlobal, SnappedStartRoad.EndGlobal };
+                        SnappedStartPoints = new List<Vector3> { SnappedStartRoad.Start, SnappedStartRoad.End };
                     }
                     else if (rb.DetectedRoad != null)
                     {

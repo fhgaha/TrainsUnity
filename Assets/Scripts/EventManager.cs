@@ -16,12 +16,22 @@ namespace Trains
         [SerializeField] private RailContainer railCont;
         [SerializeField] private StationContainer stCont;
         [SerializeField] private TrainContainer trCont;
+        [SerializeField] private RouteManager routeMngr;
 
         private void Start()
         {
             ui.OnBuildRailActivated += (sender, toggle) => railBuild.gameObject.SetActive(toggle.isOn);
             ui.OnBuildStationActivated += (sender, toggle) => stBuild.gameObject.SetActive(toggle.isOn);
-            ui.OnStationsSelected += (sender, e) => trCont.SendTrain(e.from, e.to);
+            ui.OnStationsSelected += (sender, e) => CreateRouteAndSendTrain(e);
+        }
+
+        private void CreateRouteAndSendTrain(StationSelectedEventArgs e)
+        {
+            
+
+            routeMngr.CreateRoute(e.from, e.to);
+
+            
         }
 
         //if rb is active send mouse position to rb

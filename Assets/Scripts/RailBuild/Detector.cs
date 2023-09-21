@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -72,8 +73,7 @@ namespace Trains
 
                 RoadSegment otherSegment = other.GetComponent<RoadSegment>();
                 detectedRoads.Remove(otherSegment);
-                if (detectedRoads.Count > 0)    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = detectedRoads[^1] });
-                if (detectedRoads.Count == 0)   OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = null });
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = detectedRoads.LastOrDefault() });
             }
 
             void UndetectStation()
