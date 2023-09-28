@@ -25,16 +25,11 @@ namespace Trains
             ui.OnStationsSelected += (sender, e) => CreateRouteAndSendTrain(e);
         }
 
-        private void CreateRouteAndSendTrain(StationSelectedEventArgs e)
+        private void CreateRouteAndSendTrain(StationSelectorEventArgs e)
         {
-            
-
-            routeMngr.CreateRoute(e.from, e.to);
-
-            
+            var path = routeMngr.CreateRoute(e.selectedIds);
+            trCont.SendTrain(path);
         }
 
-        //if rb is active send mouse position to rb
-        //if rb is active send lmb/rmb clicks to rb
     }
 }

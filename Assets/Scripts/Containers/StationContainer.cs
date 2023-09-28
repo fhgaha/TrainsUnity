@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,25 +8,27 @@ namespace Trains
 {
     public class StationContainer : MonoBehaviour
     {
-        [SerializeField] private Dictionary<int, Station> stations = new();
+        public event EventHandler OnStationAdded;
+
+        public Dictionary<int, Station> Stations { get; private set; } = new();
         [SerializeField] private RailContainer railContainer;
 
         public void Add(Station station)
         {
             Station copy = Instantiate(station, transform);
-            Destroy(copy.GetComponent<Rotator>());
+            Destroy(copy.GetComponent<StationRotator>());
             copy.name = $"Station {copy.GetInstanceID()}";
             copy.SetUpRoadSegment();
+            copy.segment.CopyPoints(station.segment);
+            copy.segment.Start = station.segment.Start;
+            copy.segment.End = station.segment.End;
 
-            //copy.segment.Points = station.segment.Points.Select(p => station.transform.rotation * p).ToList();
+            Stations.Add(copy.GetInstanceID(), copy);
 
-            copy.segment.Points = station.segment.Points.Select(p => station.transform.rotation * p + station.segment.transform.position).ToList();
-            copy.segment.Start = copy.segment.Points[0];
-            copy.segment.End = copy.segment.Points[^1];
+            OnStationAdded?.Invoke(this, EventArgs.Empty);
 
-            stations.Add(copy.GetInstanceID(), copy);
-            
             //what to do wth rail?
+            Global.Instance.RailContainer.AddDontCreateInstance(copy.segment);
         }
     }
 }

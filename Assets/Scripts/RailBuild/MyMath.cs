@@ -37,7 +37,7 @@ namespace Trains
         public static void AddEndPos(List<Vector3> pts, Vector3 startPos, Vector3 endPos)
         {
             if (pts.Count < 2) return;
-            if (startPos == endPos) return;
+            if (startPos == endPos) return; //TODO why do i do this?
 
             //i want the last pt to be the same as endPos
             //if last and prelast pts are too close remove prelast pt
@@ -52,7 +52,7 @@ namespace Trains
         public static List<Vector3> CalculateArcPoints(Vector3 startPos, float headingDeg, float arcLength, float radius, bool isTurningRight, float driveDistance)
         {
             float parameter = isTurningRight ? 1 : -1; //which side are we going on arc
-            List<Vector3> pts = new();
+            List<Vector3> pts = new() { startPos };
             var anglePar = isTurningRight ? -PI / 2 : PI / 2;
             float theta = headingDeg * Deg2Rad;
             int segments = FloorToInt(arcLength / driveDistance);
@@ -67,6 +67,12 @@ namespace Trains
                 currentPos.z = circleCenter.z + radius * Cos(theta + anglePar);
                 theta += parameter * driveDistance / radius;
                 pts.Add(currentPos);
+            }
+
+            //dirty fix in case i
+            if (pts.Count > 2 && (pts[0] - pts[1]).magnitude < driveDistance)
+            {
+                pts.RemoveAt(1);
             }
 
             return pts;

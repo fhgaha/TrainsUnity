@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 namespace Trains
 {
-    public class StationSelectedEventArgs : EventArgs
-    {
-        public int from, to;
-    }
+    //public class StationSelectedEventArgs : EventArgs
+    //{
+    //    public int from, to;
+    //}
 
     public enum UiState
     {
@@ -22,7 +22,10 @@ namespace Trains
 
         public event EventHandler<Toggle> OnBuildRailActivated;
         public event EventHandler<Toggle> OnBuildStationActivated;
-        public event EventHandler<StationSelectedEventArgs> OnStationsSelected;
+        public event EventHandler<StationSelectorEventArgs> OnStationsSelected;
+
+        //external
+        [SerializeField] private StationContainer sc;
 
         //toggle-buttons
         [SerializeField] private Toggle buildRail;
@@ -34,16 +37,26 @@ namespace Trains
         private void Awake()
         {
             GetComponentInChildren<Canvas>().enabled = true;
-        }
 
-        private void Start()
-        {
             //mode buttons
             buildRail.onValueChanged.AddListener(delegate { BuildRailValueChanged(buildRail); });
             buildStation.onValueChanged.AddListener(delegate { BuildStationValueChanged(buildStation); });
             selectStations.onValueChanged.AddListener(delegate { SelectStationsValueChanged(selectStations); });
 
-            stationSelector.OnStationsSelected += (sender, btn) => OnStationsSelected?.Invoke(this, new StationSelectedEventArgs { from = 0, to = 0 });
+            stationSelector.OnStationsSelected += NotifyStationSelected;
+            sc.OnStationAdded += StationContainer_OnStationAdded;
+        }
+
+        private void StationContainer_OnStationAdded(object sender, EventArgs e)
+        {
+            stationSelector.SetStationIcons(sc.Stations);
+        }
+
+        private void Start()
+        {
+            //var stations = stationContainer.Stations;
+            //stationSelector.SetTooglesForStations(stations);
+
         }
 
         //TODO: would be nice if on rmb rb became untoggled
@@ -65,6 +78,11 @@ namespace Trains
         {
             State = selectStations.isOn ? UiState.SelectStationsIsActive : UiState.None;
             stationSelector.gameObject.SetActive(selectStations.isOn);
+        }
+
+        private void NotifyStationSelected(object sender, StationSelectorEventArgs e)
+        {
+            OnStationsSelected?.Invoke(this, e);
         }
     }
 }

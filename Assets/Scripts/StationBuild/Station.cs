@@ -10,20 +10,52 @@ namespace Trains
         public Vector3 Entry1 => segment.Start;
         public Vector3 Entry2 => segment.End;
 
+        [SerializeField] private List<Vector3> originalPoints;
+
         private void Awake()
         {
             segment = GetComponentInChildren<RoadSegment>();
-            GetComponentInChildren<Rotator>().Configure(this);
+            GetComponentInChildren<StationRotator>().Configure(this);
             GetComponentInChildren<MeshCollider>().sharedMesh = segment.GetMesh();
+        }
+
+        private void OnEnable()
+        {
+        }
+
+        private void OnDisable()
+        {
         }
 
         public void SetUpRoadSegment()
         {
-            List<Vector3> stationRoadPoints = new();
+            originalPoints = new();
             Vector3 p1 = new() { x = 0, y = 0, z = 10 };
             Vector3 p2 = new() { x = 0, y = 0, z = -10 };
-            MyMath.CalculateStraightLine(stationRoadPoints, p1, p2, Global.Instance.DriveDistance);
-            segment.GenerateMeshSafely(stationRoadPoints);
+            MyMath.CalculateStraightLine(originalPoints, p1, p2, Global.Instance.DriveDistance);
+
+            List<Vector3> segmentPts = new();
+            segmentPts.AddRange(originalPoints);
+            segment.GenerateMeshSafely(segmentPts);
+        }
+
+        public void UpdatePos(Vector3 newPos)
+        {
+            transform.position = newPos;
+            UpdatePos();
+        }
+
+        public void UpdatePos()
+        {
+            for (int i = 0; i < segment.Points.Count; i++)
+            {
+                segment.Points[i] = transform.rotation * originalPoints[i] + segment.transform.position;
+            }
+            segment.Start = segment.Points[0];
+            segment.End = segment.Points[^1];
+
+            //Debug.DrawRay(segment.Start, 10 * Vector3.up, Color.white, Time.deltaTime);
+            //Debug.DrawRay(segment.End, 10 * Vector3.up, Color.white, Time.deltaTime);
         }
 
     }

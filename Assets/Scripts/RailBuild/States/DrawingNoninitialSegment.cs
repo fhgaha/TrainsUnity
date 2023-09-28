@@ -19,6 +19,7 @@ namespace Trains
                 if (rb.DetectedStation != null)
                 {
                     //TODO
+                    rb.RegisterC(rb.Segment);
                 }
                 else if (rb.DetectedRoad != null)
                 {
@@ -30,7 +31,7 @@ namespace Trains
                     else
                     {
                         //ending to mid
-                        rb.RegisterIT(rb.DetectedRoad, null, rb.Segment, rb.Segment.End);
+                        rb.RegisterIT(rb.DetectedRoad, rb.Segment, rb.Segment.End);
                     }
                 }
                 else
@@ -65,7 +66,7 @@ namespace Trains
 
             if (rb.DetectedStation != null)
             {
-                //rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.tangent1);
+
                 rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }

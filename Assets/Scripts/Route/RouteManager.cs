@@ -2,12 +2,49 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace Trains
 {
     public class RouteManager : MonoBehaviour
     {
+        public static RouteManager Instance { get; private set; }
+        private Graph graph = new();
+
+        public List<Vector3> CreateRoute(List<int> selectedIds)
+        {
+            List<Vector3> finalPath = new();
+            StationContainer sc = Global.Instance.StationContainer;
+            TrainContainer tc = Global.Instance.TrainContainer;
+
+            Station[] stations = selectedIds.Select(s => sc.Stations[s]).ToArray();
+            for (int i = 0; i < stations.Length - 1; i++)
+            {
+                //lats take only enties 1 for now
+                Node from = graph.AllNodes.First(n => n.Pos == stations[i].Entry1);
+                Node to = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
+                var points = graph.RunDijkstraGetPath(from, to);
+                if (points.Count == 0) return new List<Vector3>();
+
+                finalPath.AddRange(points);
+            }
+            return finalPath;
+        }
+
+        void Awake()
+        {
+            if (Instance == null)
+            {
+                DontDestroyOnLoad(gameObject);
+                Instance = this;
+            }
+            else if (Instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
+
         //Connection options:
         //I  - simplest road, new road no start or end snapped
         //II - connection to a road end, new road start (or end) snapped
@@ -15,59 +52,6 @@ namespace Trains
         //IT - connection from one road end to another road middle, new road start and end snapped
         //H  - connection from one road middle to another road middle, new road start and end snapped
         //C  - connection from one road end to another road end, new road start and end snapped
-
-        [SerializeField] private TrainContainer trCont;
-
-        public static RouteManager Instance { get; private set; }
-        //private static Registrator reg;
-
-        private Graph graph = new();
-
-        public void CreateRoute(int from, int to)
-        {
-            //run Dijkstra, find best path
-            //run train 
-
-
-
-
-            trCont.SendTrain(from, to);
-        }
-
-        //void Awake()
-        //{
-        //    if (instance == null)
-        //    {
-        //        DontDestroyOnLoad(gameObject);
-        //        instance = this;
-        //    }
-        //    else
-        //        if (instance != this)
-        //        Destroy(gameObject);
-        //}
-
-        private void Start()
-        {
-            if (Instance == null)
-            {
-                DontDestroyOnLoad(gameObject);
-                Instance = this;
-            }
-            else if (Instance == this)
-            {
-                throw new System.Exception($"Attempting to create instance of {this.GetType()} signleton when such instance already exists");
-                //Destroy(gameObject);
-            }
-
-            //InitializeManager();
-        }
-
-        private void InitializeManager()
-        {
-            /* TODO: Здесь мы будем проводить инициализацию */
-        }
-
-
 
 
         //A     B
@@ -78,14 +62,18 @@ namespace Trains
         //AB: create, set length
         public void RegisterI(Vector3 start, Vector3 end, float length)
         {
+            Debug.Log($"RegisterI called");
+
             Node a = CreateNode(start);
             Node b = CreateNode(end);
+            a.AddNeigh(b);
+            b.AddNeigh(a);
             Edge ab = CreateEdge(a, b, length);
 
             RegisterNode(a); RegisterNode(b);
             RegisterEdge(ab);
 
-            DebugDrawRays();
+            //DebugDraw();
         }
 
 
@@ -97,6 +85,8 @@ namespace Trains
         //BC: create, set length
         public void RegisterII(Vector3 newPos, Vector3 otherPos, float length)
         {
+            Debug.Log($"RegisterII called");
+
             Node b = GetNode(otherPos);
             Node c = CreateNode(newPos);
             b.AddNeigh(c);
@@ -106,7 +96,7 @@ namespace Trains
             RegisterNode(c);
             RegisterEdge(bc);
 
-            DebugDrawRays();
+            //DebugDraw();
         }
 
 
@@ -128,6 +118,8 @@ namespace Trains
             float newEdge1Length, float newEdge2Length
         )
         {
+            Debug.Log($"RegisterT called");
+
             Node a = CreateNode(newSegmStart);
             Node b = CreateNode(connection);
             Node c = GetNode(edgeToRemoveStart);
@@ -144,8 +136,9 @@ namespace Trains
             RegisterNode(a); RegisterNode(b);
             RegisterEdge(ab); RegisterEdge(bc); RegisterEdge(bd);
 
-            DebugDrawRays();
+            //DebugDraw();
         }
+
 
         // A       E        B           EF is new road
         //---------*---------
@@ -170,6 +163,8 @@ namespace Trains
             Vector3 dPos, float fdLength
         )
         {
+            Debug.Log($"RegisterH called");
+
             Node a = GetNode(aPos);
             Node b = GetNode(bPos);
             Node c = GetNode(cPos);
@@ -192,8 +187,9 @@ namespace Trains
             RegisterNode(e); RegisterNode(f);
             RegisterEdge(ae); RegisterEdge(eb); RegisterEdge(cf); RegisterEdge(fd); RegisterEdge(ef);
 
-            DebugDrawRays();
+            //DebugDraw();
         }
+
 
         //      A         B           AC is new road
         //      *---------
@@ -207,6 +203,8 @@ namespace Trains
         //AC: create, set length
         public void RegisterC(Vector3 aPos, Vector3 cPos, float newSegmLength)
         {
+            Debug.Log($"RegisterC called");
+
             Node a = GetNode(aPos);
             Node c = GetNode(cPos);
             a.AddNeigh(c);
@@ -215,8 +213,9 @@ namespace Trains
 
             RegisterEdge(ac);
 
-            DebugDrawRays();
+            //DebugDraw();
         }
+
 
         //        C             DC is new road
         //        *------
@@ -235,6 +234,8 @@ namespace Trains
             Vector3 aPos, Vector3 bPos, Vector3 cPos
         )
         {
+            Debug.Log($"RegisterIT called");
+
             Node a = GetNode(aPos);
             Node b = GetNode(bPos);
             Node c = GetNode(cPos);
@@ -242,6 +243,7 @@ namespace Trains
             a.RemoveNeigh(b).AddNeigh(d);
             b.RemoveNeigh(a).AddNeigh(d);
             c.AddNeigh(d);
+            d.AddNeigh(a).AddNeigh(b).AddNeigh(c);
             RemoveEdge(a, b);
             Edge ad = CreateEdge(a, d, adLength);
             Edge db = CreateEdge(d, b, dbLength);
@@ -250,23 +252,12 @@ namespace Trains
             RegisterNode(d);
             RegisterEdge(ad); RegisterEdge(db); RegisterEdge(dc);
 
-            DebugDrawRays();
-        }
-
-        private void DrawRayWithText(Vector3 start, Vector3 dir, Color color, float duration, string text)
-        {
-            Debug.DrawRay(start, dir, color, duration);
-
-            GameObject textObj = new();
-            textObj.transform.parent = transform;
-            textObj.transform.position = start + dir / 2;
-            textObj.name = $"DebugText {textObj.GetInstanceID()}";
-            TextMesh textMesh = textObj.AddComponent<TextMesh>();
-            textMesh.text = text;
+            //DebugDraw();
         }
 
         private Node CreateNode(Vector3 pos) => new Node(pos);
         private Edge CreateEdge(Node n, Node m, float length) => new Edge { Node1 = n, Node2 = m, Length = length };
+        private Node GetNode(Vector3 pos) => graph.AllNodes.First(n => n.Pos == pos);
 
         public void RegisterEdge(Edge edge)
         {
@@ -288,20 +279,17 @@ namespace Trains
             graph.AllNodes.Add(n);
         }
 
-        private Node GetNode(Vector3 pos) => graph.AllNodes.First(n => n.Pos == pos);
-
         private void RemoveEdge(Node c, Node d)
         {
             Edge cd = graph.AllEdges.First(e => e.Contains(c, d));
             graph.AllEdges.Remove(cd);
         }
 
-        private void DebugDrawRays()
+        public void DebugDraw()
         {
-            foreach (Transform child in transform)
-            {
-                Destroy(child.gameObject);
-            }
+            //return;
+
+            DebugErase();
 
             foreach (var n in graph.AllNodes)
             {
@@ -310,19 +298,50 @@ namespace Trains
 
             foreach (var e in graph.AllEdges)
             {
-                //Debug.DrawLine(e.Node1.Pos + 5 * Vector3.up, e.Node2.Pos + 5 * Vector3.up, Color.green, float.PositiveInfinity, true);
+                //draw edge
+                var line = new GameObject();
+                line.transform.parent = transform;
+                line.name = "DebugLine " + line.GetInstanceID();
+                var lr = line.AddComponent<LineRenderer>();
+                lr.SetPositions(new[] { e.Node1.Pos + 5 * Vector3.up, e.Node2.Pos + 5 * Vector3.up });
+                lr.material = new Material(Shader.Find("Sprites/Default"));
+                lr.startColor = Color.green;
+                lr.endColor = Color.green;
             }
         }
 
-        private void DrawLineWithText(Vector3 start, Vector3 end, string text)
+        private void DrawRayWithText(Vector3 start, Vector3 dir, Color color, float duration, string text)
         {
-            var lr = new LineRenderer();
-            lr.SetPosition(0, start);
-            lr.SetPosition(1, end);
+            Debug.DrawRay(start, dir, color, duration);
 
-            Vector3 textPos = start + (end - start) / 2;
+            GameObject textObj = new();
+            textObj.transform.parent = transform;
+            textObj.transform.position = start + dir / 2;
+            textObj.name = $"DebugText {textObj.GetInstanceID()}";
 
+            TextMesh tm = textObj.AddComponent<TextMesh>();
+            tm.fontSize = 56;
+            tm.color = Color.black;
+            tm.anchor = TextAnchor.MiddleCenter;
+            tm.text = text;
 
+            //TextMeshPro tmp = textObj.AddComponent<TextMeshPro>();
+            //tmp.fontSize = 50;
+            //tmp.fontMaterial.color = Color.black;
+            //tmp.fontStyle = FontStyles.Bold;
+            //tmp.outlineWidth = 0.2f;
+            //tmp.outlineColor = Color.black;
+            //tmp.enableWordWrapping = false;
+            //tmp.alignment = TextAlignmentOptions.Top;
+            //tmp.text = text;
+        }
+
+        public void DebugErase()
+        {
+            foreach (Transform child in transform)
+            {
+                Destroy(child.gameObject);
+            }
         }
     }
 }

@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
 {
-    public struct Node
+    public class Node
     {
         public Vector3 Pos;
         public List<Node> Neighbours;
@@ -29,11 +30,11 @@ namespace Trains
         }
 
         #region boilerplate 
-        public static bool operator ==(Node a, Node b) => a.Equals(b);
-        public static bool operator !=(Node a, Node b) => !a.Equals(b);
+        public static bool operator ==(Node a, Node b) => a is not null && a.Equals(b);
+        public static bool operator !=(Node a, Node b) => a is not null && !a.Equals(b);
         public override int GetHashCode() => HashCode.Combine(Pos);
         //i have decided to use pos only, since i dont want to be two nodes with different neighbours but same pos ever exist
-        public override bool Equals(object obj) => obj is Node node && Pos.Equals(node.Pos);    
+        public override bool Equals(object obj) => obj is Node node && Pos.Equals(node.Pos);
         public override string ToString() => $"Node: {Pos}";
         #endregion boilerplate 
     }
@@ -55,31 +56,54 @@ namespace Trains
         public List<Node> AllNodes = new();
         public List<Edge> AllEdges = new();
 
-        public (float[], int[]) Dijkstra(int sourceIdx, int targetIdx)
+        public List<Vector3> RunDijkstraGetPath(Node from, Node to)
         {
-            float[] dist = new float[AllNodes.Count];      //distances
-            int[] prev = new int[AllNodes.Count];          //node indeces of total found shortest path
-            List<int> Q = new();                           //unvisited nodes indeces
+            RailContainer rc = Global.Instance.RailContainer;
+            (_, Dictionary<Node, Node> prev) = Dijkstra(from, to);
+            List<Node> S = new();
+            Node u = to;
+            if (prev[u] is not null || u == from)
+            {
+                while (u is not null)
+                {
+                    S.Insert(0, u);
+                    u = prev[u];
+                }
+            }
 
-            for (int v = 0; v < AllNodes.Count; v++)
+            List<Vector3> points = rc.GetRoadsAsPoints(S);
+            return points;
+        }
+
+        public (Dictionary<Node, float> dist, Dictionary<Node, Node> prev) Dijkstra(Node source, Node target)
+        {
+            Dictionary<Node, float> dist = new(AllNodes.Count); //<node, distance between source and that node>
+            Dictionary<Node, Node> prev = new(AllNodes.Count);  //<We came to this node, from this node>
+            List<Node> unvisited = new(AllNodes.Count);         //unvisited nodes indeces
+
+            foreach (Node v in AllNodes)
             {
                 dist[v] = float.PositiveInfinity;
-                prev[v] = -1;
-                Q.Add(v);
+                prev[v] = null;
+                unvisited.Add(v);
             }
-            dist[sourceIdx] = 0;
+            dist[source] = 0;
 
-            while (Q.Count > 0)
+            while (unvisited.Count > 0)
             {
-                int u = GetMinDistNodeIdx(dist, Q);
-                if (u == targetIdx) return (dist, prev);
-                Q.Remove(u);
-
-                for (int v = 0; v < AllNodes[u].Neighbours.Count; v++)
+                Node u = GetMinDistUnvisitedNode(dist, unvisited);
+                if (u is null || u == target)
                 {
-                    if (!Q.Contains(v)) continue;
+                    //prev[u] = u;
+                    return (dist, prev);
+                }
+                unvisited.Remove(u);
 
-                    float alt = dist[v] + GetEdgeLength(u, v);
+                foreach (Node v in u.Neighbours)
+                {
+                    if (!unvisited.Contains(v)) continue;
+
+                    float alt = dist[u] + GetEdgeLength(u, v);
                     if (alt < dist[v])
                     {
                         dist[v] = alt;
@@ -90,38 +114,30 @@ namespace Trains
             return (dist, prev);
         }
 
-        private static int GetMinDistNodeIdx(float[] dist, List<int> Q)
+        private float GetEdgeLength(Node u, Node v)
         {
-            int u = -1;
-            float minDist = float.PositiveInfinity;
-            for (int i = 0; i < Q.Count; i++)
+            foreach (var e in AllEdges)
             {
-                int someIdx = Q[i];
-                float someDist = dist[someIdx];
-                if (someDist < minDist)
+                if (e.Contains(u, v)) return e.Length;
+            }
+
+            return float.PositiveInfinity;
+        }
+
+        private static Node GetMinDistUnvisitedNode(Dictionary<Node, float> dist, List<Node> unvisited)
+        {
+            float minDist = float.PositiveInfinity;
+            Node u = unvisited[0];
+            foreach (var n in unvisited)
+            {
+                if (dist[n] < minDist)
                 {
-                    minDist = someDist;
-                    u = i;
+                    minDist = dist[n];
+                    u = n;
                 }
             }
             return u;
         }
 
-        public float GetEdgeLength(int u, int v)
-        {
-            foreach (Edge edge in AllEdges)
-            {
-                if (edge.Contains(AllNodes[u], AllNodes[v])) return edge.Length;
-            }
-            return float.PositiveInfinity;
-        }
-
-        private void CopyArrayElements(Node[] copyFrom, Node[] copyTo)
-        {
-            for (int i = 0; i < copyFrom.Length; i++)
-            {
-                copyTo[i] = copyFrom[i];
-            }
-        }
     }
 }

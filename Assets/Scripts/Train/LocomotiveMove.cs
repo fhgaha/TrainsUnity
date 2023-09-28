@@ -4,44 +4,88 @@ using UnityEngine;
 
 namespace Trains
 {
+    //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class LocomotiveMove : MonoBehaviour
     {
+        [SerializeField] private Transform visual;
         [field: SerializeField] public List<Vector3> Points { get; set; }
         public bool LoopThroughPoints = true;
         public PathMovementStyle MovementStyle;
 
         public float SlowSpeed = 2;
         public float MaxSpeed = 50;
-        public float curSpeed = 2;
+        public float curSpeed = 40;
+        public float rotSpeed = 10;
+
 
         private int curTargetIdx = 0;
+        private bool goingReverse = false;
+
+        private void Awake()
+        {
+            visual = transform.GetChild(0);
+        }
 
         private void Update()
         {
             if (Points == null || Points.Count == 0) return;
 
+            //UpdateCurTargetIdx();
+
             var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
             if (distance * distance < 0.1f)
             {
                 curTargetIdx++;
-                if (curTargetIdx >= Points.Count) curTargetIdx = Points.Count - 1;
-                if (LoopThroughPoints) curTargetIdx = 0;
+                if (curTargetIdx >= Points.Count)
+                {
+                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
+                    Points.Reverse();
+                }
             }
-            
+
+
+
+            //visual.rotation = Quaternion.LookRotation(Points[curTargetIdx] - transform.position);
+            var v = Points[curTargetIdx] - transform.position;
+            if (v != Vector3.zero)
+                visual.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(v), rotSpeed * Time.deltaTime);
+
             transform.position = MovementStyle switch
             {
-                PathMovementStyle.Lerp  => Vector3.Lerp         (transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
-                PathMovementStyle.Slerp => Vector3.Slerp        (transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
-                                    _   => Vector3.MoveTowards  (transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
+                PathMovementStyle.Lerp => Vector3.Lerp(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
+                PathMovementStyle.Slerp => Vector3.Slerp(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
+                _ => Vector3.MoveTowards(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
             };
 
 
             //also increase and decrease speed automatically
         }
-        
+
+        private void UpdateCurTargetIdx()
+        {
+            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            if (distance * distance < 0.1f)
+            {
+                curTargetIdx += goingReverse ? -1 : 1;
+                bool reachedEnd = curTargetIdx >= Points.Count;
+                bool reachedStart = curTargetIdx <= 0;
+                if (reachedEnd)
+                {
+                    curTargetIdx = Points.Count - 1;
+                    if (LoopThroughPoints)
+                        goingReverse = true;
+                }
+                if (reachedStart)
+                {
+                    curTargetIdx = 0;
+                    goingReverse = false;
+                }
+            }
+        }
+
         private void OnDrawGizmosSelected()
         {
-            //ShowGizmos();
+            ShowGizmos();
         }
 
         private void ShowGizmos()

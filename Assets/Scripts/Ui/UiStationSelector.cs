@@ -1,42 +1,79 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Trains
 {
+    public class StationSelectorEventArgs : EventArgs
+    {
+        public List<int> selectedIds;
+    }
+
     public class UiStationSelector : MonoBehaviour
     {
-        public EventHandler<Button> OnStationsSelected;
+        public EventHandler<StationSelectorEventArgs> OnStationsSelected;
 
-        [SerializeField] private Toggle station1;
-        [SerializeField] private Toggle station2;
+        [SerializeField] private RectTransform stTogglePrefab;
+
+        [SerializeField] private GameObject minimap;
         [SerializeField] private Button accept;
         [SerializeField] private Button cancel;
 
-        private void Start()
-        {
-            accept.onClick.AddListener(delegate { AcceptPressed(); });
-            cancel.onClick.AddListener(delegate { CancelPressed(); });
+        private Dictionary<int, Toggle> stations = new();
 
-            gameObject.SetActive(false);
+        private void Awake()
+        {
+            accept.onClick.AddListener(delegate { OnAcceptPressed(); });
+            cancel.onClick.AddListener(delegate { OnCancelPressed(); });
         }
 
-        private void AcceptPressed()
+        private void OnAcceptPressed()
         {
-            if (station1.isOn && station2.isOn)
+            //send which stations were selected
+            if (stations.All(s => !s.Value.isOn)) return;
+
+            List<int> list = new();
+            foreach (var s in stations)
             {
-                OnStationsSelected?.Invoke(this, accept);
-                //gameObject.SetActive(false);
+                if (s.Value.isOn)
+                {
+                    list.Add(s.Key);
+                }
+            }
+            OnStationsSelected?.Invoke(this, new StationSelectorEventArgs { selectedIds = list }); ;
+        }
+
+        private void OnCancelPressed()
+        {
+            foreach (var s in stations)
+            {
+                s.Value.GetComponent<Toggle>().isOn = false;
             }
         }
 
-        private void CancelPressed()
+        public void SetStationIcons(Dictionary<int, Station> stations)
         {
-            station1.isOn = false;
-            station2.isOn = false;
-            //gameObject.SetActive(false);
+            foreach (Transform child in minimap.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            this.stations = new();
+
+            float hOffset = 0;
+            foreach (var s in stations)
+            {
+                //set relative position for s.Pos with some scale lets say 1/100
+                //for now lets place them in row
+
+                RectTransform toggle = Instantiate(stTogglePrefab, minimap.transform);
+                toggle.anchoredPosition = new Vector2(0, -hOffset);
+                hOffset += toggle.rect.height;
+
+                this.stations.Add(s.Key, toggle.GetComponent<Toggle>());
+            }
         }
     }
 }

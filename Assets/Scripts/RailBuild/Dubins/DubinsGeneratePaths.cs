@@ -410,12 +410,12 @@ namespace Trains
 
             //first
             List<Vector3> first = MyMath.CalculateArcPoints(
-                startPos:       startPos,
-                headingDeg:     thetaRad * Mathf.Rad2Deg,
-                arcLength:      pathData.length1,
-                radius:         DubinsMath.turningRadius,
+                startPos: startPos,
+                headingDeg: thetaRad * Mathf.Rad2Deg,
+                arcLength: pathData.length1,
+                radius: DubinsMath.turningRadius,
                 isTurningRight: pathData.segment1TurningRight,
-                driveDistance:  DubinsMath.driveDistance
+                driveDistance: DubinsMath.driveDistance
             );
 
             Vector3 circlePos = pathData.segment1TurningRight
@@ -429,12 +429,12 @@ namespace Trains
             if (pathData.segment2Turning)
             {
                 second = MyMath.CalculateArcPoints(
-                    startPos:       pathData.tangent1,
-                    headingDeg:     thetaRad * Mathf.Rad2Deg,
-                    arcLength:      pathData.length2,
-                    radius:         DubinsMath.turningRadius,
+                    startPos: pathData.tangent1,
+                    headingDeg: thetaRad * Mathf.Rad2Deg,
+                    arcLength: pathData.length2,
+                    radius: DubinsMath.turningRadius,
                     isTurningRight: pathData.segment2TurningRight,
-                    driveDistance:  DubinsMath.driveDistance
+                    driveDistance: DubinsMath.driveDistance
                 );
 
                 circlePos = pathData.segment2TurningRight
@@ -457,12 +457,12 @@ namespace Trains
 
             //third
             List<Vector3> third = MyMath.CalculateArcPoints(
-                startPos:       pathData.tangent2,
-                headingDeg:     thetaRad * Mathf.Rad2Deg,
-                arcLength:      pathData.length3,
-                radius:         DubinsMath.turningRadius,
+                startPos: pathData.tangent2,
+                headingDeg: thetaRad * Mathf.Rad2Deg,
+                arcLength: pathData.length3,
+                radius: DubinsMath.turningRadius,
                 isTurningRight: pathData.segment3TurningRight,
-                driveDistance:  DubinsMath.driveDistance);
+                driveDistance: DubinsMath.driveDistance);
 
             //i think i should add last point here and remove prelast pt
             MyMath.AddEndPos(third, pathData.tangent2, goalPos);
@@ -472,6 +472,24 @@ namespace Trains
             finalPath.AddRange(third);
 
             pathData.pathCoordinates = finalPath;
+
+            //assert smth
+            if (finalPath.Count > 0)
+            {
+                if (finalPath[0] != startPos)
+                {
+                    string msg = "Dubins start pt and input start pt are not equal";
+                    //throw new System.Exception(msg);
+                    Debug.Log(msg);
+                }
+
+                if (finalPath[^1] != goalPos)
+                {
+                    string msg = "Dubins end pt and input goal pt are not equal";
+                    //throw new System.Exception(msg);
+                    Debug.Log(msg);
+                }
+            }
         }
     }
 }

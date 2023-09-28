@@ -7,41 +7,39 @@ namespace Trains
     public class Global : MonoBehaviour
     {
         public static Global Instance { get; private set; }
+        [field: SerializeField] public RailContainer RailContainer { get; set; }
+        [field: SerializeField] public StationContainer StationContainer { get; set; }
+        [field: SerializeField] public TrainContainer TrainContainer { get; set; }
+        [field: SerializeField] public RailBuilder RailBuilder { get; set; }
+        [field: SerializeField] public StationBuilder StationBuilder { get; set; }
 
         public float DriveDistance { get; private set; } = 1f;
 
-        //void Awake()
-        //{
-        //    if (instance == null)
-        //    {
-        //        DontDestroyOnLoad(gameObject);
-        //        instance = this;
-        //    }
-        //    else
-        //        if (instance != this)
-        //        Destroy(gameObject);
-        //}
-
-        private void Start()
+        void Awake()
         {
             if (Instance == null)
             {
                 DontDestroyOnLoad(gameObject);
                 Instance = this;
             }
-            else if (Instance == this)
+            else if (Instance != this)
             {
-                throw new System.Exception($"Attempting to create instance of {this.GetType()} signleton when such instance already exists");
-                //Destroy(gameObject);
+                Destroy(gameObject);
             }
-
-            InitializeManager();
         }
 
-        // Метод инициализации менеджера
-        private void InitializeManager()
+        private void Start()
         {
-            /* TODO: Здесь мы будем проводить инициализацию */
+            //if (Instance == null)
+            //{
+            //    DontDestroyOnLoad(gameObject);
+            //    Instance = this;
+            //}
+            //else if (Instance == this)
+            //{
+            //    throw new System.Exception($"Attempting to create instance of {this.GetType()} signleton when such instance already exists");
+            //    //Destroy(gameObject);
+            //}
         }
     }
 }

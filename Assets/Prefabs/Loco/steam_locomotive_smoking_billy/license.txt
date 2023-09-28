@@ -1,0 +1,11 @@
+Model Information:
+* title:	Steam Locomotive "Smoking Billy"
+* source:	https://sketchfab.com/3d-models/steam-locomotive-smoking-billy-2f3b321c1d4c4bfe8991654f81a43211
+* author:	Calne (https://sketchfab.com/Calne)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Steam Locomotive "Smoking Billy"" (https://sketchfab.com/3d-models/steam-locomotive-smoking-billy-2f3b321c1d4c4bfe8991654f81a43211) by Calne (https://sketchfab.com/Calne) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

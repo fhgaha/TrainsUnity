@@ -58,7 +58,12 @@ namespace Trains
             GetComponent<MeshFilter>().mesh = mesh;
         }
 
-        public void CopyPoints(RoadSegment segm) => segm.Points.ForEach(p => Points.Add(p));
+        public void CopyPoints(RoadSegment from)
+        {
+            Points.Clear();
+            from.Points.ForEach(p => Points.Add(p));
+        }
+
         public void UpdateCollider() => meshCollider.sharedMesh = mesh;
         public void SetCollider(Mesh mesh) => meshCollider.sharedMesh = mesh;
         public Mesh GetMesh() => mesh;

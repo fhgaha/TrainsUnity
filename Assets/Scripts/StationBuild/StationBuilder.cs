@@ -20,20 +20,7 @@ namespace Trains
         private void Start()
         {
             station.SetUpRoadSegment();
-
             gameObject.SetActive(false);
-            //GameObject station = Instantiate(stationPrefab, mousePos, Quaternion.identity);
-            //station.name = $"Station-{station.GetInstanceID()}";
-        }
-
-        private void OnEnable()
-        {
-            //instantiate station, move around in update, put in container on click
-        }
-
-        private void OnDisable()
-        {
-
         }
 
         void Update()
@@ -45,20 +32,19 @@ namespace Trains
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
                 stationContainer.Add(station);
+
+                RouteManager.Instance.RegisterI(station.Entry1, station.Entry2, station.segment.GetApproxLength());
+                
             }
         }
 
         private void HandleMouseMovement()
         {
-            if (HitGround(cam, out RaycastHit hit))
-            {
-                if (mousePos != hit.point)
-                {
-                    //move station around
-                    station.transform.position = mousePos;
-                }
-                mousePos = hit.point;
-            }
+            if (!HitGround(cam, out RaycastHit hit)) return;
+            if (mousePos == hit.point) return;
+            
+            station.UpdatePos(mousePos);
+            mousePos = hit.point;
         }
 
         private bool HitGround(Camera camera, out RaycastHit hit) =>

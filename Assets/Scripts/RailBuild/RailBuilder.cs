@@ -182,22 +182,12 @@ namespace Trains
         //public void RegisterI(Vector3 pos1, Vector3 pos2) 
         //    => RouteManager.Instance.RegisterI(NodeEdgeFactory.CreateEdge(pos1, pos2, segment.GetApproxLength()));
 
-        public void RegisterI(Vector3 start, Vector3 end)
-        {
-            Debug.Log($"RegisterI called");
-            RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
-        }
+        public void RegisterI(Vector3 start, Vector3 end) => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
 
-        public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos)
-        {
-            Debug.Log($"RegisterII called");
-            RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
-        }
+        public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos) => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
 
         public void RegisterT(Vector3 start, Vector3 connection, RoadSegment otherRoad)
-        {
-            Debug.Log($"RegisterT called");
-            
+        {   
             (RoadSegment segment1, RoadSegment segment2) = SplitSegment(otherRoad, connection);
 
             RouteManager.Instance.RegisterT(
@@ -217,8 +207,6 @@ namespace Trains
             RoadSegment newSegm
         )
         {
-            Debug.Log($"RegisterH called");
-
             //oldRoad2.points does not contain oldRoad2Connection
             (RoadSegment ae, RoadSegment eb) = SplitSegment(oldRoad1, oldRoad1Connection);
             (RoadSegment cf, RoadSegment fd) = SplitSegment(oldRoad2, oldRoad2Connection);
@@ -239,16 +227,10 @@ namespace Trains
             railContainer.AddDontCreateInstance(fd);
         }
 
-        public void RegisterC(RoadSegment newRoad)
-        {
-            Debug.Log($"RegisterC called");
-            RouteManager.Instance.RegisterC(newRoad.Start, newRoad.End, newRoad.GetApproxLength());
-        }
+        public void RegisterC(RoadSegment newRoad) => RouteManager.Instance.RegisterC(newRoad.Start, newRoad.End, newRoad.GetApproxLength());
 
-        public void RegisterIT(RoadSegment roadMidConnected, RoadSegment roadEndingConnected, RoadSegment newRoad, Vector3 connection)
+        public void RegisterIT(RoadSegment roadMidConnected, RoadSegment newRoad, Vector3 connection)
         {
-            Debug.Log($"RegisterIT called");
-
             (RoadSegment ad, RoadSegment db) = SplitSegment(roadMidConnected, connection);
             Vector3 end = connection == newRoad.End ? newRoad.Start : newRoad.End;
             

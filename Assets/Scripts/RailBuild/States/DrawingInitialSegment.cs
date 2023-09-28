@@ -28,7 +28,17 @@ namespace Trains
                 {
                     if (rb.DetectedStation != null)
                     {
-                        // TODO
+                        RoadSegment startRoad = selectingStartState.SnappedStartRoad;
+                        Vector3 start = rb.Segment.Start;
+
+                        if (start == startRoad.Start || start == startRoad.End)
+                        {
+                            rb.RegisterC(rb.Segment);
+                        }
+                        else
+                        {
+                            rb.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
+                        }
                     }
                     else if (rb.DetectedRoad != null)
                     {
@@ -43,7 +53,7 @@ namespace Trains
                 {
                     if (rb.DetectedStation != null)
                     {
-                        // TODO
+                        rb.RegisterII(rb.Segment.Start, rb.Segment.End);
                     }
                     else if (rb.DetectedRoad != null)
                     {
@@ -77,10 +87,10 @@ namespace Trains
                         rb.RegisterC(rb.Segment);
                         break;
                     case (false, true):
-                        rb.RegisterIT(roadMidConnected: startRoad, roadEndingConnected: endRoad, newRoad: rb.Segment, connection: start);
+                        rb.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
                         break;
                     case (true, false):
-                        rb.RegisterIT(roadMidConnected: endRoad, roadEndingConnected: startRoad, newRoad: rb.Segment, connection: end);
+                        rb.RegisterIT(roadMidConnected: endRoad, newRoad: rb.Segment, connection: end);
                         break;
                     case (false, false):
                         rb.RegisterH(selectingStartState.SnappedStartRoad, start, rb.DetectedRoad, end, rb.Segment);
@@ -148,8 +158,7 @@ namespace Trains
                 if (rb.DetectedStation != null)
                 {
                     rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.start.pos);
-                    //should be dubins
-                    rb.CalculateCSPointsReversed();
+                    rb.CalculateDubinsPoints();
                 }
                 else if (rb.DetectedRoad != null)
                 {
