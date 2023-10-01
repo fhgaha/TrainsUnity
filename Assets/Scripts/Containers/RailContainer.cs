@@ -60,7 +60,6 @@ namespace Trains
                 }
                 else
                 {
-                    //cant find station segm since i dont put it into rc
                     segm = segments.Values.First(s => from.Pos == s.End && to.Pos == s.Start);
                     path.AddRange(segm.Points);
                     path.Reverse();

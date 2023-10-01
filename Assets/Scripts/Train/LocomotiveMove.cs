@@ -30,25 +30,22 @@ namespace Trains
         {
             if (Points == null || Points.Count == 0) return;
 
-            //UpdateCurTargetIdx();
-
             var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
             if (distance * distance < 0.1f)
             {
                 curTargetIdx++;
                 if (curTargetIdx >= Points.Count)
                 {
-                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
-                    Points.Reverse();
+                    curTargetIdx = 0;
                 }
             }
 
-
+            //UpdateCurTargetIdx_GoBackToStart();
 
             //visual.rotation = Quaternion.LookRotation(Points[curTargetIdx] - transform.position);
-            var v = Points[curTargetIdx] - transform.position;
-            if (v != Vector3.zero)
-                visual.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(v), rotSpeed * Time.deltaTime);
+            var dir = Points[curTargetIdx] - transform.position;
+            if (dir != Vector3.zero)
+                visual.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
 
             transform.position = MovementStyle switch
             {
@@ -61,7 +58,34 @@ namespace Trains
             //also increase and decrease speed automatically
         }
 
-        private void UpdateCurTargetIdx()
+        private void UpdateCurTargetIdx_GoBackToStart()
+        {
+            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            if (distance * distance < 0.1f)
+            {
+                curTargetIdx++;
+                if (curTargetIdx >= Points.Count)
+                {
+                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
+                }
+            }
+        }
+
+        private void UpdateCurTargetIdx_ReversePoints()
+        {
+            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            if (distance * distance < 0.1f)
+            {
+                curTargetIdx++;
+                if (curTargetIdx >= Points.Count)
+                {
+                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
+                    Points.Reverse();
+                }
+            }
+        }
+
+        private void UpdateCurTargetIdx_IncreaseOrDecreaseIdx()
         {
             var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
             if (distance * distance < 0.1f)

@@ -33,17 +33,17 @@ namespace Trains
             locoMover.Points = path;
         }
 
-        public void SendTrain(params Node[] stations)
-        {
-            GameObject train = Instantiate(locoPrefab, transform);
+        //public void SendTrain(params Node[] stations)
+        //{
+        //    GameObject train = Instantiate(locoPrefab, transform);
 
-            //this is temporary for test purposes
-            Station fromStation = sc.Stations.Values.First(s => s.Entry1 == stations[0].Pos || s.Entry2 == stations[0].Pos);
-            Station toStation = sc.Stations.Values.First(s => s.Entry1 == stations[^1].Pos || s.Entry2 == stations[^1].Pos);
-            train.transform.position = fromStation.transform.position;
-            LocomotiveMove locoMover = train.GetComponent<LocomotiveMove>();
-            var points = stations.Select(s => s.Pos).ToList();
-            locoMover.Points = points;
-        }
+        //    //this is temporary for test purposes
+        //    Station fromStation = sc.Stations.Values.First(s => s.Entry1 == stations[0].Pos || s.Entry2 == stations[0].Pos);
+        //    Station toStation = sc.Stations.Values.First(s => s.Entry1 == stations[^1].Pos || s.Entry2 == stations[^1].Pos);
+        //    train.transform.position = fromStation.transform.position;
+        //    LocomotiveMove locoMover = train.GetComponent<LocomotiveMove>();
+        //    var points = stations.Select(s => s.Pos).ToList();
+        //    locoMover.Points = points;
+        //}
     }
 }

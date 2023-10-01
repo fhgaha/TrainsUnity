@@ -14,6 +14,8 @@ namespace Trains
         [field: SerializeField] public StationBuilder StationBuilder { get; set; }
 
         public float DriveDistance { get; private set; } = 1f;
+        public int MapWidth = 1024;
+        public int MarHeght = 640;
 
         void Awake()
         {

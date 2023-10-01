@@ -29,6 +29,16 @@ namespace Trains
 
                 finalPath.AddRange(points);
             }
+
+            //if we want to go back to start point
+            if (finalPath.Count >= 2)
+            {
+                var finish = graph.AllNodes.First(n => finalPath[^1] == n.Pos);
+                var start = graph.AllNodes.First(n => finalPath[0] == n.Pos);
+                var pathBack = graph.RunDijkstraGetPath(finish, start);
+                finalPath.AddRange(pathBack);
+            }
+
             return finalPath;
         }
 
@@ -298,25 +308,39 @@ namespace Trains
 
             foreach (var e in graph.AllEdges)
             {
-                //draw edge
-                var line = new GameObject();
-                line.transform.parent = transform;
-                line.name = "DebugLine " + line.GetInstanceID();
-                var lr = line.AddComponent<LineRenderer>();
-                lr.SetPositions(new[] { e.Node1.Pos + 5 * Vector3.up, e.Node2.Pos + 5 * Vector3.up });
-                lr.material = new Material(Shader.Find("Sprites/Default"));
-                lr.startColor = Color.green;
-                lr.endColor = Color.green;
+                DebugDrawEdge(e);
             }
+
+            //draw station labels
+            foreach (var s in Global.Instance.StationContainer.Stations)
+            {
+                DebugDrawText(s.Value.transform.position, 30 * Vector3.up, $"Station: {s.Key}");
+            }
+        }
+
+        private void DebugDrawEdge(Edge e)
+        {
+            var line = new GameObject();
+            line.transform.parent = transform;
+            line.name = "DebugLine " + line.GetInstanceID();
+            var lr = line.AddComponent<LineRenderer>();
+            lr.SetPositions(new[] { e.Node1.Pos + 5 * Vector3.up, e.Node2.Pos + 5 * Vector3.up });
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+            lr.startColor = Color.green;
+            lr.endColor = Color.green;
         }
 
         private void DrawRayWithText(Vector3 start, Vector3 dir, Color color, float duration, string text)
         {
             Debug.DrawRay(start, dir, color, duration);
+            DebugDrawText(start, dir / 2, text);
+        }
 
+        private void DebugDrawText(Vector3 start, Vector3 dir, string text)
+        {
             GameObject textObj = new();
             textObj.transform.parent = transform;
-            textObj.transform.position = start + dir / 2;
+            textObj.transform.position = start + dir;
             textObj.name = $"DebugText {textObj.GetInstanceID()}";
 
             TextMesh tm = textObj.AddComponent<TextMesh>();
@@ -324,16 +348,6 @@ namespace Trains
             tm.color = Color.black;
             tm.anchor = TextAnchor.MiddleCenter;
             tm.text = text;
-
-            //TextMeshPro tmp = textObj.AddComponent<TextMeshPro>();
-            //tmp.fontSize = 50;
-            //tmp.fontMaterial.color = Color.black;
-            //tmp.fontStyle = FontStyles.Bold;
-            //tmp.outlineWidth = 0.2f;
-            //tmp.outlineColor = Color.black;
-            //tmp.enableWordWrapping = false;
-            //tmp.alignment = TextAlignmentOptions.Top;
-            //tmp.text = text;
         }
 
         public void DebugErase()
