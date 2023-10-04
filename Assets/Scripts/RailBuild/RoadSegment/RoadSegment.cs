@@ -171,7 +171,8 @@ namespace Trains
         }
 
         public float GetApproxLength() => GetApproxLength(Points);
-        
+
+        public bool IsPointSnappedOnEnding(Vector3 point) => Start == point || End == point;
 
         //private void OnCollisionEnter(Collision collision) => Debug.Log("OnCollisionEnter from RoadSegment");
 

@@ -12,36 +12,40 @@ namespace Trains
         public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
 
         //move mouse around, click lmb to start drawing
-        public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint)
+        public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmdPressed)
         {
-            if (Input.GetKeyUp(KeyCode.Mouse0))
+            if (!wasHit) return this;
+
+            if (lmbPressed)
             {
-                if (wasHit)
-                {
-                    if (rb.DetectedStation != null)
-                    {
-                        rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint);
-                        SnappedStart = rb.start.pos;
-                        SnappedStartRoad = rb.DetectedStation.segment;
-                        SnappedStartPoints = new List<Vector3> { SnappedStartRoad.Start, SnappedStartRoad.End };
-                    }
-                    else if (rb.DetectedRoad != null)
-                    {
-                        rb.start.pos = GetClosestPoint(rb.DetectedRoad.Points, hitPoint);
-                        SnappedStart = rb.start.pos;
-                        SnappedStartRoad = rb.DetectedRoad;
-                        SnappedStartPoints = rb.DetectedRoad.Points.Select(p => p).ToList();
-                    }
-                    else
-                    {
-                        rb.start.pos = hitPoint;
-                        UnsnapStart();
-                    }
-                    return drawingInitialSegmentState;
-                }
+                HandleLmbPresed(hitPoint);
+                return drawingInitialSegmentState;
             }
 
             return this;
+        }
+
+        private void HandleLmbPresed(Vector3 hitPoint)
+        {
+            if (rb.DetectedStation != null)
+            {
+                rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint);
+                SnappedStart = rb.start.pos;
+                SnappedStartRoad = rb.DetectedStation.segment;
+                SnappedStartPoints = new List<Vector3> { SnappedStartRoad.Start, SnappedStartRoad.End };
+            }
+            else if (rb.DetectedRoad != null)
+            {
+                rb.start.pos = GetClosestPoint(rb.DetectedRoad.Points, hitPoint);
+                SnappedStart = rb.start.pos;
+                SnappedStartRoad = rb.DetectedRoad;
+                SnappedStartPoints = rb.DetectedRoad.Points.Select(p => p).ToList();
+            }
+            else
+            {
+                rb.start.pos = hitPoint;
+                UnsnapStart();
+            }
         }
 
         public void UnsnapStart()

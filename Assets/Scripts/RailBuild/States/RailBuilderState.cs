@@ -29,7 +29,7 @@ namespace Trains
 
         //public virtual RailBuilderState Handle(Camera camera) => this;
 
-        public virtual RailBuilderState Handle(bool wasHit, Vector3 hitPoint) => this;
+        public virtual RailBuilderState Handle(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed) => this;
         protected bool HitGround(Camera camera, out RaycastHit hit) =>
             Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hit, 1000f, LayerMask.GetMask("Ground"));
 
@@ -64,8 +64,6 @@ namespace Trains
             }
             return new HeadedPoint(closest, heading);
         }
-
-        
 
         public float GetSnappedStartHeading(List<Vector3> pts, Vector3 snapped, Vector3 dir)
         {

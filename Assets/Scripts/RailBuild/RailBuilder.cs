@@ -41,14 +41,14 @@ namespace Trains
             //detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
             gameObject.SetActive(false);
-
-            state = RailBuilderState.Configure(this);
         }
 
         private void OnEnable()
         {
             detector.OnRoadDetected += (sender, e) => DetectedRoad = e.Other;
             detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
+            
+            if (state is null) state = RailBuilderState.Configure(this);
         }
 
         private void OnDisable()
@@ -56,14 +56,14 @@ namespace Trains
             detector.OnRoadDetected -= (sender, e) => DetectedRoad = e.Other;
             detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
 
-            state = null;
+            state = RailBuilderState.selectingStartState;
             RemoveMesh();
         }
 
         private void Update()
         {
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
-            state = state.Handle(wasHit, hit.point);
+            state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
             stateName = state.GetType().Name;
 
             if (HasPoints)
@@ -84,7 +84,7 @@ namespace Trains
             switch (snappedStartRoad, snappedEndRoad)
             {
                 case (RoadSegment, RoadSegment):
-                    //RailBuilderState.selectingStartState.SnappedStartRoad = snappedStartRoad;
+                    
                     break;
                 case (RoadSegment, null):
                     break;
