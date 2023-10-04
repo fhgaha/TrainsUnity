@@ -12,29 +12,29 @@ namespace Trains
         public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
 
         //move mouse around, click lmb to start drawing
-        public override RailBuilderState Handle(Camera camera)
+        public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint)
         {
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
-                if (HitGround(camera, out RaycastHit hit))
+                if (wasHit)
                 {
                     if (rb.DetectedStation != null)
                     {
-                        rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point);
+                        rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint);
                         SnappedStart = rb.start.pos;
                         SnappedStartRoad = rb.DetectedStation.segment;
                         SnappedStartPoints = new List<Vector3> { SnappedStartRoad.Start, SnappedStartRoad.End };
                     }
                     else if (rb.DetectedRoad != null)
                     {
-                        rb.start.pos = GetClosestPoint(rb.DetectedRoad.Points, hit.point);
+                        rb.start.pos = GetClosestPoint(rb.DetectedRoad.Points, hitPoint);
                         SnappedStart = rb.start.pos;
                         SnappedStartRoad = rb.DetectedRoad;
                         SnappedStartPoints = rb.DetectedRoad.Points.Select(p => p).ToList();
                     }
                     else
                     {
-                        rb.start.pos = hit.point;
+                        rb.start.pos = hitPoint;
                         UnsnapStart();
                     }
                     return drawingInitialSegmentState;

@@ -6,9 +6,9 @@ namespace Trains
 {
     public class DrawingNoninitialSegment : RailBuilderState
     {
-        public override RailBuilderState Handle(Camera camera)
+        public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint)
         {
-            HandleMouseMovement(camera);
+            HandleMouseMovement(wasHit, hitPoint);
 
             //on lmb save drawn segment to a rail container
             if (Input.GetKeyUp(KeyCode.Mouse0))
@@ -58,28 +58,28 @@ namespace Trains
             return this;
         }
 
-        private void HandleMouseMovement(Camera camera)
+        private void HandleMouseMovement(bool wasHit, Vector3 hitPoint)
         {
-            if (!HitGround(camera, out RaycastHit hit)) return;
-            if (mousePos == hit.point) return;
+            if (!wasHit) return;
+            if (mousePos == hitPoint) return;
             //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
 
             if (rb.DetectedStation != null)
             {
 
-                rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.tangent1);
+                rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }
             else if (rb.DetectedRoad != null)
             {
-                rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.tangent1);
+                rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }
             else
             {
-                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hit.point);
+                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
             }
-            mousePos = hit.point;
+            mousePos = hitPoint;
         }
     }
 }

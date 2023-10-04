@@ -7,7 +7,7 @@ namespace Trains
 {
     public class DrawingInitialSegment : RailBuilderState
     {
-        public override RailBuilderState Handle(Camera camera)
+        public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint)
         {
             //https://docs.unity3d.com/Manual/CollidersOverview.html
             //mesh collider cannot collide with another mesh collider(i.e., nothing happens when they make contact).
@@ -16,7 +16,7 @@ namespace Trains
             //However, a good rule is to use mesh colliders for scene
             //geometry and approximate the shape of moving GameObjects using compound primitive colliders.
 
-            HandleMouseMovement(camera);
+            HandleMouseMovement(wasHit, hitPoint);
 
             // On LMB release, save drawn segment to a rail container
             if (Input.GetKeyUp(KeyCode.Mouse0))
@@ -139,10 +139,10 @@ namespace Trains
             return this;
         }
 
-        private void HandleMouseMovement(Camera camera)
+        private void HandleMouseMovement(bool wasHit, Vector3 hitPoint)
         {
-            if (!HitGround(camera, out RaycastHit hit)) return;
-            if (mousePos == hit.point) return;
+            if (!wasHit) return;
+            if (mousePos == hitPoint) return;
             //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
 
             //if road is from station to station draw dubins
@@ -152,42 +152,42 @@ namespace Trains
                 rb.start.heading = GetSnappedStartHeading(
                     selectingStartState.SnappedStartPoints,
                     selectingStartState.SnappedStart,
-                    hit.point - selectingStartState.SnappedStart
+                    hitPoint - selectingStartState.SnappedStart
                 );
 
                 if (rb.DetectedStation != null)
                 {
-                    rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateDubinsPoints();
                 }
                 else if (rb.DetectedRoad != null)
                 {
-                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateDubinsPoints();
                 }
                 else
                 {
-                    rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hit.point);
+                    rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
                 }
             }
             else
             {
                 if (rb.DetectedStation != null)
                 {
-                    rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hit.point, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
                 }
                 else if (rb.DetectedRoad != null)
                 {
-                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hit.point, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
                 }
                 else
                 {
-                    rb.CalculateStraightPoints(rb.start.pos, hit.point);
+                    rb.CalculateStraightPoints(rb.start.pos, hitPoint);
                 }
             }
-            mousePos = hit.point;
+            mousePos = hitPoint;
         }
     }
 }

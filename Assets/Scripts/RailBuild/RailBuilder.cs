@@ -37,38 +37,33 @@ namespace Trains
 
         private void Start()
         {
-            //dont like this. having to get last item of a dictionary every time    //wrong, doesnt work
-            //detector.OnRoadDetected += (sender, e) => { if (railContainer.LastAdded != e.Other) DetectedRoad = e.Other; };
-
-            detector.OnRoadDetected += (sender, e) =>
-            {
-                //we can check if road this.segment.Start is snapped on e.Other ending. if so, do not detect it.
-
-                //if (startIsSnappedOnEndingOf(e.Other)) return;
-
-                DetectedRoad = e.Other;
-
-                //bool startIsSnappedOnEndingOf(RoadSegment other) => other != null && (other.Start == segment.Start || other.End == segment.End);
-            };
-            detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
+            //detector.OnRoadDetected += (sender, e) => DetectedRoad = e.Other;
+            //detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
             gameObject.SetActive(false);
+
+            state = RailBuilderState.Configure(this);
         }
 
         private void OnEnable()
         {
-            state = RailBuilderState.Configure(this);
+            detector.OnRoadDetected += (sender, e) => DetectedRoad = e.Other;
+            detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
         }
 
         private void OnDisable()
         {
+            detector.OnRoadDetected -= (sender, e) => DetectedRoad = e.Other;
+            detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
+
             state = null;
             RemoveMesh();
         }
 
         private void Update()
         {
-            state = state.Handle(cam);
+            bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
+            state = state.Handle(wasHit, hit.point);
             stateName = state.GetType().Name;
 
             if (HasPoints)
@@ -80,6 +75,24 @@ namespace Trains
 
             //debug
             snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;
+        }
+
+        public void BuildRoad(Vector3 start, RoadSegment snappedStartRoad, Vector3 goal, RoadSegment snappedEndRoad)
+        {
+            state = RailBuilderState.drawingInitialSegmentState;
+
+            switch (snappedStartRoad, snappedEndRoad)
+            {
+                case (RoadSegment, RoadSegment):
+                    //RailBuilderState.selectingStartState.SnappedStartRoad = snappedStartRoad;
+                    break;
+                case (RoadSegment, null):
+                    break;
+                case (null, RoadSegment):
+                    break;
+                case (null, null):
+                    break;
+            }
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
@@ -179,15 +192,12 @@ namespace Trains
             Points.Clear();
         }
 
-        //public void RegisterI(Vector3 pos1, Vector3 pos2) 
-        //    => RouteManager.Instance.RegisterI(NodeEdgeFactory.CreateEdge(pos1, pos2, segment.GetApproxLength()));
-
         public void RegisterI(Vector3 start, Vector3 end) => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
 
         public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos) => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
 
         public void RegisterT(Vector3 start, Vector3 connection, RoadSegment otherRoad)
-        {   
+        {
             (RoadSegment segment1, RoadSegment segment2) = SplitSegment(otherRoad, connection);
 
             RouteManager.Instance.RegisterT(
@@ -233,7 +243,7 @@ namespace Trains
         {
             (RoadSegment ad, RoadSegment db) = SplitSegment(roadMidConnected, connection);
             Vector3 end = connection == newRoad.End ? newRoad.Start : newRoad.End;
-            
+
             RouteManager.Instance.RegisterIT(
                 connection, ad.GetApproxLength(), db.GetApproxLength(), newRoad.GetApproxLength(),
                 roadMidConnected.Start, roadMidConnected.End, end
@@ -304,5 +314,3 @@ namespace Trains
         }
     }
 }
-
-
