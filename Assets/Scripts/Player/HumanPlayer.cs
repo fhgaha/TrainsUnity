@@ -10,7 +10,7 @@ namespace Trains
         None, BuildingRoads, BuildingStations
     }
 
-    public class HumanPlayer : MonoBehaviour
+    public class HumanPlayer : MonoBehaviour, IPlayer
     {
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
@@ -23,6 +23,7 @@ namespace Trains
             EventManager.Instance.OnBuildRailPressed += OnBuildRailPressed;
 
             state = PlayerState.None;
+            rb.Parent = this;
         }
 
         private void OnBuildRailPressed(object sender, Toggle e)

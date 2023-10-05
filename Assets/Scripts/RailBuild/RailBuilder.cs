@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Trains
         public RoadSegment DetectedRoad;
         public Station DetectedStation { get; set; }
         public HeadedPoint start, end;
+        public IPlayer Parent;
         public Vector3 tangent1, tangent2;
 
         [SerializeField] private Vector3 snappedStartPos;   //to display in editor
@@ -41,13 +43,15 @@ namespace Trains
             //detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
             gameObject.SetActive(false);
+
+            if (Parent is AiPlayer) gameObject.SetActive(true);
         }
 
         private void OnEnable()
         {
             detector.OnRoadDetected += (sender, e) => DetectedRoad = e.Other;
             detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
-            
+
             if (state is null) state = RailBuilderState.Configure(this);
         }
 
@@ -62,7 +66,13 @@ namespace Trains
 
         private void Update()
         {
+            if (Parent is AiPlayer) return;
+
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
+            if (wasHit)
+            {
+                detector.transform.position = hit.point;
+            }
             state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
             stateName = state.GetType().Name;
 
@@ -77,22 +87,30 @@ namespace Trains
             snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;
         }
 
-        public void BuildRoad(Vector3 start, RoadSegment snappedStartRoad, Vector3 goal, RoadSegment snappedEndRoad)
+        public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
-            state = RailBuilderState.drawingInitialSegmentState;
+            //move det, set up detected road if any
+            detector.transform.position = start;    //this worked lol
+            Debug.Log($"1: { state.GetType()}");
+            yield return null;
 
-            switch (snappedStartRoad, snappedEndRoad)
-            {
-                case (RoadSegment, RoadSegment):
-                    
-                    break;
-                case (RoadSegment, null):
-                    break;
-                case (null, RoadSegment):
-                    break;
-                case (null, null):
-                    break;
-            }
+            //selecting start state
+            state = state.Handle(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
+            Debug.Log($"2: { state.GetType()}");
+            yield return null;
+
+            //move det, set up detected road if any
+            detector.transform.position = goal;
+            Debug.Log($"3: { state.GetType()}");
+            yield return null;
+
+            //drawing initial segment state
+            state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
+            Debug.Log($"4: { state.GetType()}");
+            yield return null;
+
+            state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
+            Debug.Log($"5: { state.GetType()}");
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
@@ -237,7 +255,8 @@ namespace Trains
             railContainer.AddDontCreateInstance(fd);
         }
 
-        public void RegisterC(RoadSegment newRoad) => RouteManager.Instance.RegisterC(newRoad.Start, newRoad.End, newRoad.GetApproxLength());
+        public void RegisterC(RoadSegment newRoad) => RegisterC(newRoad.Start, newRoad.End, newRoad.GetApproxLength());
+        public void RegisterC(Vector3 start, Vector3 end, float length) => RouteManager.Instance.RegisterC(start, end, length);
 
         public void RegisterIT(RoadSegment roadMidConnected, RoadSegment newRoad, Vector3 connection)
         {

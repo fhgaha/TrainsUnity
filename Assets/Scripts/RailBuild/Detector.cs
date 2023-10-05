@@ -51,6 +51,8 @@ namespace Trains
 
                 OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = otherSegment });
                 detectedRoads.Add(otherSegment);
+
+                //Debug.Log($"road detected: {otherSegment}");
             }
 
             void DetectStation()
@@ -81,15 +83,6 @@ namespace Trains
                 if (!other.CompareTag("Station")) return;
 
                 OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
-            }
-        }
-
-
-        void Update()
-        {
-            if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground")))
-            {
-                transform.position = hit.point;
             }
         }
     }

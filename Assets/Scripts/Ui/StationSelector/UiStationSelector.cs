@@ -31,6 +31,8 @@ namespace Trains
         {
             accept.onClick.AddListener(OnAcceptPressed);
             cancel.onClick.AddListener(OnCancelPressed);
+
+            //buildRail.onValueChanged.AddListener(delegate { BrValueChanged(buildRail); });
         }
 
         private void Start()
