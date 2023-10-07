@@ -18,6 +18,7 @@ namespace Trains
         {
             rb.Parent = this;
 
+            //BuildRoad();
         }
 
         [ContextMenu("Build Road")] //works even on disabled gameonject
@@ -28,7 +29,6 @@ namespace Trains
             Vector3 p3 = new(20, 0, -20);
 
             StartCoroutine(Foo());
-
             IEnumerator Foo()
             {
                 yield return Do(p1, p2);
