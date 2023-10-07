@@ -23,15 +23,13 @@ namespace Trains
         public event EventHandler<StationDetectorEventArgs> OnStationDetected;
 
         private RailBuilder parent;
-        private RoadSegment curRS;  //should always be the rb's segment
-        private Camera cam;
-        private List<RoadSegment> detectedRoads = new();
+        [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
+        [SerializeField] private List<RoadSegment> detectedRoads = new();
 
-        public void Configure(RailBuilder parent, RoadSegment curRS, Camera cam)
+        public void Configure(RailBuilder parent, RoadSegment curRS)
         {
             this.parent = parent;
-            this.curRS = curRS;
-            this.cam = cam;
+            this.curSegm = curRS;
         }
 
         //TODO: should i use on triggers stay instdead? and send road or null all the time?
@@ -47,9 +45,9 @@ namespace Trains
                 if (!other.CompareTag("Road")) return;
 
                 RoadSegment otherSegment = other.GetComponent<RoadSegment>();
-                if (otherSegment == curRS) return;
+                if (otherSegment == curSegm) return;
 
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = otherSegment });
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = otherSegment });
                 detectedRoads.Add(otherSegment);
 
                 //Debug.Log($"road detected: {otherSegment}");
@@ -75,7 +73,7 @@ namespace Trains
 
                 RoadSegment otherSegment = other.GetComponent<RoadSegment>();
                 detectedRoads.Remove(otherSegment);
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curRS, Other = detectedRoads.LastOrDefault() });
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = detectedRoads.LastOrDefault() });
             }
 
             void UndetectStation()

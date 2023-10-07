@@ -9,15 +9,10 @@ namespace Trains
     public static class MonoBehaviourExtension
     {
         //Usage in a behavior is this.StartCoroutine( ()=> { your code here… } );
-        public static void StartMyCoroutine(this MonoBehaviour mb, Action funcs)
-        {
-            mb.StartCoroutine(CoroutineRunnerSimple(new Action[] { funcs }));
-        }
+        public static void StartMyCoroutine(this MonoBehaviour mb, Action funcs) => mb.StartCoroutine(CoroutineRunnerSimple(new Action[] { funcs }));
 
-        public static void StartMyCoroutine(this MonoBehaviour mb, params Action[] funcs)
-        {
-            mb.StartCoroutine(CoroutineRunnerSimple(funcs));
-        }
+        public static void StartMyCoroutine(this MonoBehaviour mb, params Action[] funcs) => mb.StartCoroutine(CoroutineRunnerSimple(funcs));
+
         private static IEnumerator CoroutineRunnerSimple(Action[] funcs)
         {
             foreach (Action func in funcs)
@@ -29,13 +24,5 @@ namespace Trains
                 yield return null;
             }
         }
-
-        //public static void MyStartCoroutine(this MonoBehaviour mb, params Coroutine[] coroutines)
-        //{
-        //    foreach (var c in coroutines)
-        //    {
-        //        CoroutineRunnerSimple();
-        //    }
-        //}
     }
 }

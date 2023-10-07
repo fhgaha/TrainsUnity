@@ -35,7 +35,7 @@ namespace Trains
             if (rb.DetectedStation != null)
             {
                 //TODO
-                rb.RegisterC(rb.Segment);
+                regHelp.RegisterC(rb.Segment);
             }
             else if (rb.DetectedRoad != null)
             {
@@ -43,17 +43,17 @@ namespace Trains
                 //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
                 if (rb.DetectedRoad.IsPointSnappedOnEnding(rb.Segment.End))
                 {
-                    rb.RegisterC(rb.Segment);
+                    regHelp.RegisterC(rb.Segment);
                 }
                 else
                 {
                     //ending to mid
-                    rb.RegisterIT(rb.DetectedRoad, rb.Segment, rb.Segment.End);
+                    regHelp.RegisterIT(rb.DetectedRoad, rb.Segment, rb.Segment.End);
                 }
             }
             else
             {
-                rb.RegisterII(rb.Segment.End, rb.Segment.Start);
+                regHelp.RegisterII(rb.Segment.End, rb.Segment.Start);
             }
 
             //Debug.DrawRay(rb.start.pos, 20 * Vector3.up, Color.green, float.PositiveInfinity);

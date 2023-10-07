@@ -16,14 +16,16 @@ namespace Trains
         public static DrawingInitialSegment drawingInitialSegmentState;
         public static DrawingNoninitialSegment drawingNoninitialSegmentState;
         protected static RailBuilder rb;
+        protected static RegisterHelper regHelp;
         protected static Vector3 mousePos;
 
-        public static RailBuilderState Configure(RailBuilder rb)
+        public static RailBuilderState Configure(RailBuilder rb, RegisterHelper regHelp)
         {
             selectingStartState = new();
             drawingInitialSegmentState = new();
             drawingNoninitialSegmentState = new();
             RailBuilderState.rb = rb;
+            RailBuilderState.regHelp = regHelp;
             return selectingStartState;
         }
 

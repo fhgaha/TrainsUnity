@@ -51,11 +51,11 @@ namespace Trains
                     //if (start == startRoad.Start || start == startRoad.End)
                     if (startRoad.IsPointSnappedOnEnding(start))
                     {
-                        rb.RegisterC(rb.Segment);
+                        regHelp.RegisterC(rb.Segment);
                     }
                     else
                     {
-                        rb.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
+                        regHelp.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
                     }
                 }
                 else if (rb.DetectedRoad != null)
@@ -71,7 +71,7 @@ namespace Trains
             {
                 if (rb.DetectedStation != null)
                 {
-                    rb.RegisterII(rb.Segment.Start, rb.Segment.End);
+                    regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
                 }
                 else if (rb.DetectedRoad != null)
                 {
@@ -98,33 +98,33 @@ namespace Trains
             switch (startRoad.IsPointSnappedOnEnding(start), endRoad.IsPointSnappedOnEnding(end))
             {
                 case (true, true):
-                    rb.RegisterC(rb.Segment);
+                    regHelp.RegisterC(rb.Segment);
                     break;
                 case (false, true):
-                    rb.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
+                    regHelp.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
                     break;
                 case (true, false):
-                    rb.RegisterIT(roadMidConnected: endRoad, newRoad: rb.Segment, connection: end);
+                    regHelp.RegisterIT(roadMidConnected: endRoad, newRoad: rb.Segment, connection: end);
                     break;
                 case (false, false):
-                    rb.RegisterH(startRoad, start, endRoad, end, rb.Segment);
+                    regHelp.RegisterH(startRoad, start, endRoad, end, rb.Segment);
                     break;
             }
         }
 
-        private static void HandleUnsnappedStartUnsnappedEnd() => rb.RegisterI(rb.Segment.Start, rb.Segment.End);
+        private static void HandleUnsnappedStartUnsnappedEnd() => regHelp.RegisterI(rb.Segment.Start, rb.Segment.End);
 
         private static void HandleUnsnappedStartSnappedEnd()
         {
             //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
             if (rb.DetectedRoad.IsPointSnappedOnEnding(rb.Segment.End))
             {
-                rb.RegisterII(rb.Segment.Start, rb.Segment.End);
+                regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
             }
             else
             {
                 // Unsnapped start, end snapped to mid
-                rb.RegisterT(rb.Segment.Start, rb.Segment.End, rb.DetectedRoad);
+                regHelp.RegisterT(rb.Segment.Start, rb.Segment.End, rb.DetectedRoad, rb.Segment.Points);
             }
         }
 
@@ -136,11 +136,12 @@ namespace Trains
             //if (start == snappedRoad.Start || start == snappedRoad.End)
             if (snappedRoad.IsPointSnappedOnEnding(start))
             {
-                rb.RegisterII(end, start);
+                regHelp.RegisterII(end, start);
             }
             else
             {
-                rb.RegisterT(end, start, snappedRoad);
+                //TODO why you not sending whole rb.Segment?
+                regHelp.RegisterT(end, start, snappedRoad, rb.Segment.Points);
             }
         }
 

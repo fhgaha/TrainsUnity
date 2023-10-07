@@ -17,7 +17,7 @@ namespace Trains
         private void Start()
         {
             rb.Parent = this;
-
+            rb.gameObject.SetActive(true);
             //BuildRoad();
         }
 

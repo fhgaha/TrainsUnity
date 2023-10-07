@@ -24,6 +24,7 @@ namespace Trains
 
             state = PlayerState.None;
             rb.Parent = this;
+            rb.gameObject.SetActive(false);
         }
 
         private void OnBuildRailPressed(object sender, Toggle e)
@@ -44,19 +45,11 @@ namespace Trains
             }
         }
 
-        private void Update()
-        {
-            if (state == PlayerState.BuildingRoads)
-            {
-                Vector3 from = Vector3.zero;
-                if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground")))
-                {
-                    //rb.BuildRoad(from, hit.point);
-                }
-            }
-        }
+        //private void Update()
+        //{
+        //    if (!rb.gameObject.activeInHierarchy) return;
 
-
-
+        //    rb.Tick();
+        //}
     }
 }
