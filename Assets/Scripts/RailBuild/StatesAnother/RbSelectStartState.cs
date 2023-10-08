@@ -14,7 +14,11 @@ namespace Trains
             this.rb = rb;
         }
 
-        public override void EnterState(RbStateMachine machine)
+        public override void OnEnter(RbStateMachine machine)
+        {
+        }
+
+        public override void OnExit(RbStateMachine machine)
         {
         }
 

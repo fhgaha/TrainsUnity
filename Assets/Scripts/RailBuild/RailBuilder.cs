@@ -18,7 +18,6 @@ namespace Trains
 
         [SerializeField] private Vector3 snappedStartPos;   //to display in editor
         [SerializeField] private Camera cam;
-        [SerializeField] private string stateName;          //to display in editor
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private RailContainer railContainer;
         [SerializeField] private RoadSegment segment;
@@ -39,7 +38,7 @@ namespace Trains
 
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
-        private RbStateMachine stateMachine;
+        [SerializeField] private RbStateMachine stateMachine;
 
         public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
 
@@ -63,10 +62,10 @@ namespace Trains
             detector.OnRoadDetected += SetDetectedRoad;
             detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
-            if (state is null)
-            {
-                state = new RailBuilderState().Configure(this, regHelp); //all other states are null
-            }
+            //if (state is null)
+            //{
+            //    state = new RailBuilderState().Configure(this, regHelp); //all other states are null
+            //}
         }
 
         private void OnDisable()
@@ -74,7 +73,7 @@ namespace Trains
             detector.OnRoadDetected -= SetDetectedRoad;
             detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
 
-            state = new RailBuilderState().Configure(this, regHelp);
+            //state = new RailBuilderState().Configure(this, regHelp);
             RemoveMesh();
         }
 
@@ -97,7 +96,7 @@ namespace Trains
 
             //state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
             //stateName = state.GetType().Name;
-            stateMachine.UpdateStateMachine(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
+            stateMachine.UpdateState(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
             if (HasPoints)
             {
@@ -113,26 +112,26 @@ namespace Trains
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
             //move det, set up detected road if any
-            detector.transform.position = start;    //this worked lol
-            //Debug.Log($"1: { state.GetType()}");
+            detector.transform.position = start;   
             yield return null;
-
+            
             //selecting start state
-            state = state.Handle(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
+            stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
             yield return null;
 
             //move det, set up detected road if any
             detector.transform.position = goal;
-            //Debug.Log($"3: { state.GetType()}");
             yield return null;
-
+            
             //drawing initial segment state
-            state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
-            //Debug.Log($"4: { state.GetType()}");
+            stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
             yield return null;
 
-            state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
-            //Debug.Log($"5: { state.GetType()}");
+            //select start state
+            stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
+            yield return null;
+
+            UnsnapStart();
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)

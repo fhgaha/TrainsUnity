@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,43 +6,43 @@ using UnityEngine;
 
 namespace Trains
 {
+    [Serializable]
     public class RbStateMachine
     {
-        public RbSelectStartState SelectStartState => selectStartState;
-        public RbInitialSegmentState InitialSegmentState => initialSegmentState;
-        public RbNoninitialSegmentState NoninitialSegmentState => noninitialSegmentState;
-        public RailBuilder Rb => rb;
-        public RegisterHelper RegHelp => regHelp;
+        public RbSelectStartState SelectStartState { get; }
+        public RbInitialSegmentState InitialSegmentState { get; }
+        public RbNoninitialSegmentState NoninitialSegmentState { get; }
 
+        public RbBaseState CurrentState
+        {
+            get => currentState; 
+            private set
+            {
+                currentState = value;
+                curStateName = value.GetType().Name;
+            }
+        }
+        public string curStateName = "---";
         private RbBaseState currentState = null;
-        private RbSelectStartState selectStartState;
-        private RbInitialSegmentState initialSegmentState;
-        private RbNoninitialSegmentState noninitialSegmentState;
-        private RailBuilder rb;
-        private RegisterHelper regHelp;
 
         public RbStateMachine(RailBuilder rb, RegisterHelper regHelp)
         {
-            this.rb = rb;
-            this.regHelp = regHelp;
+            SelectStartState = new(rb);
+            InitialSegmentState = new(rb, regHelp, this);
+            NoninitialSegmentState = new(rb, regHelp, this);
 
-            selectStartState = new(rb);
-            initialSegmentState = new(rb, regHelp, this);
-            noninitialSegmentState = new(rb, regHelp, this);
-
-            currentState = selectStartState;
-            currentState.EnterState(this);
+            CurrentState = SelectStartState;
+            CurrentState.OnEnter(this);
         }
 
-        public void UpdateStateMachine(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmdPressed)
-        {
-            currentState.UpdateState(this, wasHit, hitPoint, lmbPressed, rmdPressed);
-        }
+        public void UpdateState(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed)
+            => CurrentState.UpdateState(this, wasHit, hitPoint, lmbPressed, rmbPressed);
 
         public void SwitchStateTo(RbBaseState state)
         {
-            currentState = state;
-            currentState.EnterState(this);
+            CurrentState.OnExit(this);
+            CurrentState = state;
+            CurrentState.OnEnter(this);
         }
 
         public HeadedPoint GetSnappedEnd(List<Vector3> pts, Vector3 mousePos, Vector3 dir)
@@ -65,9 +66,6 @@ namespace Trains
                 float a1 = Vector3.Angle(dir, dir1);
                 float a2 = Vector3.Angle(dir, dir2);
                 Vector3 snappedDir = a1 * a1 <= a2 * a2 ? dir1 : dir2;
-
-                //Debug.Log($"a1: {a1}, a2: {a2}");
-
                 heading = Vector3.SignedAngle(Vector3.forward, snappedDir, Vector3.up);
             }
             return new HeadedPoint(closest, heading);

@@ -9,7 +9,7 @@ namespace Trains
         private RailBuilder rb;
         private RegisterHelper regHelp;
         private RbStateMachine machine;
-        private Vector3 mousePos = Vector3.zero;
+        private Vector3 mousePos = Vector3.positiveInfinity;
 
         public RbNoninitialSegmentState(RailBuilder rb, RegisterHelper regHelp, RbStateMachine machine) : base()
         {
@@ -18,16 +18,19 @@ namespace Trains
             this.machine = machine;
         }
 
-        public override void EnterState(RbStateMachine machine)
+        public override void OnEnter(RbStateMachine machine)
         {
             //rb = machine.Rb;
             //regHelp = machine.RegHelp;
         }
 
+        public override void OnExit(RbStateMachine machine)
+        {
+            mousePos = Vector3.positiveInfinity;
+        }
+
         public override void UpdateState(RbStateMachine machine, bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed)
         {
-            var rb = machine.Rb;
-
             HandleMouseMovement(machine, wasHit, hitPoint);
 
             //on lmb save drawn segment to a rail container

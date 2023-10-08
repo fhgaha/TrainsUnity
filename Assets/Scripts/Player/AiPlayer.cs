@@ -19,37 +19,67 @@ namespace Trains
             rb.Parent = this;
             rb.gameObject.SetActive(true);
 
-            BuildRoad();
+            //Build_I();
+            //Build_I_II();
+            Build_I_fromLeft_to_I_fromRight_sameZ();  
+            //Build_T_fromLooseEndToConnection();
+            //Build_T_fromConnectionToLooseEnd();
         }
 
-        [ContextMenu("Build Road")] //works even on disabled gameonject
-        public void BuildRoad()
+        [ContextMenu("Build simple road")] //works even on disabled gameonject
+        public void Build_I()
         {
-            Vector3 p1 = Vector3.zero;
-            Vector3 p2 = new(20, 0, 20);
-            Vector3 p3 = new(20, 0, -20);
-
             StartCoroutine(Build());
             IEnumerator Build()
             {
-                yield return BuildRoad(p1, p2);
-                yield return BuildRoad(p2, p3);
+                yield return BuildSegm(new Vector3(0, 0, 0), new Vector3(30, 0, 30));
             }
         }
 
-        private Coroutine BuildRoad(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
-
-        private void Update()
+        public void Build_I_II()
         {
-            //if (state == PlayerState.BuildingRoads)
-            //{
-            //    Vector3 from = Vector3.zero;
-            //    if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground")))
-            //    {
-            //        rb.BuildRoad(from, hit.point);
-            //    }
-            //}
-
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(Vector3.zero, new(20, 0, 20));
+                yield return BuildSegm(new(20, 0, 20), new(20, 0, -20));
+            }
         }
+
+        public void Build_I_fromLeft_to_I_fromRight_sameZ()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new(-20, 0, 5), new(5, 0, 5));
+                yield return BuildSegm(new(50, 0, 5), new(5, 0, 5));    
+            }
+        }
+
+        public void Build_T_fromLooseEndToConnection()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new Vector3(-20, 0, 5), new Vector3(20, 0, 5));
+                yield return BuildSegm(new Vector3(-5, 0, -20), new Vector3(10, 0, 5));
+            }
+        }
+
+        public void Build_T_fromConnectionToLooseEnd()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new Vector3(-20, 0, 5), new Vector3(20, 0, 5));
+                yield return BuildSegm(new Vector3(10, 0, 5), new Vector3(-5, 0, -20));
+            }
+        }
+
+
+
+        private Coroutine BuildSegm(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
+
+       
     }
 }

@@ -9,7 +9,7 @@ namespace Trains
         private RailBuilder rb;
         private RegisterHelper regHelp;
         private RbStateMachine machine;
-        private Vector3 mousePos = Vector3.zero;
+        private Vector3 mousePos = Vector3.positiveInfinity;
 
         public RbInitialSegmentState(RailBuilder rb, RegisterHelper regHelp, RbStateMachine machine):base()
         {
@@ -18,11 +18,16 @@ namespace Trains
             this.machine = machine;
         }
 
-        public override void EnterState(RbStateMachine machine)
+        public override void OnEnter(RbStateMachine machine)
         {
             //rb = machine.Rb;
             //regHelp = machine.RegHelp;
             //this.machine = machine;
+        }
+        
+        public override void OnExit(RbStateMachine machine)
+        {
+            mousePos = Vector3.positiveInfinity;
         }
 
         public override void UpdateState(RbStateMachine machine, bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed)
@@ -201,7 +206,7 @@ namespace Trains
                     rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
                 }
-                else if (rb.DetectedRoad != null)
+                else if (rb.DetectedRoad != null)   //detected road is null why
                 {
                     rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
@@ -213,5 +218,6 @@ namespace Trains
             }
             mousePos = hitPoint;
         }
+
     }
 }
