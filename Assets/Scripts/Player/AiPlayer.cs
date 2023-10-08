@@ -18,7 +18,8 @@ namespace Trains
         {
             rb.Parent = this;
             rb.gameObject.SetActive(true);
-            //BuildRoad();
+
+            BuildRoad();
         }
 
         [ContextMenu("Build Road")] //works even on disabled gameonject

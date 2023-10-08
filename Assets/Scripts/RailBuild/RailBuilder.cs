@@ -39,6 +39,8 @@ namespace Trains
 
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
+        private RbStateMachine stateMachine;
+
         public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
 
         private void Awake()
@@ -48,6 +50,8 @@ namespace Trains
 
             regHelp = GetComponent<RegisterHelper>();
             regHelp.Configure(segment, railContainer);
+
+            stateMachine = new RbStateMachine(this, regHelp);
         }
 
         private void Start()
@@ -90,8 +94,10 @@ namespace Trains
             {
                 detector.transform.position = hit.point;
             }
-            state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
-            stateName = state.GetType().Name;
+
+            //state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
+            //stateName = state.GetType().Name;
+            stateMachine.UpdateStateMachine(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
             if (HasPoints)
             {
