@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Trains
 {
-
     public class RailBuilder : MonoBehaviour
     {
         public List<Vector3> Points { get; private set; } = new();
@@ -24,6 +23,14 @@ namespace Trains
         [SerializeField] private RailContainer railContainer;
         [SerializeField] private RoadSegment segment;
         public RoadSegment Segment => segment;
+
+        #region snapped start info
+        public Vector3 SnappedStart { get; set; }
+        public RoadSegment SnappedStartRoad { get; set; }
+        public List<Vector3> SnappedStartPoints { get; set; } = new();
+        public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
+        #endregion
+
         private RegisterHelper regHelp;
         private RailBuilderState state;
         private DubinsGeneratePaths dubinsPathGenerator = new();
@@ -52,7 +59,10 @@ namespace Trains
             detector.OnRoadDetected += SetDetectedRoad;
             detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
 
-            if (state is null) state = RailBuilderState.Configure(this, regHelp);
+            if (state is null)
+            {
+                state = new RailBuilderState().Configure(this, regHelp); //all other states are null
+            }
         }
 
         private void OnDisable()
@@ -60,14 +70,14 @@ namespace Trains
             detector.OnRoadDetected -= SetDetectedRoad;
             detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
 
-            state = RailBuilderState.selectingStartState;
+            state = new RailBuilderState().Configure(this, regHelp);
             RemoveMesh();
         }
 
         private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)
         {
             if (sender is not Detector d || d != detector) return;
-            
+
             DetectedRoad = e.Other;
         }
 
@@ -91,33 +101,32 @@ namespace Trains
             }
 
             //debug
-            snappedStartPos = RailBuilderState.selectingStartState.SnappedStart;
+            snappedStartPos = SnappedStart;
         }
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
             //move det, set up detected road if any
             detector.transform.position = start;    //this worked lol
-            Debug.Log($"1: { state.GetType()}");
+            //Debug.Log($"1: { state.GetType()}");
             yield return null;
 
             //selecting start state
             state = state.Handle(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
-            Debug.Log($"2: { state.GetType()}");
             yield return null;
 
             //move det, set up detected road if any
             detector.transform.position = goal;
-            Debug.Log($"3: { state.GetType()}");
+            //Debug.Log($"3: { state.GetType()}");
             yield return null;
 
             //drawing initial segment state
             state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
-            Debug.Log($"4: { state.GetType()}");
+            //Debug.Log($"4: { state.GetType()}");
             yield return null;
 
             state = state.Handle(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
-            Debug.Log($"5: { state.GetType()}");
+            //Debug.Log($"5: { state.GetType()}");
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
@@ -215,6 +224,13 @@ namespace Trains
         {
             segment.SetMesh(null);
             Points.Clear();
+        }
+
+        public void UnsnapStart()
+        {
+            SnappedStart = Vector3.zero;
+            SnappedStartRoad = null;
+            SnappedStartPoints.Clear();
         }
     }
 }

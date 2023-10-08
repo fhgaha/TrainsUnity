@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class DrawingInitialSegment : RailBuilderState
+    public class DrawingInitialSegmentState : RailBuilderState
     {
         public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint, bool lmbPresed, bool rmbPressed)
         {
@@ -22,30 +22,30 @@ namespace Trains
             if (lmbPresed)
             {
                 HandleLmbPressed();
-                return drawingNoninitialSegmentState;
+                return BaseClass.drawingNoninitialSegmentState;
             }
 
             //on rmb cancel drawing
             if (rmbPressed)
             {
                 rb.RemoveMesh();
-                selectingStartState.UnsnapStart();
-                return selectingStartState;
+                rb.UnsnapStart();
+                return BaseClass.selectingStartState;
             }
 
-            return this;
+            return BaseClass.drawingInitialSegmentState;
         }
 
-        private static void HandleLmbPressed()
+        private void HandleLmbPressed()
         {
             rb.PutDrawnSegmentIntoContainer();
 
             //register in route manager
-            if (selectingStartState.IsStartSnapped)
+            if (rb.IsStartSnapped)
             {
                 if (rb.DetectedStation != null)
                 {
-                    RoadSegment startRoad = selectingStartState.SnappedStartRoad;
+                    RoadSegment startRoad = rb.SnappedStartRoad;
                     Vector3 start = rb.Segment.Start;
 
                     //if (start == startRoad.Start || start == startRoad.End)
@@ -85,12 +85,12 @@ namespace Trains
 
             rb.start = rb.end;
             rb.end = HeadedPoint.Empty;
-            selectingStartState.UnsnapStart();
+            rb.UnsnapStart();
         }
 
-        private static void HandleSnappedStartSnappedEnd()
+        private void HandleSnappedStartSnappedEnd()
         {
-            RoadSegment startRoad = selectingStartState.SnappedStartRoad;
+            RoadSegment startRoad = rb.SnappedStartRoad;
             RoadSegment endRoad = rb.DetectedRoad;
             Vector3 start = rb.Segment.Start;
             Vector3 end = rb.Segment.End;
@@ -112,9 +112,9 @@ namespace Trains
             }
         }
 
-        private static void HandleUnsnappedStartUnsnappedEnd() => regHelp.RegisterI(rb.Segment.Start, rb.Segment.End);
+        private void HandleUnsnappedStartUnsnappedEnd() => regHelp.RegisterI(rb.Segment.Start, rb.Segment.End);
 
-        private static void HandleUnsnappedStartSnappedEnd()
+        private void HandleUnsnappedStartSnappedEnd()
         {
             //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
             if (rb.DetectedRoad.IsPointSnappedOnEnding(rb.Segment.End))
@@ -128,9 +128,9 @@ namespace Trains
             }
         }
 
-        private static void HandleSnappedStartUnsnappedEnd()
+        private void HandleSnappedStartUnsnappedEnd()
         {
-            RoadSegment snappedRoad = selectingStartState.SnappedStartRoad;
+            RoadSegment snappedRoad = rb.SnappedStartRoad;
             Vector3 start = rb.Segment.Start;
             Vector3 end = rb.Segment.End;
             //if (start == snappedRoad.Start || start == snappedRoad.End)
@@ -153,12 +153,12 @@ namespace Trains
 
             //if road is from station to station draw dubins
 
-            if (selectingStartState.IsStartSnapped)
+            if (rb.IsStartSnapped)
             {
                 rb.start.heading = GetSnappedStartHeading(
-                    selectingStartState.SnappedStartPoints,
-                    selectingStartState.SnappedStart,
-                    hitPoint - selectingStartState.SnappedStart
+                    rb.SnappedStartPoints,
+                    rb.SnappedStart,
+                    hitPoint - rb.SnappedStart
                 );
 
                 if (rb.DetectedStation != null)

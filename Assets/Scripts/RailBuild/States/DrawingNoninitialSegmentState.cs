@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class DrawingNoninitialSegment : RailBuilderState
+    public class DrawingNoninitialSegmentState : RailBuilderState
     {
         public override RailBuilderState Handle(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed)
         {
@@ -14,20 +14,20 @@ namespace Trains
             if (lmbPressed)
             {
                 HandleLmbPressed();
-                return this;
+                return BaseClass.drawingNoninitialSegmentState;
             }
 
             //on rmb cancel drawing
             if (rmbPressed)
             {
                 rb.RemoveMesh();
-                return selectingStartState;
+                return BaseClass.selectingStartState;
             }
 
-            return this;
+            return BaseClass.drawingNoninitialSegmentState;
         }
 
-        private static void HandleLmbPressed()
+        private void HandleLmbPressed()
         {
             rb.PutDrawnSegmentIntoContainer();
 

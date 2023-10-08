@@ -28,15 +28,15 @@ namespace Trains
             Vector3 p2 = new(20, 0, 20);
             Vector3 p3 = new(20, 0, -20);
 
-            StartCoroutine(Foo());
-            IEnumerator Foo()
+            StartCoroutine(Build());
+            IEnumerator Build()
             {
-                yield return Do(p1, p2);
-                yield return Do(p2, p3);
+                yield return BuildRoad(p1, p2);
+                yield return BuildRoad(p2, p3);
             }
         }
 
-        private Coroutine Do(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
+        private Coroutine BuildRoad(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
 
         private void Update()
         {

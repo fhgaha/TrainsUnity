@@ -12,28 +12,40 @@ namespace Trains
         //initial segment can start from snapped point (from point of another segemnt), or from freely selected point on a ground.
         //non inintal segment is always starts from snapped point.
         //you can snap last point of a segment to another segment or put it freely somewhere on the ground.
-        public static SelectingStart selectingStartState;
-        public static DrawingInitialSegment drawingInitialSegmentState;
-        public static DrawingNoninitialSegment drawingNoninitialSegmentState;
-        protected static RailBuilder rb;
-        protected static RegisterHelper regHelp;
-        protected static Vector3 mousePos;
+        public SelectingStartState selectingStartState;
+        public DrawingInitialSegmentState drawingInitialSegmentState;
+        public DrawingNoninitialSegmentState drawingNoninitialSegmentState;
+        protected RailBuilderState BaseClass = null;
+        public RailBuilder rb;
+        public RegisterHelper regHelp;
+        protected Vector3 mousePos;
 
-        public static RailBuilderState Configure(RailBuilder rb, RegisterHelper regHelp)
+        public RailBuilderState Configure(RailBuilder rb, RegisterHelper regHelp)
         {
             selectingStartState = new();
             drawingInitialSegmentState = new();
             drawingNoninitialSegmentState = new();
-            RailBuilderState.rb = rb;
-            RailBuilderState.regHelp = regHelp;
+
+            selectingStartState.BaseClass = this;
+            drawingInitialSegmentState.BaseClass = this;
+            drawingNoninitialSegmentState.BaseClass = this;
+
+            selectingStartState.rb = rb;
+            drawingInitialSegmentState.rb = rb;
+            drawingNoninitialSegmentState.rb = rb;
+
+            selectingStartState.regHelp = regHelp;
+            drawingInitialSegmentState.regHelp = regHelp;
+            drawingNoninitialSegmentState.regHelp = regHelp;
+
+            this.rb = rb;
+            this.regHelp = regHelp;
             return selectingStartState;
         }
 
         //public virtual RailBuilderState Handle(Camera camera) => this;
 
         public virtual RailBuilderState Handle(bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed) => this;
-        protected bool HitGround(Camera camera, out RaycastHit hit) =>
-            Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hit, 1000f, LayerMask.GetMask("Ground"));
 
         private float minDistToDraw = 5;
         protected bool ArePointsToCloseToDraw(Vector3 from, Vector3 to) => (to - from).magnitude > minDistToDraw;
@@ -78,7 +90,7 @@ namespace Trains
             if (pts.Count >= 5)
             {
                 IsStartEdge = Enumerable.Range(0, 5).Contains(index);
-                IsEndEdge   = Enumerable.Range(pts.Count - 4, pts.Count).Contains(index);
+                IsEndEdge = Enumerable.Range(pts.Count - 4, pts.Count).Contains(index);
             }
 
             if (IsStartEdge)
