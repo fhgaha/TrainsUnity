@@ -223,5 +223,7 @@ namespace Trains
             if (result < -180) result += 360;
             return result;
         }
+
+        public static bool ApproxXZ(Vector3 first, Vector3 second) => Mathf.Approximately(first.x, second.x) && Mathf.Approximately(first.z, second.z);
     }
 }

@@ -16,6 +16,9 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
+            rb.start = default;
+            rb.end = default;
+            rb.UnsnapStart();
         }
 
         public override void OnExit(RbStateMachine machine)

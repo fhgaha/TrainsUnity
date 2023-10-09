@@ -21,9 +21,11 @@ namespace Trains
 
             //Build_I();
             //Build_I_II();
-            Build_I_fromLeft_to_I_fromRight_sameZ();  
+            //Build_I_fromLeft_to_I_fromRight_sameZ();
             //Build_T_fromLooseEndToConnection();
             //Build_T_fromConnectionToLooseEnd();
+            //Build_H();
+            //Build_C();
         }
 
         [ContextMenu("Build simple road")] //works even on disabled gameonject
@@ -32,7 +34,7 @@ namespace Trains
             StartCoroutine(Build());
             IEnumerator Build()
             {
-                yield return BuildSegm(new Vector3(0, 0, 0), new Vector3(30, 0, 30));
+                yield return BuildSegm(new(0, 0, 0), new(30, 0, 30));
             }
         }
 
@@ -52,7 +54,7 @@ namespace Trains
             IEnumerator Build()
             {
                 yield return BuildSegm(new(-20, 0, 5), new(5, 0, 5));
-                yield return BuildSegm(new(50, 0, 5), new(5, 0, 5));    
+                yield return BuildSegm(new(50, 0, 5), new(5, 0, 5));
             }
         }
 
@@ -61,8 +63,8 @@ namespace Trains
             StartCoroutine(Build());
             IEnumerator Build()
             {
-                yield return BuildSegm(new Vector3(-20, 0, 5), new Vector3(20, 0, 5));
-                yield return BuildSegm(new Vector3(-5, 0, -20), new Vector3(10, 0, 5));
+                yield return BuildSegm(new(-20, 0, 5), new(20, 0, 5));
+                yield return BuildSegm(new(-5, 0, -20), new(10, 0, 5));
             }
         }
 
@@ -71,15 +73,37 @@ namespace Trains
             StartCoroutine(Build());
             IEnumerator Build()
             {
-                yield return BuildSegm(new Vector3(-20, 0, 5), new Vector3(20, 0, 5));
-                yield return BuildSegm(new Vector3(10, 0, 5), new Vector3(-5, 0, -20));
+                yield return BuildSegm(new(-20, 0, 5), new(20, 0, 5));
+                yield return BuildSegm(new(10, 0, 5), new(-5, 0, -20));
             }
         }
 
+        public void Build_H()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new(-50, 0, 30), new(50, 0, 30));
+                yield return BuildSegm(new(-50, 0, -30), new(50, 0, -30));
+                yield return BuildSegm(new(10, 0, -30), new(-10, 0, 30));
+            }
+        }
 
+        public void Build_C()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new(-50, 0, 30), new(50, 0, 30));
+                yield return BuildSegm(new(-50, 0, -30), new(50, 0, -30));
+                yield return BuildSegm(new(-50, 0, -30), new(-50, 0, 30));
+                yield return new WaitForSeconds(1f);
+                yield return BuildSegm(new(50, 0, -30), new(50, 0, 30));
+            }
+        }
 
         private Coroutine BuildSegm(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
 
-       
+
     }
 }

@@ -89,13 +89,13 @@ namespace Trains
             //RSR and LSL is only working if the circles don't have the same position
 
             //RSR
-            if (!(Mathf.Approximately(startRightCircle.x, goalRightCircle.x) && Mathf.Approximately(startRightCircle.z, goalRightCircle.z)))
+            if (!MyMath.ApproxXZ(startRightCircle, goalRightCircle))
             {
                 Get_RSR_Length();
             }
 
             //LSL
-            if (!(Mathf.Approximately(startLeftCircle.x, goalLeftCircle.x) && !Mathf.Approximately(startLeftCircle.z, goalLeftCircle.z)))
+            if (!MyMath.ApproxXZ(startLeftCircle, goalLeftCircle))
             {
                 Get_LSL_Length();
             }

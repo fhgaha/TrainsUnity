@@ -11,7 +11,7 @@ namespace Trains
         private RbStateMachine machine;
         private Vector3 mousePos = Vector3.positiveInfinity;
 
-        public RbInitialSegmentState(RailBuilder rb, RegisterHelper regHelp, RbStateMachine machine):base()
+        public RbInitialSegmentState(RailBuilder rb, RegisterHelper regHelp, RbStateMachine machine) : base()
         {
             this.rb = rb;
             this.regHelp = regHelp;
@@ -24,10 +24,10 @@ namespace Trains
             //regHelp = machine.RegHelp;
             //this.machine = machine;
         }
-        
+
         public override void OnExit(RbStateMachine machine)
         {
-            mousePos = Vector3.positiveInfinity;
+            mousePos = Vector3.positiveInfinity;    //in HandleMouseMovement we check previous mouse pos, so we need to reset it
         }
 
         public override void UpdateState(RbStateMachine machine, bool wasHit, Vector3 hitPoint, bool lmbPressed, bool rmbPressed)
