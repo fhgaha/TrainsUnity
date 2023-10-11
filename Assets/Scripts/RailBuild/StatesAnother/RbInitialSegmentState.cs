@@ -20,6 +20,7 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
+            Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
             //rb = machine.Rb;
             //regHelp = machine.RegHelp;
             //this.machine = machine;
@@ -57,6 +58,57 @@ namespace Trains
                 machine.SwitchStateTo(machine.SelectStartState);
                 return;
             }
+        }
+
+        private void HandleMouseMovement(bool wasHit, Vector3 hitPoint)
+        {
+            if (!wasHit) return;
+            if (mousePos == hitPoint) return;
+            //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
+
+            //if road is from station to station draw dubins
+
+            if (rb.IsStartSnapped)
+            {
+                rb.start.heading = machine.GetSnappedStartHeading(
+                    rb.SnappedStartPoints,
+                    rb.SnappedStart,
+                    hitPoint - rb.SnappedStart
+                );
+
+                if (rb.DetectedStation != null)
+                {
+                    rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.CalculateDubinsPoints();
+                }
+                else if (rb.DetectedRoad != null)
+                {
+                    rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.CalculateDubinsPoints();
+                }
+                else
+                {
+                    rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
+                }
+            }
+            else
+            {
+                if (rb.DetectedStation != null)
+                {
+                    rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.CalculateCSPointsReversed();
+                }
+                else if (rb.DetectedRoad != null)   //detected road is null why
+                {
+                    rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.CalculateCSPointsReversed();
+                }
+                else
+                {
+                    rb.CalculateStraightPoints(rb.start.pos, hitPoint);
+                }
+            }
+            mousePos = hitPoint;
         }
 
         private void HandleLmbPressed()
@@ -167,57 +219,5 @@ namespace Trains
                 regHelp.RegisterT(end, start, snappedRoad, rb.Segment.Points);
             }
         }
-
-        private void HandleMouseMovement(bool wasHit, Vector3 hitPoint)
-        {
-            if (!wasHit) return;
-            if (mousePos == hitPoint) return;
-            //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
-
-            //if road is from station to station draw dubins
-
-            if (rb.IsStartSnapped)
-            {
-                rb.start.heading = machine.GetSnappedStartHeading(
-                    rb.SnappedStartPoints,
-                    rb.SnappedStart,
-                    hitPoint - rb.SnappedStart
-                );
-
-                if (rb.DetectedStation != null)
-                {
-                    rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateDubinsPoints();
-                }
-                else if (rb.DetectedRoad != null)
-                {
-                    rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateDubinsPoints();
-                }
-                else
-                {
-                    rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
-                }
-            }
-            else
-            {
-                if (rb.DetectedStation != null)
-                {
-                    rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateCSPointsReversed();
-                }
-                else if (rb.DetectedRoad != null)   //detected road is null why
-                {
-                    rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateCSPointsReversed();
-                }
-                else
-                {
-                    rb.CalculateStraightPoints(rb.start.pos, hitPoint);
-                }
-            }
-            mousePos = hitPoint;
-        }
-
     }
 }

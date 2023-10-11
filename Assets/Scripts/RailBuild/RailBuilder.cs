@@ -111,27 +111,30 @@ namespace Trains
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
-            //move det, set up detected road if any
-            detector.transform.position = start;   
-            yield return null;
-            
             //selecting start state
+            //move det, set up detected road if any
+            detector.transform.position = start;
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
+            //switch to drawing initial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
-            yield return null;
+            yield return new WaitUntil(() => stateMachine.CurrentState is RbInitialSegmentState);
 
             //move det, set up detected road if any
             detector.transform.position = goal;
-            yield return null;
-            
-            //drawing initial segment state
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+
+            //switch to drawing noninitial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
-            yield return null;
+            yield return new WaitUntil(() => stateMachine.CurrentState is RbNoninitialSegmentState);
 
-            //select start state
+            //switch to select start state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
-            yield return null;
-
-            UnsnapStart();
+            yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
         }
 
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)

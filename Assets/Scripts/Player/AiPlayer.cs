@@ -21,11 +21,11 @@ namespace Trains
 
             //Build_I();
             //Build_I_II();
-            //Build_I_fromLeft_to_I_fromRight_sameZ();
+            //Build_I_fromLeftTo_I_fromRight_sameZ();
             //Build_T_fromLooseEndToConnection();
             //Build_T_fromConnectionToLooseEnd();
             //Build_H();
-            //Build_C();
+            Build_C();
         }
 
         [ContextMenu("Build simple road")] //works even on disabled gameonject
@@ -48,7 +48,7 @@ namespace Trains
             }
         }
 
-        public void Build_I_fromLeft_to_I_fromRight_sameZ()
+        public void Build_I_fromLeftTo_I_fromRight_sameZ()
         {
             StartCoroutine(Build());
             IEnumerator Build()
@@ -89,6 +89,8 @@ namespace Trains
             }
         }
 
+
+        //other alternative is to use update for that somehow. Hey, itll be better forperformance!
         public void Build_C()
         {
             StartCoroutine(Build());
@@ -97,13 +99,25 @@ namespace Trains
                 yield return BuildSegm(new(-50, 0, 30), new(50, 0, 30));
                 yield return BuildSegm(new(-50, 0, -30), new(50, 0, -30));
                 yield return BuildSegm(new(-50, 0, -30), new(-50, 0, 30));
-                yield return new WaitForSeconds(1f);
                 yield return BuildSegm(new(50, 0, -30), new(50, 0, 30));
             }
         }
 
-        private Coroutine BuildSegm(Vector3 p1, Vector3 p2) => StartCoroutine(rb.BuildRoad_Routine(p1, p2));
+        public void BuildManyRndSegments()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                for (int i = 0; i < 100_000; i++)
+                {
+                    yield return BuildSegm(GetRndVector(), GetRndVector());
+                }
+            }
+            
+            Vector3 GetRndVector() => new(Random.value * 400 - 200, 0, Random.value * 400 - 200);
+        }
 
+        private Coroutine BuildSegm(Vector3 from, Vector3 to) => StartCoroutine(rb.BuildRoad_Routine(from, to));
 
     }
 }

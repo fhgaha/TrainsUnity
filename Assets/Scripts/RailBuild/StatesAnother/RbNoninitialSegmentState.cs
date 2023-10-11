@@ -20,6 +20,7 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
+            Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
             //rb = machine.Rb;
             //regHelp = machine.RegHelp;
         }
@@ -49,6 +50,29 @@ namespace Trains
             }
 
             return;
+        }
+
+        private void HandleMouseMovement(RbStateMachine machine, bool wasHit, Vector3 hitPoint)
+        {
+            if (!wasHit) return;
+            if (mousePos == hitPoint) return;
+            //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
+
+            if (rb.DetectedStation != null)
+            {
+                rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.tangent1);
+                rb.CalculateDubinsPoints();
+            }
+            else if (rb.DetectedRoad != null)
+            {
+                rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.tangent1);
+                rb.CalculateDubinsPoints();
+            }
+            else
+            {
+                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
+            }
+            mousePos = hitPoint;
         }
 
         private void HandleLmbPressed(RbStateMachine machine)
@@ -85,29 +109,6 @@ namespace Trains
 
             rb.start = rb.end;
             rb.end = HeadedPoint.Empty;
-        }
-
-        private void HandleMouseMovement(RbStateMachine machine, bool wasHit, Vector3 hitPoint)
-        {
-            if (!wasHit) return;
-            if (mousePos == hitPoint) return;
-            //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
-
-            if (rb.DetectedStation != null)
-            {
-                rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.tangent1);
-                rb.CalculateDubinsPoints();
-            }
-            else if (rb.DetectedRoad != null)
-            {
-                rb.end = machine.GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.tangent1);
-                rb.CalculateDubinsPoints();
-            }
-            else
-            {
-                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
-            }
-            mousePos = hitPoint;
         }
     }
 }
