@@ -28,8 +28,14 @@ namespace Trains
             //Build_C();
             //Build_IT();
 
-            StartCoroutine(BuildAndDestroyAll());
-            IEnumerator BuildAndDestroyAll()
+            BuildAndDestroyAllOnce();
+            //BuildAndDestroyAllSeveralTimes();
+        }
+
+        private void BuildAndDestroyAllSeveralTimes()
+        {
+            StartCoroutine(BuildAndDestroy());
+            IEnumerator BuildAndDestroy()
             {
                 yield return BuildAndDestroySeveralTimes_I_Coroutine();
                 yield return BuildAndDestroySeveralTimes_I_II_Coroutine();
@@ -42,6 +48,23 @@ namespace Trains
             }
         }
 
+        private void BuildAndDestroyAllOnce()
+        {
+            StartCoroutine(BuildAndDestroy());
+            IEnumerator BuildAndDestroy()
+            {
+                yield return BuildAndDestroyOnce_I_Coroutine();
+                yield return BuildAndDestroyOnce_I_II_Coroutine();
+                yield return BuildAndDestroyOnce_I_fromLeftTo_I_fromRight_sameZ_Coroutine();
+                yield return BuildAndDestroyOnce_T_fromLooseEndToConnection_Coroutine();
+                yield return BuildAndDestroyOnce_T_fromConnectionToLooseEnd_Coroutine();
+                yield return BuildAndDestroyOnce_H_Coroutine();
+                yield return BuildAndDestroyOnce_C_Coroutine();
+                yield return BuildAndDestroyOnce_IT_Coroutine();
+            }
+        }
+
+        #region simple
         [ContextMenu("Build simple road")] //works even on disabled gameonject
         public void Build_I()
         {
@@ -125,6 +148,150 @@ namespace Trains
                 yield return BuildSegm(new(10, 0, 30), new(-20, 0, -30));
             }
         }
+        #endregion
+
+        public IEnumerator BuildAndDestroyOnce_I_Coroutine()
+        {
+            var segm = (start: new Vector3(0, 0, 0), end: new Vector3(30, 0, 30));
+
+            yield return BuildSegm(segm);
+            UnbuildSegm(segm);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_I_II_Coroutine()
+        {
+            Vector3 a = new(0, 0, 0);
+            Vector3 b = new(20, 0, 20);
+            Vector3 c = new(20, 0, -20);
+
+            var firstSegm = (start: a, end: b);
+            var secondSegm = (start: b, end: c);
+
+            yield return BuildSegm(firstSegm);
+            yield return BuildSegm(secondSegm);
+
+            UnbuildSegm(firstSegm);
+            UnbuildSegm(secondSegm);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_I_fromLeftTo_I_fromRight_sameZ_Coroutine()
+        {
+            var fromLeft = (start: new Vector3(-20, 0, 5), end: new Vector3(5, 0, 5));
+            var fromRight = (start: new Vector3(50, 0, 5), end: new Vector3(5, 0, 5));
+
+            yield return BuildSegm(fromLeft);
+            yield return BuildSegm(fromRight);
+
+            UnbuildSegm(fromLeft);
+            UnbuildSegm(fromRight);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_T_fromLooseEndToConnection_Coroutine()
+        {
+            Vector3 lineLeft = new Vector3(-20, 0, 5);
+            Vector3 lineRight = new Vector3(20, 0, 5);
+            Vector3 looseEnd = new Vector3(-5, 0, -20);
+            Vector3 connection = new Vector3(10, 0, 5);
+
+            var line = (start: lineLeft, end: lineRight);
+            var looseEndToMid = (start: looseEnd, end: connection);
+
+            yield return BuildSegm(line);
+            yield return BuildSegm(looseEndToMid);
+
+            UnbuildSegm(looseEndToMid);
+            UnbuildSegm(lineLeft, connection);
+            UnbuildSegm(connection, lineRight);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_T_fromConnectionToLooseEnd_Coroutine()
+        {
+            Vector3 lineLeft = new Vector3(-20, 0, 5);
+            Vector3 lineRight = new Vector3(20, 0, 5);
+            Vector3 looseEnd = new Vector3(-5, 0, -20);
+            Vector3 connection = new Vector3(10, 0, 5);
+
+            var line = (start: lineLeft, end: lineRight);
+            var connectionToLooseEnd = (start: connection, end: looseEnd);
+
+            yield return BuildSegm(line);
+            yield return BuildSegm(connectionToLooseEnd);
+
+            UnbuildSegm(connectionToLooseEnd);
+            UnbuildSegm(lineLeft, connection);
+            UnbuildSegm(connection, lineRight);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_H_Coroutine()
+        {
+            Vector3 topLeft = new(-50, 0, 30);
+            Vector3 topRight = new(50, 0, 30);
+            Vector3 botLeft = new(-50, 0, -30);
+            Vector3 botRight = new(50, 0, -30);
+            Vector3 topMid = new(-10, 0, 30);
+            Vector3 botMid = new(10, 0, -30);
+
+            var topSegm = (start: topLeft, end: topRight);
+            var botSegm = (start: botLeft, end: botRight);
+            var midSegm = (start: botMid, end: topMid);
+
+            yield return BuildSegm(topSegm);
+            yield return BuildSegm(botSegm);
+            yield return BuildSegm(midSegm);
+
+            UnbuildSegm(midSegm);
+            UnbuildSegm(topLeft, topMid);
+            UnbuildSegm(topMid, topRight);
+            UnbuildSegm(botLeft, botMid);
+            UnbuildSegm(botMid, botRight);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_C_Coroutine()
+        {
+            Vector3 topLeft = new(-50, 0, 30);
+            Vector3 topRight = new(50, 0, 30);
+            Vector3 botLeft = new(-50, 0, -30);
+            Vector3 botRight = new(50, 0, -30);
+
+            var topSegm = (start: topLeft, end: topRight);
+            var botSegm = (start: botLeft, end: botRight);
+            var leftSegm = (start: botLeft, end: topLeft);
+            var rightSegm = (start: botRight, end: topRight);
+
+            yield return BuildSegm(topSegm);
+            yield return BuildSegm(botSegm);
+            yield return BuildSegm(leftSegm);
+            yield return BuildSegm(rightSegm);
+
+            UnbuildSegm(topSegm);
+            UnbuildSegm(botSegm);
+            UnbuildSegm(leftSegm);
+            UnbuildSegm(rightSegm);
+        }
+
+        public IEnumerator BuildAndDestroyOnce_IT_Coroutine()
+        {
+            Vector3 topLeft = new(10, 0, 30);
+            Vector3 topRight = new(50, 0, 30);
+            Vector3 botLeft = new(-50, 0, -30);
+            Vector3 botRight = new(50, 0, -30);
+            Vector3 botMid = new(-20, 0, -30);
+
+            var topSegm = (start: topLeft, end: topRight);
+            var botSegm = (start: botLeft, end: botRight);
+            var midSegm = (start: topLeft, end: botMid);
+
+            yield return BuildSegm(topSegm);
+            yield return BuildSegm(botSegm);
+            yield return BuildSegm(midSegm);
+
+            UnbuildSegm(topSegm);
+            UnbuildSegm(midSegm);
+            UnbuildSegm(botLeft, botMid);
+            UnbuildSegm(botMid, botRight);
+        }
+
+
 
 
         public IEnumerator BuildAndDestroySeveralTimes_I_Coroutine()
@@ -174,7 +341,7 @@ namespace Trains
             {
                 yield return BuildSegm(fromLeft);
                 yield return BuildSegm(fromRight);
-                
+
                 UnbuildSegm(fromLeft);
                 UnbuildSegm(fromRight);
 
@@ -324,7 +491,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_C finished");
         }
 
-        
+
 
         private void BuildManyRndSegments()
         {
