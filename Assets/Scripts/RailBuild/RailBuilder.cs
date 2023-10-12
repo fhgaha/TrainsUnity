@@ -137,6 +137,26 @@ namespace Trains
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
         }
 
+        //public void RemoveBuiltRoads(params Vector3[] pts)
+        //{
+        //    RouteManager rm = RouteManager.Instance;
+        //    for (int i = 0; i < pts.Length - 1; i++)
+        //    {
+        //        Vector3 start = pts[i];
+        //        Vector3 end = pts[i + 1];
+        //        railContainer.RemoveSegm(start, end);
+        //        rm.UnregisterNodes(start);
+        //    }
+        //    rm.UnregisterNode(pts[^1]);
+        //}
+
+        public void RemoveRoad(Vector3 start, Vector3 end)
+        {
+            railContainer.RemoveSegm(start, end);
+            //RouteManager.Instance.UnregisterNodes(start, end);
+            RouteManager.Instance.UnregisterEdge(start, end);
+        }
+
         public void CalculateStraightPoints(Vector3 startPos, Vector3 endPos)
         {
             start = new HeadedPoint(startPos, Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up));
@@ -240,5 +260,7 @@ namespace Trains
             SnappedStartRoad = null;
             SnappedStartPoints.Clear();
         }
+
+
     }
 }

@@ -86,6 +86,15 @@ namespace Trains
             //DebugDraw();
         }
 
+        //public void UnregisterI(Vector3 start, Vector3 end)
+        //{
+        //    Node a = GetNode(start);
+        //    Node b = GetNode(end);
+
+        //    RemoveNode(a);
+        //    RemoveNode(b);
+        //}
+
 
         //A     B     C       BC is new road
         //------*------
@@ -148,7 +157,6 @@ namespace Trains
 
             //DebugDraw();
         }
-
 
         // A       E        B           EF is new road
         //---------*---------
@@ -268,6 +276,7 @@ namespace Trains
         private Node CreateNode(Vector3 pos) => new Node(pos);
         private Edge CreateEdge(Node n, Node m, float length) => new Edge { Node1 = n, Node2 = m, Length = length };
         private Node GetNode(Vector3 pos) => graph.AllNodes.First(n => n.Pos == pos);
+        private Edge GetEdge(Node a, Node b) => graph.AllEdges.First(e => e.Contains(a, b));
 
         public void RegisterEdge(Edge edge)
         {
@@ -289,10 +298,25 @@ namespace Trains
             graph.AllNodes.Add(n);
         }
 
+        public void RemoveNode(Node n) => graph.AllNodes.Remove(n);
+
         private void RemoveEdge(Node c, Node d)
         {
             Edge cd = graph.AllEdges.First(e => e.Contains(c, d));
             graph.AllEdges.Remove(cd);
+        }
+
+        public void UnregisterEdge(Vector3 start, Vector3 end)
+        {
+            Node a = GetNode(start);
+            Node b = GetNode(end);
+
+            a.RemoveNeigh(b);
+            b.RemoveNeigh(a);
+            RemoveEdge(a, b);
+
+            if (a.Neighbours.Count == 0) RemoveNode(a);
+            if (b.Neighbours.Count == 0) RemoveNode(b);
         }
 
         public void DebugDraw()

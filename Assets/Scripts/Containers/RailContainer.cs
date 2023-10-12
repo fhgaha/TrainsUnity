@@ -36,6 +36,15 @@ namespace Trains
             Destroy(toRemove.gameObject);
         }
 
+        public void RemoveSegm(Vector3 start, Vector3 end)
+        {
+            int index = segments.First(pair =>
+                pair.Value.Start == start && pair.Value.End == end ||
+                pair.Value.Start == end && pair.Value.End == start
+            ).Key;
+            RemoveAt(index);
+        }
+
         public void Remove(RoadSegment toRemove)
         {
             var pair = segments.First(pair => pair.Value == toRemove);

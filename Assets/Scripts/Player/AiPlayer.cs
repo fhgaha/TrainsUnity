@@ -25,7 +25,8 @@ namespace Trains
             //Build_T_fromLooseEndToConnection();
             //Build_T_fromConnectionToLooseEnd();
             //Build_H();
-            Build_C();
+            //Build_C();
+            BuildAndDestroySeveralTimes_C();
         }
 
         [ContextMenu("Build simple road")] //works even on disabled gameonject
@@ -103,6 +104,46 @@ namespace Trains
             }
         }
 
+        public void BuildAndDestroySeveralTimes_C()
+        {
+            Vector3 topLeft = new(-50, 0, 30);
+            Vector3 topRight = new(50, 0, 30);
+            Vector3 botLeft = new(-50, 0, -30);
+            Vector3 botRight = new(50, 0, -30);
+
+            StartCoroutine(BuildAndDestroy());
+            IEnumerator BuildAndDestroy()
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    //yield return new WaitForSeconds(1f);
+
+                    yield return BuildSegm(topLeft, topRight);
+                    yield return BuildSegm(botLeft, botRight);
+                    yield return BuildSegm(botLeft, topLeft);
+                    yield return BuildSegm(botRight, topRight);
+
+                    //yield return new WaitForSeconds(1f);
+                    UnbuildSegm(topLeft, topRight);
+                    UnbuildSegm(botLeft, botRight);
+                    UnbuildSegm(botLeft, topLeft);
+                    UnbuildSegm(botRight, topRight);
+
+                    Debug.Log($"--Cicle {i + 1} finished");
+                }
+
+                Debug.Log("----BuildAndDestroySeveralTimes_C finished");
+            }
+
+        }
+
+        public void UnbuildSegm(Vector3 start, Vector3 end) => rb.RemoveRoad(start, end);
+
+        //public void Unbuild(params Vector3[] pts)
+        //{
+        //    rb.RemoveBuiltRoads(pts);
+        //}
+
         public void BuildManyRndSegments()
         {
             StartCoroutine(Build());
@@ -113,7 +154,7 @@ namespace Trains
                     yield return BuildSegm(GetRndVector(), GetRndVector());
                 }
             }
-            
+
             Vector3 GetRndVector() => new(Random.value * 400 - 200, 0, Random.value * 400 - 200);
         }
 
