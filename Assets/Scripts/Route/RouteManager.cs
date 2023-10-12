@@ -235,7 +235,7 @@ namespace Trains
         }
 
 
-        //        C             DC is new road
+        //        C     E       DC is new road
         //        *------
         //       /   
         //      /      
