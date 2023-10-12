@@ -153,7 +153,6 @@ namespace Trains
         public void RemoveRoad(Vector3 start, Vector3 end)
         {
             railContainer.RemoveSegm(start, end);
-            //RouteManager.Instance.UnregisterNodes(start, end);
             RouteManager.Instance.UnregisterEdge(start, end);
         }
 

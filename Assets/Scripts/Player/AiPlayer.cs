@@ -26,7 +26,10 @@ namespace Trains
             //Build_T_fromConnectionToLooseEnd();
             //Build_H();
             //Build_C();
-            BuildAndDestroySeveralTimes_C();
+            //Build_IT();
+
+            //BuildAndDestroySeveralTimes_C();
+            BuildAndDestroySeveralTimes_IT();
         }
 
         [ContextMenu("Build simple road")] //works even on disabled gameonject
@@ -90,8 +93,6 @@ namespace Trains
             }
         }
 
-
-        //other alternative is to use update for that somehow. Hey, itll be better forperformance!
         public void Build_C()
         {
             StartCoroutine(Build());
@@ -104,6 +105,17 @@ namespace Trains
             }
         }
 
+        public void Build_IT()
+        {
+            StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(new(-50, 0, -30), new(50, 0, -30));
+                yield return BuildSegm(new(10, 0, 30), new(50, 0, 30));
+                yield return BuildSegm(new(10, 0, 30), new(-20, 0, -30));
+            }
+        }
+
         public void BuildAndDestroySeveralTimes_C()
         {
             Vector3 topLeft = new(-50, 0, 30);
@@ -111,40 +123,67 @@ namespace Trains
             Vector3 botLeft = new(-50, 0, -30);
             Vector3 botRight = new(50, 0, -30);
 
+            var topSegm = (start: topLeft, end: topRight);
+            var botSegm = (start: botLeft, end: botRight);
+            var leftSegm = (start: botLeft, end: topLeft);
+            var rightSegm = (start: botRight, end: topRight);
+
             StartCoroutine(BuildAndDestroy());
             IEnumerator BuildAndDestroy()
             {
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 50; i++)
                 {
-                    //yield return new WaitForSeconds(1f);
+                    yield return BuildSegm(topSegm);
+                    yield return BuildSegm(botSegm);
+                    yield return BuildSegm(leftSegm);
+                    yield return BuildSegm(rightSegm);
 
-                    yield return BuildSegm(topLeft, topRight);
-                    yield return BuildSegm(botLeft, botRight);
-                    yield return BuildSegm(botLeft, topLeft);
-                    yield return BuildSegm(botRight, topRight);
-
-                    //yield return new WaitForSeconds(1f);
-                    UnbuildSegm(topLeft, topRight);
-                    UnbuildSegm(botLeft, botRight);
-                    UnbuildSegm(botLeft, topLeft);
-                    UnbuildSegm(botRight, topRight);
+                    UnbuildSegm(topSegm);
+                    UnbuildSegm(botSegm);
+                    UnbuildSegm(leftSegm);
+                    UnbuildSegm(rightSegm);
 
                     Debug.Log($"--Cicle {i + 1} finished");
                 }
 
                 Debug.Log("----BuildAndDestroySeveralTimes_C finished");
             }
-
         }
 
-        public void UnbuildSegm(Vector3 start, Vector3 end) => rb.RemoveRoad(start, end);
+        public void BuildAndDestroySeveralTimes_IT()
+        {
+            Vector3 topLeft = new(10, 0, 30);
+            Vector3 topRight = new(50, 0, 30);
+            Vector3 botLeft = new(-50, 0, -30);
+            Vector3 botRight = new(50, 0, -30);
+            Vector3 botMid = new(-20, 0, -30);
 
-        //public void Unbuild(params Vector3[] pts)
-        //{
-        //    rb.RemoveBuiltRoads(pts);
-        //}
+            var topSegm = (start: topLeft, end: topRight);
+            var botSegm = (start: botLeft, end: botRight);
+            var midSegm = (start: topLeft, end: botMid);
 
-        public void BuildManyRndSegments()
+            StartCoroutine(BuildAndDestroy());
+            IEnumerator BuildAndDestroy()
+            {
+                for (int i = 0; i < 50; i++)
+                {
+                    yield return BuildSegm(topSegm);
+                    yield return BuildSegm(botSegm);
+                    yield return BuildSegm(midSegm);
+
+                    UnbuildSegm(topSegm);
+                    UnbuildSegm(midSegm);
+                    UnbuildSegm(botLeft, botMid);
+                    UnbuildSegm(botMid, botRight);
+
+                    Debug.Log($"--Cicle {i + 1} finished");
+                }
+
+                Debug.Log("----BuildAndDestroySeveralTimes_C finished");
+            }
+        }
+
+        private void BuildManyRndSegments()
         {
             StartCoroutine(Build());
             IEnumerator Build()
@@ -157,8 +196,10 @@ namespace Trains
 
             Vector3 GetRndVector() => new(Random.value * 400 - 200, 0, Random.value * 400 - 200);
         }
-
+        
+        private Coroutine BuildSegm((Vector3 start, Vector3 end) segm) => StartCoroutine(rb.BuildRoad_Routine(segm.start, segm.end));
         private Coroutine BuildSegm(Vector3 from, Vector3 to) => StartCoroutine(rb.BuildRoad_Routine(from, to));
-
+        private void UnbuildSegm((Vector3 start, Vector3 end) segm) => rb.RemoveRoad(segm.start, segm.end);
+        private void UnbuildSegm(Vector3 start, Vector3 end) => rb.RemoveRoad(start, end);
     }
 }

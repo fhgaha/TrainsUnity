@@ -20,7 +20,7 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
-            Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
+            //Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
             //rb = machine.Rb;
             //regHelp = machine.RegHelp;
             //this.machine = machine;

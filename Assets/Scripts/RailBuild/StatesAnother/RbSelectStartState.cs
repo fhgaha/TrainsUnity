@@ -16,7 +16,7 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
-            Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
+            //Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
 
             rb.start = HeadedPoint.Empty;
             rb.end = HeadedPoint.Empty;
