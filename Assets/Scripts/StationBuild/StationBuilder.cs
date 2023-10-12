@@ -9,6 +9,9 @@ namespace Trains
         [SerializeField] private Camera cam;
         [SerializeField] private StationContainer stationContainer;
         //[SerializeField] private GameObject stationPrefab;  //prefab imported using this: https://github.com/atteneder/glTFast
+        
+        public IPlayer Parent { get; private set; }
+        
         private Vector3 mousePos;
         private Station station;
 
@@ -19,8 +22,13 @@ namespace Trains
 
         private void Start()
         {
-            station.SetUpRoadSegment();
             gameObject.SetActive(false);
+        }
+
+        public void Configure(IPlayer parent)
+        {
+            Parent = parent;
+            station.SetUpRoadSegment(Parent);
         }
 
         void Update()
@@ -34,7 +42,7 @@ namespace Trains
                 stationContainer.Add(station);
 
                 RouteManager.Instance.RegisterI(station.Entry1, station.Entry2, station.segment.GetApproxLength());
-                
+
             }
         }
 
@@ -42,7 +50,7 @@ namespace Trains
         {
             if (!HitGround(cam, out RaycastHit hit)) return;
             if (mousePos == hit.point) return;
-            
+
             station.UpdatePos(mousePos);
             mousePos = hit.point;
         }

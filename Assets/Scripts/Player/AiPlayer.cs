@@ -28,7 +28,7 @@ namespace Trains
             //Build_C();
             //Build_IT();
 
-            BuildAndDestroyAllOnce();
+            //BuildAndDestroyAllOnce();
             //BuildAndDestroyAllSeveralTimes();
         }
 

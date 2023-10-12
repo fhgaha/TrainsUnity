@@ -31,7 +31,6 @@ namespace Trains
         #endregion
 
         private RegisterHelper regHelp;
-        private RailBuilderState state;
         private DubinsGeneratePaths dubinsPathGenerator = new();
         private Detector detector;
         private float driveDist = 1f;

@@ -6,11 +6,22 @@ namespace Trains
 {
     public class Station : MonoBehaviour
     {
+        [SerializeField] private List<Vector3> originalPoints;
+
         public RoadSegment segment;
+
         public Vector3 Entry1 => segment.Start;
         public Vector3 Entry2 => segment.End;
-
-        [SerializeField] private List<Vector3> originalPoints;
+        public IPlayer Owner
+        {
+            get => owner; private set
+            {
+                OwnerName = value == null ? string.Empty : ((MonoBehaviour)value).name;
+                owner = value;
+            }
+        }
+        private IPlayer owner;
+        public string OwnerName = "---";
 
         private void Awake()
         {
@@ -27,8 +38,10 @@ namespace Trains
         {
         }
 
-        public void SetUpRoadSegment()
+        public void SetUpRoadSegment(IPlayer owner)
         {
+            Owner = owner;
+
             originalPoints = new();
             Vector3 p1 = new() { x = 0, y = 0, z = 10 };
             Vector3 p2 = new() { x = 0, y = 0, z = -10 };
@@ -37,6 +50,14 @@ namespace Trains
             List<Vector3> segmentPts = new();
             segmentPts.AddRange(originalPoints);
             segment.GenerateMeshSafely(segmentPts);
+        }
+
+        public void CopyInfoFrom(Station original)
+        {
+            this.Owner = original.Owner;
+            this.segment.CopyPoints(original.segment);
+            this.segment.Start = original.segment.Start;
+            this.segment.End = original.segment.End;
         }
 
         public void UpdatePos(Vector3 newPos)

@@ -16,6 +16,9 @@ namespace Trains
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
 
+        public float MoneyBalance { get; set; } = 1000;
+
+
         private PlayerState state;
 
         private void Start()
@@ -25,6 +28,7 @@ namespace Trains
             state = PlayerState.None;
             rb.Parent = this;
             rb.gameObject.SetActive(false);
+            sb.Configure(this);
         }
 
         private void OnBuildRailPressed(object sender, Toggle e)

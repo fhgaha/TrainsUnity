@@ -11,6 +11,7 @@ namespace Trains
     {
         public static RouteManager Instance { get; private set; }
         private Graph graph = new();
+        private bool printDebugInfo = false;
 
         public List<Vector3> CreateRoute(List<int> selectedIds)
         {
@@ -53,6 +54,8 @@ namespace Trains
             {
                 Destroy(gameObject);
             }
+
+            printDebugInfo = false;
         }
 
         //Connection options:
@@ -72,7 +75,7 @@ namespace Trains
         //AB: create, set length
         public void RegisterI(Vector3 start, Vector3 end, float length)
         {
-            Debug.Log($"RegisterI called");
+            if (printDebugInfo) Debug.Log($"RegisterI called");
 
             Node a = CreateNode(start);
             Node b = CreateNode(end);
@@ -104,7 +107,7 @@ namespace Trains
         //BC: create, set length
         public void RegisterII(Vector3 newPos, Vector3 otherPos, float length)
         {
-            Debug.Log($"RegisterII called");
+            if (printDebugInfo) Debug.Log($"RegisterII called");
 
             Node b = GetNode(otherPos);
             Node c = CreateNode(newPos);
@@ -137,7 +140,7 @@ namespace Trains
             float newEdge1Length, float newEdge2Length
         )
         {
-            Debug.Log($"RegisterT called");
+            if (printDebugInfo) Debug.Log($"RegisterT called");
 
             Node a = CreateNode(newSegmStart);
             Node b = CreateNode(connection);
@@ -181,7 +184,7 @@ namespace Trains
             Vector3 dPos, float fdLength
         )
         {
-            Debug.Log($"RegisterH called");
+            if (printDebugInfo) Debug.Log($"RegisterH called");
 
             Node a = GetNode(aPos);
             Node b = GetNode(bPos);
@@ -221,7 +224,7 @@ namespace Trains
         //AC: create, set length
         public void RegisterC(Vector3 aPos, Vector3 cPos, float newSegmLength)
         {
-            Debug.Log($"RegisterC called");
+            if (printDebugInfo) Debug.Log($"RegisterC called");
 
             Node a = GetNode(aPos);
             Node c = GetNode(cPos);
@@ -252,7 +255,7 @@ namespace Trains
             Vector3 aPos, Vector3 bPos, Vector3 cPos
         )
         {
-            Debug.Log($"RegisterIT called");
+            if (printDebugInfo) Debug.Log($"RegisterIT called");
 
             Node a = GetNode(aPos);
             Node b = GetNode(bPos);

@@ -13,15 +13,16 @@ namespace Trains
         public Dictionary<int, Station> Stations { get; private set; } = new();
         [SerializeField] private RailContainer railContainer;
 
-        public void Add(Station station)
+        public void Add(Station original)
         {
-            Station copy = Instantiate(station, transform);
+            Station copy = Instantiate(original, transform);
             Destroy(copy.GetComponent<StationRotator>());
             copy.name = $"Station {copy.GetInstanceID()}";
-            copy.SetUpRoadSegment();
-            copy.segment.CopyPoints(station.segment);
-            copy.segment.Start = station.segment.Start;
-            copy.segment.End = station.segment.End;
+            copy.SetUpRoadSegment(copy.Owner);
+            copy.CopyInfoFrom(original);
+            //copy.segment.CopyPoints(original.segment);
+            //copy.segment.Start = original.segment.Start;
+            //copy.segment.End = original.segment.End;
 
             Stations.Add(copy.GetInstanceID(), copy);
 
