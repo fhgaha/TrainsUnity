@@ -6,22 +6,23 @@ namespace Trains
 {
     public class Station : MonoBehaviour
     {
-        [SerializeField] private List<Vector3> originalPoints;
-
+        [field: SerializeField] public Cargo Cargo { get; set; } = new();
         public RoadSegment segment;
-
         public Vector3 Entry1 => segment.Start;
         public Vector3 Entry2 => segment.End;
         public IPlayer Owner
         {
-            get => owner; private set
+            get => owner;
+            private set
             {
                 OwnerName = value == null ? string.Empty : ((MonoBehaviour)value).name;
                 owner = value;
             }
         }
-        private IPlayer owner;
         public string OwnerName = "---";
+
+        [SerializeField] private List<Vector3> originalPoints;
+        private IPlayer owner;
 
         private void Awake()
         {
@@ -79,5 +80,6 @@ namespace Trains
             //Debug.DrawRay(segment.End, 10 * Vector3.up, Color.white, Time.deltaTime);
         }
 
+        public void UpdateRotation(float yAngle) => transform.rotation = Quaternion.Euler(0, yAngle, 0);
     }
 }

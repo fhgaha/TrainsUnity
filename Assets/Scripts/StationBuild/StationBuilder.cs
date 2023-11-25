@@ -9,11 +9,27 @@ namespace Trains
         [SerializeField] private Camera cam;
         [SerializeField] private StationContainer stationContainer;
         //[SerializeField] private GameObject stationPrefab;  //prefab imported using this: https://github.com/atteneder/glTFast
-        
+
         public IPlayer Parent { get; private set; }
-        
+
         private Vector3 mousePos;
         private Station station;
+        
+        public void Configure(IPlayer parent)
+        {
+            Parent = parent;
+            station.SetUpRoadSegment(Parent);
+        }
+
+        public Station PlaceStation(Vector3 pos, float angle)
+        {
+            AssertConfigured();
+
+            station.UpdateRotation(angle);
+            station.UpdatePos(pos);
+            PlaceStation();
+            return station;
+        }
 
         private void Awake()
         {
@@ -25,12 +41,6 @@ namespace Trains
             gameObject.SetActive(false);
         }
 
-        public void Configure(IPlayer parent)
-        {
-            Parent = parent;
-            station.SetUpRoadSegment(Parent);
-        }
-
         void Update()
         {
             //mouse movement
@@ -39,11 +49,14 @@ namespace Trains
             //lmb pressed
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
-                stationContainer.Add(station);
-
-                RouteManager.Instance.RegisterI(station.Entry1, station.Entry2, station.segment.GetApproxLength());
-
+                PlaceStation();
             }
+        }
+
+        private void PlaceStation()
+        {
+            stationContainer.Add(station);
+            RouteManager.Instance.RegisterI(station.Entry1, station.Entry2, station.segment.GetApproxLength());
         }
 
         private void HandleMouseMovement()
@@ -57,5 +70,10 @@ namespace Trains
 
         private bool HitGround(Camera camera, out RaycastHit hit) =>
             Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hit, 1000f, LayerMask.GetMask("Ground"));
+
+        private void AssertConfigured()
+        {
+            if (Parent == null) throw new System.Exception($"Parent should be configured. Parent is {Parent}.");
+        }
     }
 }

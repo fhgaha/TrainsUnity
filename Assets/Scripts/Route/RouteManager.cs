@@ -10,8 +10,8 @@ namespace Trains
     public class RouteManager : MonoBehaviour
     {
         public static RouteManager Instance { get; private set; }
+        [SerializeField] private bool printDebugInfo = false;
         private Graph graph = new();
-        private bool printDebugInfo = false;
 
         public List<Vector3> CreateRoute(List<int> selectedIds)
         {
@@ -43,7 +43,7 @@ namespace Trains
             return finalPath;
         }
 
-        void Awake()
+        private void Awake()
         {
             if (Instance == null)
             {
@@ -54,8 +54,6 @@ namespace Trains
             {
                 Destroy(gameObject);
             }
-
-            printDebugInfo = false;
         }
 
         //Connection options:
