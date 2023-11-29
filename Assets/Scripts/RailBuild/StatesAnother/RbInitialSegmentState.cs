@@ -135,10 +135,12 @@ namespace Trains
                 }
                 else if (rb.DetectedRoad != null)
                 {
+                    //Debug.Log("HandleSnappedStartSnappedEnd();");
                     HandleSnappedStartSnappedEnd();
                 }
                 else
                 {
+                    //Debug.Log("HandleSnappedStartUnsnappedEnd();");
                     HandleSnappedStartUnsnappedEnd();
                 }
             }

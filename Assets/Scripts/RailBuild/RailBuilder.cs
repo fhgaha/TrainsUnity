@@ -113,28 +113,29 @@ namespace Trains
             //selecting start state
             //move det, set up detected road if any
             detector.transform.position = start;
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForFixedUpdate();
 
             //switch to drawing initial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
-            yield return new WaitUntil(() => stateMachine.CurrentState is RbInitialSegmentState);
 
             //move det, set up detected road if any
             detector.transform.position = goal;
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForFixedUpdate();
+
+            yield return new WaitWhile(() => detector.gameObject.transform.position == start);
 
             //switch to drawing noninitial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbNoninitialSegmentState);
+            if (detector.gameObject.transform.position != goal || detector.gameObject.transform.position == start)
+                throw new Exception($"Detector pos: {detector.transform.position}, should be {goal}");
 
             //switch to select start state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
         }
+
+
 
         //public void RemoveBuiltRoads(params Vector3[] pts)
         //{

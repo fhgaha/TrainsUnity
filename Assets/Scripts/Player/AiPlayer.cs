@@ -29,13 +29,13 @@ namespace Trains
             //Build_IT();
 
             //BuildAndDestroyAllOnce();
-            //BuildAndDestroyAllSeveralTimes();
+            BuildAndDestroyAllSeveralTimes();
 
 
-            sb.Configure(this);
-            Station from = BuildStationAt(new Vector3(-50, 0, -50), 30);
-            Station to = BuildStationAt(new Vector3(30, 0, 30), -30);
-            BuildRoadBetweenStations(from, to);
+            //sb.Configure(this);
+            //Station from = BuildStationAt(new Vector3(-50, 0, -50), 30);
+            //Station to = BuildStationAt(new Vector3(30, 0, 30), -30);
+            //BuildRoadBetweenStations(from, to);
         }
 
         private Station BuildStationAt(Vector3 vector3, float angle) => sb.PlaceStation(vector3, angle);
