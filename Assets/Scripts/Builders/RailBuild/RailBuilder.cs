@@ -10,7 +10,7 @@ namespace Trains
     {
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
-        public RoadSegment DetectedRoad;
+        public RoadSegment DetectedRoad { get; set; }
         public Station DetectedStation { get; set; }
         public HeadedPoint start, end;
         public IPlayer Parent;
@@ -179,6 +179,7 @@ namespace Trains
             segment.End = pts[^1];
         }
 
+        ///Curve + straight
         public void CalculateCSPoints() => CalculateCSPoints(start.pos, start.heading, end.pos);
 
         public void CalculateCSPoints(Vector3 startPos, float startHeading, Vector3 endPos)

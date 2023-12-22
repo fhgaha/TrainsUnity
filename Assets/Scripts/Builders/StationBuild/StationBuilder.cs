@@ -27,8 +27,8 @@ namespace Trains
 
             station.UpdateRotation(angle);
             station.UpdatePos(pos);
-            PlaceStation();
-            return station;
+            Station instance = PlaceStation();
+            return instance;
         }
 
         private void Awake()
@@ -53,10 +53,11 @@ namespace Trains
             }
         }
 
-        private void PlaceStation()
+        private Station PlaceStation()
         {
-            stationContainer.Add(station);
-            RouteManager.Instance.RegisterI(station.Entry1, station.Entry2, station.segment.GetApproxLength());
+            Station instance = stationContainer.Add(station);
+            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.segment.GetApproxLength());
+            return instance;
         }
 
         private void HandleMouseMovement()

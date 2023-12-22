@@ -13,7 +13,7 @@ namespace Trains
         public Dictionary<int, Station> Stations { get; private set; } = new();
         [SerializeField] private RailContainer railContainer;
 
-        public void Add(Station original)
+        public Station Add(Station original)
         {
             Station copy = Instantiate(original, transform);
             Destroy(copy.GetComponent<StationRotator>());
@@ -30,6 +30,7 @@ namespace Trains
 
             //what to do wth rail?
             Global.Instance.RailContainer.AddDontCreateInstance(copy.segment);
+            return copy;
         }
     }
 }

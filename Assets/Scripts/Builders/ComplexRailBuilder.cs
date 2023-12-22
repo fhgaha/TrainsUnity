@@ -12,6 +12,19 @@ namespace Trains
             this.rb = rb;
         }
 
+        public void Build(params Vector3[] pts)
+        {
+            rb.StartCoroutine(Build());
+            IEnumerator Build()
+            {
+                yield return BuildSegm(pts[0], pts[1]);
+                yield return BuildSegm(pts[1], pts[2]);
+            }
+        }
+
+
+        //Tests----------------------------------
+
         public void BuildAndDestroyAllOnce()
         {
             rb.StartCoroutine(BuildAndDestroy());
@@ -45,7 +58,6 @@ namespace Trains
         }
 
         #region simple
-        [ContextMenu("Build simple road")] //works even on disabled gameonject
         public void Build_I()
         {
             rb.StartCoroutine(Build());
@@ -506,6 +518,5 @@ namespace Trains
         private Coroutine BuildSegm(Vector3 from, Vector3 to) => rb.StartCoroutine(rb.BuildRoad_Routine(from, to));
         private void UnbuildSegm((Vector3 start, Vector3 end) segm) => rb.RemoveRoad(segm.start, segm.end);
         private void UnbuildSegm(Vector3 start, Vector3 end) => rb.RemoveRoad(start, end);
-
     }
 }

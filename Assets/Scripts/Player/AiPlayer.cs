@@ -10,11 +10,11 @@ namespace Trains
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
-        private ComplexRailBuilder crb;
+        private ComplexRailBuilder buildHelper;
 
         private void Awake()
         {
-            crb = new ComplexRailBuilder(rb);
+            buildHelper = new ComplexRailBuilder(rb);
         }
 
         private void Start()
@@ -24,37 +24,38 @@ namespace Trains
 
             //Turn off this game object if tests are not required
 
-            //crb.Build_I();
-            //crb.Build_I_II();
-            //crb.Build_I_fromLeftTo_I_fromRight_sameZ();
-            //crb.Build_T_fromLooseEndToConnection();
-            //crb.Build_T_fromConnectionToLooseEnd();
-            //crb.Build_H();
-            //crb.Build_C();
-            //crb.Build_IT();
+            //buildHelper.Build_I();
+            //buildHelper.Build_I_II();
+            //buildHelper.Build_I_fromLeftTo_I_fromRight_sameZ();
+            //buildHelper.Build_T_fromLooseEndToConnection();
+            //buildHelper.Build_T_fromConnectionToLooseEnd();
+            //buildHelper.Build_H();
+            //buildHelper.Build_C();
+            //buildHelper.Build_IT();
 
-            //crb.BuildAndDestroyAllOnce();
-            //crb.BuildAndDestroyAllSeveralTimes();
+            //buildHelper.BuildAndDestroyAllOnce();
+            //buildHelper.BuildAndDestroyAllSeveralTimes();
 
 
             sb.Configure(this);
-            Station from = BuildStationAt(new Vector3(-50, 0, -50), 30);
-            Station to = BuildStationAt(new Vector3(30, 0, 30), -30);
-            //BuildRoadBetweenStations(from, to);
+            Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
+            Station to = BuildStationAt(new Vector3(30, 0, 30), -30,    "Station to");
+            BuildRoadBetweenStations(from, to);
         }
 
-        private Station BuildStationAt(Vector3 vector3, float angle) => sb.PlaceStation(vector3, angle);
+        private Station BuildStationAt(Vector3 vector3, float angle, string name)
+        {
+            Station instance = sb.PlaceStation(vector3, angle);
+            instance.name = name;
+            return instance;
+        }
 
         private void BuildRoadBetweenStations(Station from, Station to)
         {
-            var dist1 = (from.Entry1 - to.Entry1).magnitude;
-            var dist2 = (from.Entry1 - to.Entry2).magnitude;
-            var dist3 = (from.Entry2 - to.Entry1).magnitude;
-            var dist4 = (from.Entry2 - to.Entry2).magnitude;
+            //Doesn't work with Vector3.zero but works any other
+            buildHelper.Build(from.Entry1, new Vector3(0, 0, 1), to.Entry1);
 
-            var shortest = Mathf.Min(dist1, dist2, dist3, dist4);
-
-            //build road between the shortest ends
+            //TODO: build road between the shortest ends
         }
     }
 }

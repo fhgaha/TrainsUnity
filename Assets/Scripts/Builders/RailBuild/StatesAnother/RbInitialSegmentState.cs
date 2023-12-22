@@ -148,7 +148,8 @@ namespace Trains
             {
                 if (rb.DetectedStation != null)
                 {
-                    regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
+                    //regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
+                    regHelp.RegisterC(rb.Segment.Start, rb.Segment.End, rb.Segment.GetApproxLength());
                 }
                 else if (rb.DetectedRoad != null)
                 {
