@@ -3,18 +3,23 @@ using UnityEngine;
 
 namespace Trains
 {
-    public interface IPlayer { }
+    public interface IPlayer 
+    {
+        public Color Color { get; set; }
+    }
 
     public class AiPlayer : MonoBehaviour, IPlayer
     {
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
-        private ComplexRailBuilder buildHelper;
+        private ComplexRailBuilder railBuilder;
+        public Color Color { get; set; } = Color.red;
+
 
         private void Awake()
         {
-            buildHelper = new ComplexRailBuilder(rb);
+            railBuilder = new ComplexRailBuilder(rb);
         }
 
         private void Start()
@@ -24,22 +29,27 @@ namespace Trains
 
             //Turn off this game object if tests are not required
 
-            //buildHelper.Build_I();
-            //buildHelper.Build_I_II();
-            //buildHelper.Build_I_fromLeftTo_I_fromRight_sameZ();
-            //buildHelper.Build_T_fromLooseEndToConnection();
-            //buildHelper.Build_T_fromConnectionToLooseEnd();
-            //buildHelper.Build_H();
-            //buildHelper.Build_C();
-            //buildHelper.Build_IT();
+            //railBuilder.Build_I();
+            //railBuilder.Build_I_II();
+            //railBuilder.Build_I_fromLeftTo_I_fromRight_sameZ();
+            //railBuilder.Build_T_fromLooseEndToConnection();
+            //railBuilder.Build_T_fromConnectionToLooseEnd();
+            //railBuilder.Build_H();
+            //railBuilder.Build_C();
+            //railBuilder.Build_IT();
 
-            //buildHelper.BuildAndDestroyAllOnce();
-            //buildHelper.BuildAndDestroyAllSeveralTimes();
+            //railBuilder.BuildAndDestroyAllOnce();
+            //railBuilder.BuildAndDestroyAllSeveralTimes();
 
 
+            BuildTwoStationsAndRoadBetween();
+        }
+
+        private void BuildTwoStationsAndRoadBetween()
+        {
             sb.Configure(this);
             Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-            Station to = BuildStationAt(new Vector3(30, 0, 30), -30,    "Station to");
+            Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
             BuildRoadBetweenStations(from, to);
         }
 
@@ -53,7 +63,13 @@ namespace Trains
         private void BuildRoadBetweenStations(Station from, Station to)
         {
             //Doesn't work with Vector3.zero but works any other
-            buildHelper.Build(from.Entry1, new Vector3(0, 0, 1), to.Entry1);
+            railBuilder.Build(
+                from.Entry1,
+                new Vector3(-10, 0, -50),
+                new Vector3(10, 0, 0),
+                new Vector3(-10, 0, 50),
+                to.Entry1
+                );
 
             //TODO: build road between the shortest ends
         }

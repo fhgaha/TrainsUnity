@@ -17,7 +17,7 @@ namespace Trains
         [SerializeField] private Camera cam;
 
         public float MoneyBalance { get; set; } = 1000;
-
+        public Color Color { get; set; } = Color.blue;
 
         private PlayerState state;
 

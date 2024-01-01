@@ -17,8 +17,13 @@ namespace Trains
             rb.StartCoroutine(Build());
             IEnumerator Build()
             {
-                yield return BuildSegm(pts[0], pts[1]);
-                yield return BuildSegm(pts[1], pts[2]);
+                //yield return BuildSegm(pts[0], pts[1]);
+                //yield return BuildSegm(pts[1], pts[2]);
+
+                for (int i = 0; i < pts.Length - 1; i++)
+                {
+                    yield return BuildSegm(pts[i], pts[i + 1]);
+                }
             }
         }
 
