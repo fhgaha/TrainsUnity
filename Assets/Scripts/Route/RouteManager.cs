@@ -10,8 +10,24 @@ namespace Trains
     public class RouteManager : MonoBehaviour
     {
         public static RouteManager Instance { get; private set; }
-        [SerializeField] private bool printDebugInfo = false;
+        [SerializeField] private bool printDebugInfo = true;
         private Graph graph = new();
+
+        private void Update()
+        {
+            if (printDebugInfo)
+            {
+                foreach (Node n in graph.AllNodes)
+                {
+                    Debug.Log($"{n}");
+                    foreach (Node neigh in n.Neighbours)
+                    {
+                        Debug.Log($"  {neigh}");
+                    }
+                }
+                Debug.Log("-------");
+            }
+        }
 
         public List<Vector3> CreateRoute(List<int> selectedIds)
         {
@@ -22,11 +38,15 @@ namespace Trains
             Station[] stations = selectedIds.Select(s => sc.Stations[s]).ToArray();
             for (int i = 0; i < stations.Length - 1; i++)
             {
-                //lats take only enties 1 for now
+                //let's take only entries 1 for now
                 Node from = graph.AllNodes.First(n => n.Pos == stations[i].Entry1);
                 Node to = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
                 var points = graph.RunDijkstraGetPath(from, to);
-                if (points.Count == 0) return new List<Vector3>();
+                if (points.Count == 0)
+                {
+                    Debug.LogError("Can't find path");
+                    return new List<Vector3>();
+                }
 
                 finalPath.AddRange(points);
             }

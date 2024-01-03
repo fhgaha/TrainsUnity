@@ -25,6 +25,7 @@ namespace Trains
             //copy.segment.End = original.segment.End;
 
             Stations.Add(copy.GetInstanceID(), copy);
+            //Debug.Log($"{this}: {copy.GetInstanceID()}");
 
             OnStationAdded?.Invoke(this, EventArgs.Empty);
 

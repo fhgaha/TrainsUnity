@@ -22,7 +22,7 @@ namespace Trains
 
         public event EventHandler<Toggle> OnBuildRailActivated;
         public event EventHandler<Toggle> OnBuildStationActivated;
-        public event EventHandler<StationSelectorEventArgs> OnStationsSelected;
+        public event EventHandler<StationSelectorEventArgs> OnStationsSelectedAcceptPressed;
 
         //external
         [SerializeField] private StationContainer sc;
@@ -43,7 +43,7 @@ namespace Trains
             buildStation.onValueChanged.AddListener(delegate { BuildStationValueChanged(buildStation); });
             selectStations.onValueChanged.AddListener(delegate { SelectStationsValueChanged(selectStations); });
 
-            stationSelector.OnStationsSelected += NotifyStationSelected;
+            stationSelector.OnStationsSelectedAcceptPressed += NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded += StationContainer_OnStationAdded;
         }
 
@@ -80,9 +80,9 @@ namespace Trains
             stationSelector.gameObject.SetActive(selectStations.isOn);
         }
 
-        private void NotifyStationSelected(object sender, StationSelectorEventArgs e)
+        private void NotifyStationsSelectedAcceptPressed(object sender, StationSelectorEventArgs e)
         {
-            OnStationsSelected?.Invoke(this, e);
+            OnStationsSelectedAcceptPressed?.Invoke(this, e);
         }
     }
 }

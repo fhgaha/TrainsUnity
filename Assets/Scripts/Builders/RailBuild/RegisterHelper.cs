@@ -16,9 +16,11 @@ namespace Trains
             this.railContainer = railContainer;
         }
 
-        public void RegisterI(Vector3 start, Vector3 end) => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
+        public void RegisterI(Vector3 start, Vector3 end) 
+            => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
 
-        public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos) => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
+        public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos) 
+            => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
 
         public void RegisterT(Vector3 start, Vector3 connection, RoadSegment otherRoad, List<Vector3> pts)
         {

@@ -15,7 +15,7 @@ namespace Trains
 
     public class UiStationSelector : MonoBehaviour
     {
-        public EventHandler<StationSelectorEventArgs> OnStationsSelected;
+        public EventHandler<StationSelectorEventArgs> OnStationsSelectedAcceptPressed { get; set; }
 
         [SerializeField] private RectTransform stTogglePrefab;
 
@@ -43,8 +43,10 @@ namespace Trains
         private void OnAcceptPressed()
         {
             if (stationIcons.All(s => !s.Value.isOn)) return;
+            
+            //TODO: should also check if path between stations exists
 
-            OnStationsSelected?.Invoke(this, new StationSelectorEventArgs { selectedIds = selectedStations.Keys.ToList() });
+            OnStationsSelectedAcceptPressed?.Invoke(this, new StationSelectorEventArgs { selectedIds = selectedStations.Keys.ToList() });
         }
 
         private void OnCancelPressed()

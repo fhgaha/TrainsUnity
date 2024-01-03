@@ -37,12 +37,12 @@ namespace Trains
             //ui.OnBuildRailActivated += (sender, toggle) => railBuild.gameObject.SetActive(toggle.isOn);
             ui.OnBuildRailActivated += (sender, toggle) => OnBuildRailPressed?.Invoke(this, toggle);
             ui.OnBuildStationActivated += (sender, toggle) => stBuild.gameObject.SetActive(toggle.isOn);
-            ui.OnStationsSelected += (sender, e) => CreateRouteAndSendTrain(e);
+            ui.OnStationsSelectedAcceptPressed += (sender, e) => CreateRouteAndSendTrain(e);
         }
 
         private void CreateRouteAndSendTrain(StationSelectorEventArgs e)
         {
-            var path = routeMngr.CreateRoute(e.selectedIds);
+            List<Vector3> path = routeMngr.CreateRoute(e.selectedIds);
             trCont.SendTrain(path);
         }
 

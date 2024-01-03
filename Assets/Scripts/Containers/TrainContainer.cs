@@ -14,16 +14,12 @@ namespace Trains
 
         private void Start()
         {
-            
+
         }
 
         public void SendTrain(List<Vector3> path)
         {
-            if (path.Count == 0)
-            {
-                Debug.LogError("cant find path", this);
-                return;
-            }
+            if (path.Count == 0) return;
 
             GameObject train = Instantiate(locoPrefab, transform);
 

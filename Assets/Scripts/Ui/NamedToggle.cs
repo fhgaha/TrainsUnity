@@ -4,8 +4,14 @@ namespace Trains
 {
     public class NamedToggle : Toggle
     {
+        private int id;
+
+        public int Id
+        {
+            get => id;
+            set => id = value;
+        }      //when is this Id set?
         public delegate void ToggleChanged(int id, bool value);
-        public int Id;
         public event ToggleChanged OnToggleChanged;
         //private Text label;
 
