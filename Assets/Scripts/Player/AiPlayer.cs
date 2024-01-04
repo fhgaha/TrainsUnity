@@ -43,23 +43,30 @@ namespace Trains
             //railBuilder.BuildAndDestroyAllSeveralTimes();
 
 
-            BuildTwoStationsAndRoadBetween();
+            BuildTwoStationsRoadSendTrain();
         }
 
-        private void BuildTwoStationsAndRoadBetween()
+        private void BuildTwoStationsRoadSendTrain()
         {
-            sb.Configure(this);
-            Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-            Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
-            BuildRoadBetweenStations(from, to);
-
-            //run a train
-            StartCoroutine(WaitThanSendTrain());
-            IEnumerator WaitThanSendTrain()
+            StartCoroutine(Routine());
+            IEnumerator Routine()
             {
-                //TODO: need a way to know when all roads are built and there will be no "cant find path" error and train is ready to go
-                yield return new WaitForSeconds(3);
-                Debug.Log("waited for 3 secs");
+                sb.Configure(this);
+                yield return new WaitUntil(() => sb.AssertConfigured());
+
+                Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
+                yield return new WaitUntil(() => from != null);
+
+                Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
+                yield return new WaitUntil(() => to != null);
+
+                yield return railBuilder.Build_Routine(
+                    from.Entry1,
+                    new Vector3(-10, 0, -50),
+                    new Vector3(10, 0, 0),
+                    new Vector3(-10, 0, 50),
+                    to.Entry1
+                );
 
                 List<Vector3> path = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
                 Global.Instance.TrainContainer.SendTrain(path);

@@ -21,6 +21,12 @@ namespace Trains
             station.SetUpRoadSegment(Parent);
         }
 
+        public bool AssertConfigured()
+        {
+            if (Parent == null) throw new System.Exception($"Parent should be configured. Parent is {Parent}.");
+            return true;
+        }
+
         public Station PlaceStation(Vector3 pos, float angle)
         {
             AssertConfigured();
@@ -72,9 +78,5 @@ namespace Trains
         private bool HitGround(Camera camera, out RaycastHit hit) =>
             Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hit, 1000f, LayerMask.GetMask("Ground"));
 
-        private void AssertConfigured()
-        {
-            if (Parent == null) throw new System.Exception($"Parent should be configured. Parent is {Parent}.");
-        }
     }
 }

@@ -14,16 +14,14 @@ namespace Trains
 
         public void Build(params Vector3[] pts)
         {
-            rb.StartCoroutine(Build());
-            IEnumerator Build()
-            {
-                //yield return BuildSegm(pts[0], pts[1]);
-                //yield return BuildSegm(pts[1], pts[2]);
+            rb.StartCoroutine(Build_Routine(pts));
+        }
 
-                for (int i = 0; i < pts.Length - 1; i++)
-                {
-                    yield return BuildSegm(pts[i], pts[i + 1]);
-                }
+        public IEnumerator Build_Routine(params Vector3[] pts)
+        {
+            for (int i = 0; i < pts.Length - 1; i++)
+            {
+                yield return BuildSegm(pts[i], pts[i + 1]);
             }
         }
 
