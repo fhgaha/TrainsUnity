@@ -14,9 +14,8 @@ namespace Trains
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
-        private ComplexRailBuilder railBuilder;
         public Color Color { get; set; } = Color.red;
-
+        private ComplexRailBuilder railBuilder;
 
         private void Awake()
         {
@@ -56,7 +55,7 @@ namespace Trains
 
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
                 yield return new WaitUntil(() => from != null);
-
+                 
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
                 yield return new WaitUntil(() => to != null);
 
@@ -83,8 +82,6 @@ namespace Trains
         private void BuildRoadBetweenStations(Station from, Station to)
         {
             //Doesn't work with Vector3.zero but works any other
-
-            //NODES ARE NOT REGISTERED IN ROUTE MANAGER AND GRAPH
 
             railBuilder.Build(
                 from.Entry1,

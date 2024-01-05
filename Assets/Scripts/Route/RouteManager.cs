@@ -17,6 +17,11 @@ namespace Trains
         {
             if (printDebugInfo)
             {
+                PrintNodesAndNeighbours();
+            }
+
+            void PrintNodesAndNeighbours()
+            {
                 foreach (Node n in graph.AllNodes)
                 {
                     Debug.Log($"{n}");
@@ -28,6 +33,7 @@ namespace Trains
                 Debug.Log("-------");
             }
         }
+
 
         public List<Vector3> CreateRoute(List<int> selectedIds)
         {

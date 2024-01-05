@@ -39,6 +39,11 @@ namespace Trains
         {
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            Debug.Log($"{this}: {other}");
+        }
+
         public void SetUpRoadSegment(IPlayer owner)
         {
             Owner = owner;

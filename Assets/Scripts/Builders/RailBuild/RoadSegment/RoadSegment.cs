@@ -55,6 +55,7 @@ namespace Trains
             Points = new List<Vector3>();
             mesh = new Mesh { name = "Segment" };
             meshCollider = GetComponent<MeshCollider>();
+            gameObject.layer = LayerMask.NameToLayer("Road");
             GetComponent<MeshFilter>().mesh = mesh;
         }
 
