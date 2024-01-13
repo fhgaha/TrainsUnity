@@ -193,14 +193,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d66dba218b5eb8d4b9d6b137812b0559, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visual: {fileID: 0}
-  <Points>k__BackingField: []
+  <PathForward>k__BackingField: []
+  <PathBack>k__BackingField: []
+  CurPathAsString: 
   LoopThroughPoints: 1
   MovementStyle: 0
   SlowSpeed: 2
   MaxSpeed: 50
-  curSpeed: 40
+  curSpeed: 1000
   rotSpeed: 10
+  visual: {fileID: 0}
 --- !u!1 &8638709855118621761
 GameObject:
   m_ObjectHideFlags: 0
