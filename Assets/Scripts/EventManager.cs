@@ -43,10 +43,11 @@ namespace Trains
 
         private void CreateRouteAndSendTrain(StationSelectorEventArgs e)
         {
-            List<Vector3> pathTo = routeMngr.CreateRoutePoints(e.selectedIds);
-            List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList();
+            List<Vector3> pathForward = routeMngr.CreateRoutePoints(e.selectedIds);
+            List<Vector3> pathBack = pathForward.AsEnumerable().Reverse().ToList();
             List<Station> stations = e.selectedIds.Select(s => Global.Instance.StationContainer.Stations[s]).ToList();
-            trCont.SendTrain(stations, pathTo, pathBack);
+            //pathForward.InsertRange(0, stations.First().segment.Points);
+            trCont.SendTrain(stations, pathForward, pathBack);
 
 
         }
