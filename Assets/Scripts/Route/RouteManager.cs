@@ -34,8 +34,7 @@ namespace Trains
             }
         }
 
-
-        public List<Vector3> CreateRoute(List<int> selectedIds)
+        public List<Vector3> CreateRoutePoints(List<int> selectedIds)
         {
             List<Vector3> finalPath = new();
             StationContainer sc = Global.Instance.StationContainer;
@@ -47,7 +46,7 @@ namespace Trains
                 //let's take only entries 1 for now
                 Node from = graph.AllNodes.First(n => n.Pos == stations[i].Entry1);
                 Node to = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
-                var points = graph.RunDijkstraGetPath(from, to);
+                List<Vector3> points = graph.RunDijkstraGetPath(from, to);
                 if (points.Count == 0)
                 {
                     Debug.LogError("Can't find path");
@@ -55,15 +54,6 @@ namespace Trains
                 }
 
                 finalPath.AddRange(points);
-            }
-
-            //if we want to go back to start point
-            if (finalPath.Count >= 2)
-            {
-                var finish = graph.AllNodes.First(n => finalPath[^1] == n.Pos);
-                var start = graph.AllNodes.First(n => finalPath[0] == n.Pos);
-                var pathBack = graph.RunDijkstraGetPath(finish, start);
-                finalPath.AddRange(pathBack);
             }
 
             return finalPath;

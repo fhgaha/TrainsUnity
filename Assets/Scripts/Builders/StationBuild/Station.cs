@@ -41,7 +41,10 @@ namespace Trains
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log($"{this}: {other}");
+            if (other.transform.parent.TryGetComponent(out LocomotiveMove locMove))
+            {
+                Debug.Log($"{this}: {locMove + "haha"}");
+            }
         }
 
         public void SetUpRoadSegment(IPlayer owner)

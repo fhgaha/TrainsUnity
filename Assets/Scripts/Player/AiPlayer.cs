@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -67,8 +68,9 @@ namespace Trains
                     to.Entry1
                 );
 
-                List<Vector3> path = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
-                Global.Instance.TrainContainer.SendTrain(path);
+                List<Vector3> pathTo = RouteManager.Instance.CreateRoutePoints(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
+                List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList(); 
+                Global.Instance.TrainContainer.SendTrain(pathTo.Concat(pathBack).ToList());
             }
         }
 

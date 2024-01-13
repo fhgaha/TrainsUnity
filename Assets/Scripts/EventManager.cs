@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,8 +43,9 @@ namespace Trains
 
         private void CreateRouteAndSendTrain(StationSelectorEventArgs e)
         {
-            List<Vector3> path = routeMngr.CreateRoute(e.selectedIds);
-            trCont.SendTrain(path);
+            List<Vector3> pathTo = routeMngr.CreateRoutePoints(e.selectedIds);
+            List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList();
+            trCont.SendTrain(pathTo.Concat(pathBack).ToList());
         }
 
     }
