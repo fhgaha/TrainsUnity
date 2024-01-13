@@ -45,7 +45,10 @@ namespace Trains
         {
             List<Vector3> pathTo = routeMngr.CreateRoutePoints(e.selectedIds);
             List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList();
-            trCont.SendTrain(pathTo.Concat(pathBack).ToList());
+            List<Station> stations = e.selectedIds.Select(s => Global.Instance.StationContainer.Stations[s]).ToList();
+            trCont.SendTrain(stations, pathTo, pathBack);
+
+
         }
 
     }

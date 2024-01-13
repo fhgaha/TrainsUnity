@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: TrainDataSO
   m_EditorClassIdentifier: 
   <Route>k__BackingField:
-    Stations: []
+    Stations:
+    - {fileID: 0}
+    - {fileID: 0}
   <Cargo>k__BackingField:
-    <Passengers>k__BackingField: 10
+    <Passengers>k__BackingField: 11
     <Mail>k__BackingField: 20

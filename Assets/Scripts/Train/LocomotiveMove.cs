@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +8,11 @@ namespace Trains
     //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class LocomotiveMove : MonoBehaviour
     {
-        [SerializeField] private Transform visual;
-        [field: SerializeField] public List<Vector3> Points { get; set; }
+        //[field: SerializeField] public List<Vector3> Points { get; set; }
+        [field: SerializeField] public List<Vector3> PathForward { get; set; }
+        [field: SerializeField] public List<Vector3> PathBack { get; set; }
+        [field: SerializeField] public List<Vector3> CurPath { get; private set; }
+
         public bool LoopThroughPoints = true;
         public PathMovementStyle MovementStyle;
 
@@ -18,6 +22,7 @@ namespace Trains
         public float rotSpeed = 10;
 
 
+        [SerializeField] private Transform visual;
         private int curTargetIdx = 0;
         private bool goingReverse = false;
 
@@ -28,83 +33,90 @@ namespace Trains
 
         private void Update()
         {
-            if (Points == null || Points.Count == 0) return;
+            Move();
+        }
 
-            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+        private void Move()
+        {
+            if (PathForward == null || PathForward.Count == 0) return;
+            if (PathBack == null || PathBack.Count == 0) return;
+            if (CurPath != PathForward && CurPath != PathBack) CurPath = PathForward;
+
+            Vector3 nextPt;
+            if (CurPath == PathForward) nextPt = PathForward[curTargetIdx];
+            else if (CurPath == PathBack) nextPt = PathBack[curTargetIdx];
+            else throw new Exception();
+
+            var distance = Vector3.Distance(transform.position, nextPt);
             if (distance * distance < 0.1f)
             {
                 curTargetIdx++;
-                if (curTargetIdx >= Points.Count)
+                if (curTargetIdx >= CurPath.Count)
                 {
                     curTargetIdx = 0;
+                    CurPath = CurPath == PathForward ? PathBack : PathForward;
                 }
             }
 
-            //UpdateCurTargetIdx_GoBackToStart();
-
-            //visual.rotation = Quaternion.LookRotation(Points[curTargetIdx] - transform.position);
-            var dir = Points[curTargetIdx] - transform.position;
+            var dir = CurPath[curTargetIdx] - transform.position;
             if (dir != Vector3.zero)
-                visual.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
 
             transform.position = MovementStyle switch
             {
-                PathMovementStyle.Lerp => Vector3.Lerp(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
-                PathMovementStyle.Slerp => Vector3.Slerp(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
-                _ => Vector3.MoveTowards(transform.position, Points[curTargetIdx], curSpeed * Time.deltaTime),
+                PathMovementStyle.Lerp => Vector3.Lerp(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
+                PathMovementStyle.Slerp => Vector3.Slerp(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
+                _ => Vector3.MoveTowards(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
             };
-
-
-            //also increase and decrease speed automatically
         }
 
         private void UpdateCurTargetIdx_GoBackToStart()
         {
-            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
-            if (distance * distance < 0.1f)
-            {
-                curTargetIdx++;
-                if (curTargetIdx >= Points.Count)
-                {
-                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
-                }
-            }
+            //var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            //if (distance * distance < 0.1f)
+            //{
+            //    curTargetIdx++;
+            //    if (curTargetIdx >= Points.Count)
+            //    {
+            //        curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
+            //    }
+            //}
         }
 
         private void UpdateCurTargetIdx_ReversePoints()
         {
-            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
-            if (distance * distance < 0.1f)
-            {
-                curTargetIdx++;
-                if (curTargetIdx >= Points.Count)
-                {
-                    curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
-                    Points.Reverse();
-                }
-            }
+            //var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            //if (distance * distance < 0.1f)
+            //{
+            //    curTargetIdx++;
+            //    if (curTargetIdx >= Points.Count)
+            //    {
+            //        curTargetIdx = LoopThroughPoints ? 0 : Points.Count - 1;
+            //        Points.Reverse();
+            //    }
+            //}
         }
 
         private void UpdateCurTargetIdx_IncreaseOrDecreaseIdx()
         {
-            var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
-            if (distance * distance < 0.1f)
-            {
-                curTargetIdx += goingReverse ? -1 : 1;
-                bool reachedEnd = curTargetIdx >= Points.Count;
-                bool reachedStart = curTargetIdx <= 0;
-                if (reachedEnd)
-                {
-                    curTargetIdx = Points.Count - 1;
-                    if (LoopThroughPoints)
-                        goingReverse = true;
-                }
-                if (reachedStart)
-                {
-                    curTargetIdx = 0;
-                    goingReverse = false;
-                }
-            }
+            //var distance = Vector3.Distance(transform.position, Points[curTargetIdx]);
+            //if (distance * distance < 0.1f)
+            //{
+            //    curTargetIdx += goingReverse ? -1 : 1;
+            //    bool reachedEnd = curTargetIdx >= Points.Count;
+            //    bool reachedStart = curTargetIdx <= 0;
+            //    if (reachedEnd)
+            //    {
+            //        curTargetIdx = Points.Count - 1;
+            //        if (LoopThroughPoints)
+            //            goingReverse = true;
+            //    }
+            //    if (reachedStart)
+            //    {
+            //        curTargetIdx = 0;
+            //        goingReverse = false;
+            //    }
+            //}
         }
 
         private void OnDrawGizmosSelected()
@@ -114,18 +126,18 @@ namespace Trains
 
         private void ShowGizmos()
         {
-            if (Points == null || Points.Count == 0) return;
+            //if (Points == null || Points.Count == 0) return;
 
-            for (int i = 0; i < Points.Count; i++)
-            {
-                Gizmos.color = Color.yellow;
-                if (i < curTargetIdx) Gizmos.color = Color.red;
-                if (i > curTargetIdx) Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(Points[i], 1f);
-            }
+            //for (int i = 0; i < Points.Count; i++)
+            //{
+            //    Gizmos.color = Color.yellow;
+            //    if (i < curTargetIdx) Gizmos.color = Color.red;
+            //    if (i > curTargetIdx) Gizmos.color = Color.green;
+            //    Gizmos.DrawWireSphere(Points[i], 1f);
+            //}
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, Points[curTargetIdx]);
+            //Gizmos.color = Color.yellow;
+            //Gizmos.DrawLine(transform.position, Points[curTargetIdx]);
         }
     }
 }

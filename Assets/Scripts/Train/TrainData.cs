@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Trains
 {
-    //Script to create scriptable objects
+    //Open scriptable object in editor right after play causes error "ArgumentNullException: Value cannot be null." Its probably a Unity bug
     [CreateAssetMenu()]
     public class TrainData : ScriptableObject
     {
-        [field: SerializeField] public Route Route { get; private set; }
-        [field: SerializeField] public Cargo Cargo { get; private set; }
+        [field: SerializeField] public Route Route { get; set; } 
+        [field: SerializeField] public Cargo Cargo { get; set; } 
     }
 }

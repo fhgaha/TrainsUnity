@@ -9,7 +9,8 @@ namespace Trains
     public class Route
     {
         public List<Station> Stations;
-        public List<Vector3> AsPoints { get; set; }
+        public List<Vector3> PathTo { get; set; }
+        public List<Vector3> PathBack { get; set; }
         public List<Vector3> StationsAsPoints
         {
             get
@@ -23,6 +24,11 @@ namespace Trains
             }
         }
 
-
+        public Route(List<Station> stations, List<Vector3> pathTo, List<Vector3> pathBack)
+        {
+            Stations = stations;
+            PathTo = pathTo;
+            PathBack = pathBack;
+        }
     }
 }

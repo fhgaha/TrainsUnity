@@ -69,8 +69,8 @@ namespace Trains
                 );
 
                 List<Vector3> pathTo = RouteManager.Instance.CreateRoutePoints(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
-                List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList(); 
-                Global.Instance.TrainContainer.SendTrain(pathTo.Concat(pathBack).ToList());
+                List<Vector3> pathBack = pathTo.AsEnumerable().Reverse().ToList();
+                Global.Instance.TrainContainer.SendTrain(new List<Station> { from, to }, pathTo, pathBack);
             }
         }
 

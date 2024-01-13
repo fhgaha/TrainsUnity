@@ -17,29 +17,21 @@ namespace Trains
 
         }
 
-        public void SendTrain(List<Vector3> path)
+        public void SendTrain(List<Station> stations, List<Vector3> pathTo, List<Vector3> pathBack)
         {
-            if (path.Count == 0) return;
+            if (pathTo.Count == 0 || pathBack.Count == 0) return;
 
-            GameObject train = Instantiate(locoPrefab, transform);
+            GameObject trainGameObj = Instantiate(locoPrefab, transform);
+            Train train = trainGameObj.GetComponent<Train>();
+            train.Data.Route = new Route(stations, pathTo, pathBack);
+            //train.Data.Cargo = new Cargo();
 
-            //this is temporary for test purposes
-            train.transform.position = path[0];
-            LocomotiveMove locoMover = train.GetComponent<LocomotiveMove>();
-            locoMover.Points = path;
+            trainGameObj.transform.position = pathTo[0];
+            LocomotiveMove locoMover = trainGameObj.GetComponent<LocomotiveMove>();
+            //locoMover.Points = pathTo.Concat(pathBack).ToList();
+            locoMover.PathForward = pathTo;
+            locoMover.PathBack = pathBack;
         }
 
-        //public void SendTrain(params Node[] stations)
-        //{
-        //    GameObject train = Instantiate(locoPrefab, transform);
-
-        //    //this is temporary for test purposes
-        //    Station fromStation = sc.Stations.Values.First(s => s.Entry1 == stations[0].Pos || s.Entry2 == stations[0].Pos);
-        //    Station toStation = sc.Stations.Values.First(s => s.Entry1 == stations[^1].Pos || s.Entry2 == stations[^1].Pos);
-        //    train.transform.position = fromStation.transform.position;
-        //    LocomotiveMove locoMover = train.GetComponent<LocomotiveMove>();
-        //    var points = stations.Select(s => s.Pos).ToList();
-        //    locoMover.Points = points;
-        //}
     }
 }
