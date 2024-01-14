@@ -70,27 +70,6 @@ namespace Trains
 
                 List<Vector3> pathForward = RouteManager.Instance.CreateRoutePoints(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
                 List<Vector3> pathBack = pathForward.AsEnumerable().Reverse().ToList();
-
-                //List<Vector3> fromSegmPts = from.segment.Points;
-
-                ////maybe i should check entries instead
-                //// segm   start of the path
-                ////[-->--]*-->------...
-                ////if (fromSegmPts[1] == pathForward[0])
-                //if (from.Entry1 == pathForward[0])
-                //{
-                //    pathForward.InsertRange(0, fromSegmPts);
-                //}
-                //// segm   start of the path
-                ////[--<--]*-->------...
-                ////else if (fromSegmPts[0] == pathForward[0])
-                //else if (from.Entry2 == pathForward[0])
-                //{
-                //    pathForward.InsertRange(0, fromSegmPts.AsEnumerable().Reverse());
-                //}
-
-
-                //pathForward.InsertRange(0, from.segment.Points);
                 Global.Instance.TrainContainer.SendTrain(new List<Station> { from, to }, pathForward, pathBack);
             }
         }

@@ -61,6 +61,11 @@ namespace Trains
                 curTargetIdx++;
                 if (curTargetIdx >= CurPath.Count)
                 {
+                    if (!LoopThroughPoints)
+                    {
+                        curTargetIdx--;
+                        return;
+                    }
                     curTargetIdx = 0;
                     CurPath = CurPath == PathForward ? PathBack : PathForward;
                 }

@@ -36,7 +36,13 @@ namespace Trains
 
         public static void AddEndPos(List<Vector3> pts, Vector3 startPos, Vector3 endPos)
         {
-            if (pts.Count < 2) return;
+            //it is one point sometimes
+            if (pts.Count == 1)
+            {
+                pts[0] = endPos;
+                return;
+            }
+
             if (startPos == endPos) return; //TODO why do i do this?
 
             //i want the last pt to be the same as endPos

@@ -485,7 +485,7 @@ namespace Trains
 
                 if (finalPath[^1] != goalPos)
                 {
-                    string msg = "Dubins end pt and input goal pt are not equal";
+                    string msg = $"Dubins end pt and input goal pt are not equal. end: {finalPath[^1]}, goal: {goalPos}";
                     //throw new System.Exception(msg);
                     Debug.Log(msg);
                 }

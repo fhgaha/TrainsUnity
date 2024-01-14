@@ -66,30 +66,10 @@ namespace Trains
             StationContainer sc = Global.Instance.StationContainer;
             TrainContainer tc = Global.Instance.TrainContainer;
 
-            Station[] stations = selectedIds.Select(s => sc.Stations[s]).ToArray();
+            Station[] stations = selectedIds.Select(id => sc.Stations[id]).ToArray();
             for (int i = 0; i < stations.Length - 1; i++)
             {
-                //let's take only entries 1 for now
-                //should measure distances between from.Entry and to.Entry?
-                Node fromEntry1 = graph.AllNodes.First(n => n.Pos == stations[i].Entry1);
-                Node fromEntry2 = graph.AllNodes.First(n => n.Pos == stations[i].Entry2);
-                Node toEntry1 = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
-                Node toEntry2 = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
-
-                List<Vector3> e1e1 = graph.RunDijkstraGetPath(fromEntry1, toEntry1);
-                List<Vector3> e1e2 = graph.RunDijkstraGetPath(fromEntry1, toEntry2);
-                List<Vector3> e2e1 = graph.RunDijkstraGetPath(fromEntry2, toEntry1);
-                List<Vector3> e2e2 = graph.RunDijkstraGetPath(fromEntry2, toEntry2);
-
-                var lenghts = new List<(List<Vector3> list, float len, Node fromNode, Node toNode)>
-                {
-                    ( e1e1, RoadSegment.GetApproxLength(e1e1), fromEntry1, toEntry2),
-                    ( e1e2, RoadSegment.GetApproxLength(e1e2), fromEntry1, toEntry2),
-                    ( e2e1, RoadSegment.GetApproxLength(e2e1), fromEntry2, toEntry1),
-                    ( e2e2, RoadSegment.GetApproxLength(e2e2), fromEntry2, toEntry2)
-                };
-
-                (List<Vector3> list, float len, Node fromNode, Node toNode) = lenghts.Where(t => t.len != 0f).OrderBy(t => t.len).FirstOrDefault();
+                (List<Vector3> list, float len, Node fromNode, Node toNode) = FindShortestPath(stations[i], stations[i + 1]);
 
                 if (list.Count == 0 || len == 0f)
                 {
@@ -97,37 +77,16 @@ namespace Trains
                     return new List<Vector3>();
                 }
 
+                //upon reaching station segment's entry move till meet another entry
                 if (fromNode.Pos == stations[i].Entry1)
                     list.InsertRange(0, stations[i].segment.Points.AsEnumerable().Reverse());
                 else if (fromNode.Pos == stations[i].Entry2)
                     list.InsertRange(0, stations[i].segment.Points);
-                
+
                 if (toNode.Pos == stations[i + 1].Entry1)
-                {
                     list.InsertRange(list.Count, stations[i + 1].segment.Points);
-                }
                 else if (toNode.Pos == stations[i + 1].Entry2)
-                {
                     list.InsertRange(list.Count, stations[i + 1].segment.Points.AsEnumerable().Reverse());
-                }
-
-
-                ////maybe i should check entries instead
-                //// segm   start of the path
-                ////[-->--]*-->------...
-                ////if (fromSegmPts[1] == pathForward[0])
-                //if (from.Entry1 == pathForward[0])
-                //{
-                //    pathForward.InsertRange(0, fromSegmPts);
-                //}
-                //// segm   start of the path
-                ////[--<--]*-->------...
-                ////else if (fromSegmPts[0] == pathForward[0])
-                //else if (from.Entry2 == pathForward[0])
-                //{
-                //    pathForward.InsertRange(0, fromSegmPts.AsEnumerable().Reverse());
-                //}
-
 
                 finalPath.AddRange(list);
             }
@@ -135,6 +94,29 @@ namespace Trains
             return finalPath;
         }
 
+        private (List<Vector3> list, float len, Node fromNode, Node toNode) FindShortestPath(Station stationFrom, Station stationTo)
+        {
+            Node fromEntry1 = graph.AllNodes.First(n => n.Pos == stationFrom.Entry1);
+            Node fromEntry2 = graph.AllNodes.First(n => n.Pos == stationFrom.Entry2);
+            Node toEntry1 = graph.AllNodes.First(n => n.Pos == stationTo.Entry1);
+            Node toEntry2 = graph.AllNodes.First(n => n.Pos == stationTo.Entry2);
+
+            List<Vector3> e1e1 = graph.RunDijkstraGetPath(fromEntry1, toEntry1);
+            List<Vector3> e1e2 = graph.RunDijkstraGetPath(fromEntry1, toEntry2);
+            List<Vector3> e2e1 = graph.RunDijkstraGetPath(fromEntry2, toEntry1);
+            List<Vector3> e2e2 = graph.RunDijkstraGetPath(fromEntry2, toEntry2);
+
+            var lenghts = new List<(List<Vector3> list, float len, Node fromNode, Node toNode)>
+            {
+                ( e1e1, RoadSegment.GetApproxLength(e1e1), fromEntry1, toEntry1),
+                ( e1e2, RoadSegment.GetApproxLength(e1e2), fromEntry1, toEntry2),
+                ( e2e1, RoadSegment.GetApproxLength(e2e1), fromEntry2, toEntry1),
+                ( e2e2, RoadSegment.GetApproxLength(e2e2), fromEntry2, toEntry2)
+            };
+
+            var shortest = lenghts.Where(t => t.len != 0f).OrderBy(t => t.len).FirstOrDefault();
+            return shortest;
+        }
 
         private void Awake()
         {
