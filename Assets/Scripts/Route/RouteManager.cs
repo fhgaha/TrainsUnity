@@ -34,32 +34,6 @@ namespace Trains
             }
         }
 
-        //public List<Vector3> CreateRoutePoints(List<int> selectedIds)
-        //{
-        //    List<Vector3> finalPath = new();
-        //    StationContainer sc = Global.Instance.StationContainer;
-        //    TrainContainer tc = Global.Instance.TrainContainer;
-
-        //    Station[] stations = selectedIds.Select(s => sc.Stations[s]).ToArray();
-        //    for (int i = 0; i < stations.Length - 1; i++)
-        //    {
-        //        //let's take only entries 1 for now
-        //        //should measure distances between from.Entry and to.Entry?
-        //        Node from = graph.AllNodes.First(n => n.Pos == stations[i].Entry1);
-        //        Node to = graph.AllNodes.First(n => n.Pos == stations[i + 1].Entry1);
-        //        List<Vector3> points = graph.RunDijkstraGetPath(from, to);
-        //        if (points.Count == 0)
-        //        {
-        //            Debug.LogError("Can't find path");
-        //            return new List<Vector3>();
-        //        }
-
-        //        finalPath.AddRange(points);
-        //    }
-
-        //    return finalPath;
-        //}
-
         public List<Vector3> CreateRoutePoints(List<int> selectedIds)
         {
             List<Vector3> finalPath = new();
@@ -70,7 +44,6 @@ namespace Trains
             for (int i = 0; i < stations.Length - 1; i++)
             {
                 (List<Vector3> list, float len, Node fromNode, Node toNode) = FindShortestPath(stations[i], stations[i + 1]);
-
                 if (list.Count == 0 || len == 0f)
                 {
                     Debug.LogError("Can't find path");
