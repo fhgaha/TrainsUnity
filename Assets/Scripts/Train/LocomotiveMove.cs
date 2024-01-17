@@ -63,12 +63,7 @@ namespace Trains
             {
                 if (CurPath != PathForward && CurPath != PathBack) CurPath = PathForward;
 
-                Vector3 nextPt;
-                if (CurPath == PathForward) nextPt = PathForward[curTargetIdx];
-                else if (CurPath == PathBack) nextPt = PathBack[curTargetIdx];
-                else throw new Exception();
-
-                var distance = Vector3.Distance(transform.position, nextPt);
+                var distance = Vector3.Distance(transform.position, CurPath[curTargetIdx]);
                 if (distance * distance < 0.1f)
                 {
                     curTargetIdx++;
@@ -90,7 +85,7 @@ namespace Trains
 
                 var dir = CurPath[curTargetIdx] - transform.position;
                 if (dir != Vector3.zero)
-                    transform.rotation = Quaternion.Lerp(visual.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
 
                 transform.position = MovementStyle switch
                 {
