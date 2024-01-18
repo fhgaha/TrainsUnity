@@ -30,16 +30,13 @@ namespace Trains
             }
         }
 
-        [SerializeField] private Transform visual;
+        [SerializeField] private Transform supportFront;
+        [SerializeField] private Transform supportBack;
 
         private List<Vector3> curPath;
         private int curTargetIdx = 0;
         private bool isCoroutineRunning = false;
-
-        private void Awake()
-        {
-            visual = transform.GetChild(0);
-        }
+        private int assumedLocoLengthInIndices = 10;
 
         private void Start()
         {
@@ -50,7 +47,7 @@ namespace Trains
         {
             if (KeepMoving && !isCoroutineRunning)
             {
-                StartCoroutine(Move_Routine(3));
+                StartCoroutine(Move_Routine(1));
             }
         }
 
@@ -59,11 +56,12 @@ namespace Trains
             if (isCoroutineRunning == true) yield return null;
 
             isCoroutineRunning = true;
+            curTargetIdx = 10;
             while (KeepMoving)
             {
                 if (CurPath != PathForward && CurPath != PathBack) CurPath = PathForward;
 
-                var distance = Vector3.Distance(transform.position, CurPath[curTargetIdx]);
+                var distance = Vector3.Distance(supportFront.position, CurPath[curTargetIdx]);
                 if (distance * distance < 0.1f)
                 {
                     curTargetIdx++;
@@ -71,11 +69,21 @@ namespace Trains
 
                 if (curTargetIdx >= CurPath.Count)
                 {
+                    //reached end
                     if (LoopThroughPoints)
                     {
-                        curTargetIdx = 0;
+                        curTargetIdx = 10;
                         CurPath = CurPath == PathForward ? PathBack : PathForward;
                         yield return new WaitForSeconds(seconds);
+
+                        //flip loco instantly
+                        supportFront.position = CurPath[curTargetIdx];
+                        supportBack.position = CurPath[0];
+                        transform.SetPositionAndRotation(
+                            position: (supportFront.position + supportBack.position) / 2,
+                            rotation: Quaternion.Euler(0, 180, 0)
+                        );
+                        yield return new WaitForSeconds(1);
                     }
                     else
                     {
@@ -83,16 +91,29 @@ namespace Trains
                     }
                 }
 
-                var dir = CurPath[curTargetIdx] - transform.position;
-                if (dir != Vector3.zero)
-                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime);
-
-                transform.position = MovementStyle switch
+                //move supports
+                supportFront.position = MovementStyle switch
                 {
-                    PathMovementStyle.Lerp => Vector3.Lerp(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
-                    PathMovementStyle.Slerp => Vector3.Slerp(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
-                    _ => Vector3.MoveTowards(transform.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
+                    PathMovementStyle.Lerp => Vector3.Lerp(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
+                    PathMovementStyle.Slerp => Vector3.Slerp(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
+                    _ => Vector3.MoveTowards(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
                 };
+                
+                if (curTargetIdx > assumedLocoLengthInIndices)
+                    supportBack.position = MovementStyle switch
+                    {
+                        PathMovementStyle.Lerp => Vector3.Lerp(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
+                        PathMovementStyle.Slerp => Vector3.Slerp(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
+                        _ => Vector3.MoveTowards(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
+                    };
+
+                //set pos and rot smoothly
+                var dir = supportBack.position - supportFront.position;
+                var midPt = (supportFront.position + supportBack.position) / 2;
+                transform.SetPositionAndRotation(
+                    position: Vector3.MoveTowards(transform.position, midPt, curSpeed * Time.deltaTime),
+                    rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime)
+                );
 
                 yield return new WaitForFixedUpdate();
             }
