@@ -79,10 +79,8 @@ namespace Trains
                         //flip loco instantly
                         supportFront.position = CurPath[curTargetIdx];
                         supportBack.position = CurPath[0];
-                        transform.SetPositionAndRotation(
-                            position: (supportFront.position + supportBack.position) / 2,
-                            rotation: Quaternion.Euler(0, 180, 0)
-                        );
+                        transform.position = (supportFront.position + supportBack.position) / 2;
+                        transform.Rotate(0, 180, 0, Space.Self);
                         yield return new WaitForSeconds(1);
                     }
                     else
@@ -98,7 +96,7 @@ namespace Trains
                     PathMovementStyle.Slerp => Vector3.Slerp(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
                     _ => Vector3.MoveTowards(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
                 };
-                
+
                 if (curTargetIdx > assumedLocoLengthInIndices)
                     supportBack.position = MovementStyle switch
                     {
