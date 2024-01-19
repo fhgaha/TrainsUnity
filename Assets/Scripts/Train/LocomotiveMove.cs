@@ -17,7 +17,7 @@ namespace Trains
 
         public float SlowSpeed = 2;
         public float MaxSpeed = 50;
-        public float curSpeed = 1000;
+        public float curSpeed = 10;
         public float rotSpeed = 10;
 
         public List<Vector3> CurPath
@@ -36,7 +36,6 @@ namespace Trains
         private List<Vector3> curPath;
         private int curTargetIdx = 0;
         private bool isCoroutineRunning = false;
-        private int assumedLocoLengthInIndices = 10;
 
         private void Start()
         {
@@ -51,17 +50,25 @@ namespace Trains
             }
         }
 
-        public IEnumerator Move_Routine(float seconds)
+        public IEnumerator Move_Routine(float loadTime)
         {
             if (isCoroutineRunning == true) yield return null;
-
             isCoroutineRunning = true;
-            curTargetIdx = 10;
+
+            var distBetweenSupports = Vector3.Distance(supportFront.position, supportBack.position);
+            int locoLengthIndeces = (int)(distBetweenSupports / DubinsMath.driveDistance);
+
+            curTargetIdx = locoLengthIndeces + 1;
+            transform.SetPositionAndRotation(
+                (PathForward[locoLengthIndeces] + PathForward[0]) / 2,
+                Quaternion.LookRotation((PathForward[locoLengthIndeces] - PathForward[0]).normalized)
+            );
+
             while (KeepMoving)
             {
                 if (CurPath != PathForward && CurPath != PathBack) CurPath = PathForward;
 
-                var distance = Vector3.Distance(supportFront.position, CurPath[curTargetIdx]);
+                var distance = Vector3.Distance(transform.position, CurPath[curTargetIdx]);
                 if (distance * distance < 0.1f)
                 {
                     curTargetIdx++;
@@ -72,48 +79,35 @@ namespace Trains
                     //reached end
                     if (LoopThroughPoints)
                     {
-                        curTargetIdx = 10;
+                        curTargetIdx = locoLengthIndeces;
                         CurPath = CurPath == PathForward ? PathBack : PathForward;
-                        yield return new WaitForSeconds(seconds);
+                        yield return new WaitForSeconds(loadTime);
 
                         //flip loco instantly
-                        supportFront.position = CurPath[curTargetIdx];
-                        supportBack.position = CurPath[0];
-                        transform.position = (supportFront.position + supportBack.position) / 2;
+                        transform.position = (CurPath[curTargetIdx] + CurPath[0]) / 2;
                         transform.Rotate(0, 180, 0, Space.Self);
                         yield return new WaitForSeconds(1);
                     }
                     else
                     {
+                        //dont move
                         curTargetIdx--;
                     }
                 }
-
-                //move supports
-                supportFront.position = MovementStyle switch
+                else
                 {
-                    PathMovementStyle.Lerp => Vector3.Lerp(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
-                    PathMovementStyle.Slerp => Vector3.Slerp(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
-                    _ => Vector3.MoveTowards(supportFront.position, CurPath[curTargetIdx], curSpeed * Time.deltaTime),
-                };
+                    //suportFront is at the same pos as main transform
+                    Vector3 nextPt = curPath[curTargetIdx];
+                    Vector3 nextBackPt = curPath[curTargetIdx - locoLengthIndeces];
+                    Vector3 dir = (nextPt - nextBackPt).normalized;
+                    transform.SetPositionAndRotation(
+                        position: Vector3.MoveTowards(transform.position, curPath[curTargetIdx], curSpeed * Time.deltaTime),
+                        //rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime)
+                        rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), curSpeed * Time.deltaTime)
+                    );
 
-                if (curTargetIdx > assumedLocoLengthInIndices)
-                    supportBack.position = MovementStyle switch
-                    {
-                        PathMovementStyle.Lerp => Vector3.Lerp(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
-                        PathMovementStyle.Slerp => Vector3.Slerp(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
-                        _ => Vector3.MoveTowards(supportBack.position, CurPath[curTargetIdx - assumedLocoLengthInIndices - 1], curSpeed * Time.deltaTime),
-                    };
-
-                //set pos and rot smoothly
-                var dir = supportBack.position - supportFront.position;
-                var midPt = (supportFront.position + supportBack.position) / 2;
-                transform.SetPositionAndRotation(
-                    position: Vector3.MoveTowards(transform.position, midPt, curSpeed * Time.deltaTime),
-                    rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime)
-                );
-
-                yield return new WaitForFixedUpdate();
+                    yield return new WaitForFixedUpdate();
+                }
             }
             isCoroutineRunning = false;
         }
@@ -137,6 +131,9 @@ namespace Trains
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, CurPath[curTargetIdx]);
+
+            Gizmos.DrawLine(supportFront.position, supportFront.position + Vector3.up * 10);
+            Gizmos.DrawLine(supportBack.position, supportBack.position + Vector3.up * 10);
         }
     }
 }

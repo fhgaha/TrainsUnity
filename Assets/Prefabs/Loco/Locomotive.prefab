@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 75047352504834339}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -47,7 +47,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4526171817510218278
 Transform:
@@ -58,7 +58,7 @@ Transform:
   m_GameObject: {fileID: 4526171817510218285}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: -3}
   m_LocalScale: {x: 3.23, y: 5.33, z: 3.23}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -125,7 +125,6 @@ GameObject:
   - component: {fileID: 4526171818635052937}
   - component: {fileID: 8367101687695860096}
   - component: {fileID: 4526171818635052936}
-  - component: {fileID: 4944518938627857597}
   - component: {fileID: 2921553220410281889}
   m_Layer: 8
   m_Name: Locomotive
@@ -186,37 +185,10 @@ MonoBehaviour:
   MovementStyle: 0
   SlowSpeed: 2
   MaxSpeed: 50
-  curSpeed: 1000
+  curSpeed: 10
   rotSpeed: 10
   supportFront: {fileID: 3152766280876485692}
   supportBack: {fileID: 1584162404044848124}
---- !u!54 &4944518938627857597
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4526171818635052939}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!136 &2921553220410281889
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -239,7 +211,7 @@ CapsuleCollider:
   m_Radius: 1.668489
   m_Height: 10.609284
   m_Direction: 2
-  m_Center: {x: 0, y: 2.9909334, z: 0.064711094}
+  m_Center: {x: 0, y: 2.9909334, z: -3}
 --- !u!1 &4572594827748290579
 GameObject:
   m_ObjectHideFlags: 0
@@ -265,7 +237,7 @@ Transform:
   m_GameObject: {fileID: 4572594827748290579}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3}
+  m_LocalPosition: {x: 0, y: 0, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
