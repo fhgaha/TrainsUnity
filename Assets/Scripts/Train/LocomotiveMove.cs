@@ -16,9 +16,10 @@ namespace Trains
         public PathMovementStyle MovementStyle;
 
         public float SlowSpeed = 2;
-        public float MaxSpeed = 50;
-        public float curSpeed = 10;
-        public float rotSpeed = 10;
+        public float MaxSpeed = 10;
+        public float Acceleration = 0.1f;
+        public float CurSpeed = 0;
+        public float RotSpeed = 10;
 
         public List<Vector3> CurPath
         {
@@ -96,20 +97,36 @@ namespace Trains
                 }
                 else
                 {
-                    //suportFront is at the same pos as main transform
-                    Vector3 nextPt = curPath[curTargetIdx];
-                    Vector3 nextBackPt = curPath[curTargetIdx - locoLengthIndeces];
-                    Vector3 dir = (nextPt - nextBackPt).normalized;
+                    Vector3 frontPt = curPath[curTargetIdx];
+                    Vector3 backPt = curPath[curTargetIdx - locoLengthIndeces];
+                    Vector3 dir = (frontPt - backPt).normalized;
+
+                    var dot = Vector3.Dot(transform.forward, (frontPt - transform.position).normalized);
+                    float t = Mathf.InverseLerp(0.96f, 1f, dot);
+                    float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
+
+                    float speed = CurSpeed;
+                    if (ReachingDestination(curPath.Count - curTargetIdx) || CurSpeed > reqSpeed)
+                        speed -= Acceleration;
+                    else if (CurSpeed < reqSpeed)
+                        speed += Acceleration;
+                    CurSpeed = Mathf.Clamp(speed, SlowSpeed, MaxSpeed);
+
                     transform.SetPositionAndRotation(
-                        position: Vector3.MoveTowards(transform.position, curPath[curTargetIdx], curSpeed * Time.deltaTime),
-                        //rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), rotSpeed * Time.deltaTime)
-                        rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), curSpeed * Time.deltaTime)
+                        position: Vector3.MoveTowards(transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
+                        rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), CurSpeed * Time.deltaTime)
                     );
 
                     yield return new WaitForFixedUpdate();
                 }
             }
             isCoroutineRunning = false;
+        }
+
+        public bool ReachingDestination(int remainingPointsAmount)
+        {
+            int threshold = 20;
+            return remainingPointsAmount < threshold;
         }
 
         private void OnDrawGizmosSelected()

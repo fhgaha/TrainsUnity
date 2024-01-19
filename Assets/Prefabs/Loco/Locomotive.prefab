@@ -183,10 +183,11 @@ MonoBehaviour:
   CurPathAsString: 
   LoopThroughPoints: 1
   MovementStyle: 0
-  SlowSpeed: 2
-  MaxSpeed: 50
-  curSpeed: 10
-  rotSpeed: 10
+  SlowSpeed: 5
+  MaxSpeed: 20
+  Acceleration: 0.1
+  CurSpeed: 0
+  RotSpeed: 10
   supportFront: {fileID: 3152766280876485692}
   supportBack: {fileID: 1584162404044848124}
 --- !u!136 &2921553220410281889
