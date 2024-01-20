@@ -10,6 +10,7 @@ namespace Trains
     {
         [field: SerializeField] public List<Vector3> PathForward { get; set; }
         [field: SerializeField] public List<Vector3> PathBack { get; set; }
+        [field: SerializeField] public Transform Joint { get; set; }
         public bool KeepMoving = true;
         public string CurPathAsString;
         public bool LoopThroughPoints = true;
@@ -54,13 +55,12 @@ namespace Trains
 
             var distBetweenSupports = Vector3.Distance(supportFront.position, supportBack.position);
             int locoLengthIndeces = (int)(distBetweenSupports / DubinsMath.driveDistance);
-            
+            CurPath = PathForward;
+
             new WaitForSeconds(loadTime);
 
             while (KeepMoving)
             {
-                if (CurPath != PathForward && CurPath != PathBack) CurPath = PathForward;
-
                 var distance = Vector3.Distance(transform.position, CurPath[curTargetIdx]);
                 if (distance * distance < 0.1f)
                 {

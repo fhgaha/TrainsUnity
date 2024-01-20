@@ -9,6 +9,7 @@ namespace Trains
     public class TrainContainer : MonoBehaviour
     {
         [SerializeField] private GameObject locoPrefab;
+        [SerializeField] private GameObject carriagePrefab;
         [SerializeField] private StationContainer sc;
         [SerializeField] private RailContainer rc;
 
@@ -30,7 +31,7 @@ namespace Trains
                 new Cargo { Freight = new Freight(10), Mail = 5, Passengers = 15 }
             );
             Train trainComp = trainObj.GetComponent<Train>();
-            trainComp.Configure(data, locoPrefab);
+            trainComp.Configure(data, locoPrefab, carriagePrefab);
         }
 
     }
