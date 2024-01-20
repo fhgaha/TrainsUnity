@@ -8,5 +8,7 @@ namespace Trains
     public class Train : MonoBehaviour
     {
         [field: SerializeField] public TrainData Data { get; private set; }
+
+
     }
 }

@@ -40,18 +40,18 @@ namespace Trains
 
         private void Start()
         {
-            StartCoroutine(Move_Routine(3));
+            StartCoroutine(Move_Routine(3, 3));
         }
 
         private void Update()
         {
             if (KeepMoving && !isCoroutineRunning)
             {
-                StartCoroutine(Move_Routine(1));
+                StartCoroutine(Move_Routine(3, 1));
             }
         }
 
-        public IEnumerator Move_Routine(float loadTime)
+        public IEnumerator Move_Routine(float unloadTime, float loadTime)
         {
             if (isCoroutineRunning == true) yield return null;
             isCoroutineRunning = true;
@@ -64,6 +64,7 @@ namespace Trains
                 (PathForward[locoLengthIndeces] + PathForward[0]) / 2,
                 Quaternion.LookRotation((PathForward[locoLengthIndeces] - PathForward[0]).normalized)
             );
+            new WaitForSeconds(loadTime);
 
             while (KeepMoving)
             {
@@ -82,12 +83,12 @@ namespace Trains
                     {
                         curTargetIdx = locoLengthIndeces;
                         CurPath = CurPath == PathForward ? PathBack : PathForward;
-                        yield return new WaitForSeconds(loadTime);
+                        yield return new WaitForSeconds(unloadTime);
 
                         //flip loco instantly
                         transform.position = (CurPath[curTargetIdx] + CurPath[0]) / 2;
                         transform.Rotate(0, 180, 0, Space.Self);
-                        yield return new WaitForSeconds(1);
+                        yield return new WaitForSeconds(loadTime);
                     }
                     else
                     {
@@ -104,29 +105,25 @@ namespace Trains
                     var dot = Vector3.Dot(transform.forward, (frontPt - transform.position).normalized);
                     float t = Mathf.InverseLerp(0.96f, 1f, dot);
                     float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
-
-                    float speed = CurSpeed;
-                    if (ReachingDestination(curPath.Count - curTargetIdx) || CurSpeed > reqSpeed)
-                        speed -= Acceleration;
-                    else if (CurSpeed < reqSpeed)
-                        speed += Acceleration;
-                    CurSpeed = Mathf.Clamp(speed, SlowSpeed, MaxSpeed);
+                    if (ReachingDestination()) reqSpeed = SlowSpeed;
+                    CurSpeed += (CurSpeed > reqSpeed ? -1 : 1) * Acceleration;
 
                     transform.SetPositionAndRotation(
                         position: Vector3.MoveTowards(transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
                         rotation: Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), CurSpeed * Time.deltaTime)
                     );
 
-                    yield return new WaitForFixedUpdate();
+                    yield return new WaitForEndOfFrame();
                 }
             }
             isCoroutineRunning = false;
         }
 
-        public bool ReachingDestination(int remainingPointsAmount)
+        public bool ReachingDestination()
         {
-            int threshold = 20;
-            return remainingPointsAmount < threshold;
+            float threshold = 30;
+            float dist = (curPath.Count - curTargetIdx) * DubinsMath.driveDistance;
+            return dist < threshold;
         }
 
         private void OnDrawGizmosSelected()
