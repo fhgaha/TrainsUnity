@@ -21,20 +21,21 @@ namespace Trains
         {
             if (pathForward.Count == 0 || pathBack.Count == 0) return;
 
-            GameObject trainGameObj = Instantiate(locoPrefab, transform);
-            Train train = trainGameObj.GetComponent<Train>();
-            train.Data.Route = new Route(stations, pathForward, pathBack);
-            //train.Data.Cargo = new Cargo();
+            GameObject trainObj = new GameObject("Train", typeof(Train));
+            trainObj.transform.parent = transform;
 
-            trainGameObj.transform.position = pathForward[0];
-            LocomotiveMove locoMover = trainGameObj.GetComponent<LocomotiveMove>();
-            //locoMover.Points = pathTo.Concat(pathBack).ToList();
+            TrainData data = ScriptableObject.CreateInstance<TrainData>();
+            data.Route = new Route(stations, pathForward, pathBack);
+            data.Cargo = new Cargo { Freight = new Freight(10), Mail = 5, Passengers = 15 };
+            Train trainComp = trainObj.GetComponent<Train>();
+            trainComp.Configure(data);
+
+            GameObject locoObj = Instantiate(locoPrefab, trainObj.transform);
+            locoObj.transform.position = pathForward[0];
+            LocomotiveMove locoMover = locoObj.GetComponent<LocomotiveMove>();
             locoMover.PathForward = pathForward;
             locoMover.PathBack = pathBack;
 
-
-            //locoMover.PathForward = pathForward.Select(v => new Vector3(v.x, v.y + 3, v.z)).ToList();
-            //locoMover.PathBack = pathBack.Select(v => new Vector3(v.x, v.y + 3, v.z)).ToList(); 
         }
 
     }

@@ -9,6 +9,9 @@ namespace Trains
     {
         [field: SerializeField] public TrainData Data { get; private set; }
 
-
+        public void Configure(TrainData data)
+        {
+            Data = data;
+        }
     }
 }
