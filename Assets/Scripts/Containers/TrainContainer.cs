@@ -25,17 +25,12 @@ namespace Trains
             trainObj.transform.parent = transform;
 
             TrainData data = ScriptableObject.CreateInstance<TrainData>();
-            data.Route = new Route(stations, pathForward, pathBack);
-            data.Cargo = new Cargo { Freight = new Freight(10), Mail = 5, Passengers = 15 };
+            data.Configure(
+                new Route(stations, pathForward, pathBack),
+                new Cargo { Freight = new Freight(10), Mail = 5, Passengers = 15 }
+            );
             Train trainComp = trainObj.GetComponent<Train>();
-            trainComp.Configure(data);
-
-            GameObject locoObj = Instantiate(locoPrefab, trainObj.transform);
-            locoObj.transform.position = pathForward[0];
-            LocomotiveMove locoMover = locoObj.GetComponent<LocomotiveMove>();
-            locoMover.PathForward = pathForward;
-            locoMover.PathBack = pathBack;
-
+            trainComp.Configure(data, locoPrefab);
         }
 
     }

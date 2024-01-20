@@ -38,32 +38,23 @@ namespace Trains
         private int curTargetIdx = 0;
         private bool isCoroutineRunning = false;
 
-        private void Start()
+        public LocomotiveMove Configure(List<Vector3> pathForward, List<Vector3> pathBack, int startIdx)
         {
-            StartCoroutine(Move_Routine(3, 3));
+            PathForward = pathForward;
+            PathBack = pathBack;
+            transform.position = PathForward[startIdx];
+            curTargetIdx = startIdx + 1;
+            return this;
         }
 
-        private void Update()
-        {
-            if (KeepMoving && !isCoroutineRunning)
-            {
-                StartCoroutine(Move_Routine(3, 1));
-            }
-        }
-
-        public IEnumerator Move_Routine(float unloadTime, float loadTime)
+        public IEnumerator Move_Routine(float unloadTime, float loadTime, int idx)
         {
             if (isCoroutineRunning == true) yield return null;
             isCoroutineRunning = true;
 
             var distBetweenSupports = Vector3.Distance(supportFront.position, supportBack.position);
             int locoLengthIndeces = (int)(distBetweenSupports / DubinsMath.driveDistance);
-
-            curTargetIdx = locoLengthIndeces + 1;
-            transform.SetPositionAndRotation(
-                (PathForward[locoLengthIndeces] + PathForward[0]) / 2,
-                Quaternion.LookRotation((PathForward[locoLengthIndeces] - PathForward[0]).normalized)
-            );
+            
             new WaitForSeconds(loadTime);
 
             while (KeepMoving)
