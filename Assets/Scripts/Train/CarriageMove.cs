@@ -20,9 +20,8 @@ namespace Trains
             return this;
         }
 
-        void Update()
+        public void UpdateManually(Vector3 v)
         {
-            var v = Vector3.zero;
             Vector3 dir = (leader.position - v).normalized;
             transform.SetPositionAndRotation(
                 leader.position,
