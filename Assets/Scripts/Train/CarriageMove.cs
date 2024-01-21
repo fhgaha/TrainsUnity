@@ -7,9 +7,17 @@ namespace Trains
 {
     public class CarriageMove : MonoBehaviour
     {
-        public Transform leader;
         [SerializeField] private Transform supportFront;
         [SerializeField] private Transform supportBack;
+        public Transform leader;
+        public int LengthIndeces
+        {
+            get
+            {
+                var distBetweenSupports = Vector3.Distance(supportFront.position, supportBack.position);
+                return (int)(distBetweenSupports / DubinsMath.driveDistance);
+            }
+        }
 
         private List<Vector3> path;
 
@@ -20,12 +28,12 @@ namespace Trains
             return this;
         }
 
-        public void UpdateManually(Vector3 v)
+        public void UpdateManually(Vector3 backPos)
         {
-            Vector3 dir = (leader.position - v).normalized;
+            Vector3 dir = (leader.position - backPos).normalized;
             transform.SetPositionAndRotation(
                 leader.position,
-                Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime)
+                Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), 10 * Time.deltaTime)
             );
         }
     }

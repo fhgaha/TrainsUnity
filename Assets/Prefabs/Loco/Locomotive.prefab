@@ -195,11 +195,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d66dba218b5eb8d4b9d6b137812b0559, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <PathForward>k__BackingField: []
-  <PathBack>k__BackingField: []
   <Joint>k__BackingField: {fileID: 989458299386656515}
-  supportFront: {fileID: 3152766280876485692}
-  supportBack: {fileID: 1584162404044848124}
+  <SupportFront>k__BackingField: {fileID: 3152766280876485692}
+  <SupportBack>k__BackingField: {fileID: 1584162404044848124}
 --- !u!136 &2921553220410281889
 CapsuleCollider:
   m_ObjectHideFlags: 0

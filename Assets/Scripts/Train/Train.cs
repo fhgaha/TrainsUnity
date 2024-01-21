@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Trains
 {
+    //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class Train : MonoBehaviour
     {
         [field: SerializeField] public TrainData Data { get; private set; }
@@ -38,23 +39,33 @@ namespace Trains
         {
             Data = data;
 
-            loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>().Configure(data.Route.PathForward, data.Route.PathBack, 20);
-            //CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Joint);
-            //wagons.Add(wagon1);
+            loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
+            loco.Configure(data.Route.PathForward[loco.LengthIndeces]);
+            CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Joint);
+            wagons.Add(wagon1);
 
-            //StartCoroutine(loco.Move_Routine(3, 3, 21));
             //StartCoroutine(wagon1.Move_Routine(3, 3, 11));
             StartCoroutine(Move_Routine(3, 3, 21));
         }
 
         private void Update()
         {
-            //CurPath = ?
-            //curTargetIdx = ?
-
             foreach (var w in wagons)
             {
-                //w.UpdateManually(CurPath[curTargetIdx]);
+                //unreadable
+                //TODO better LengthIndices
+                int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - w.LengthIndeces;
+                Vector3 wagon1BackPos;
+                if (wagon1BackPosIdx < 0)
+                {
+                    Vector3 displasement = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
+                    wagon1BackPos = loco.SupportFront.transform.position + displasement;
+                }
+                else
+                {
+                    wagon1BackPos = CurPath[wagon1BackPosIdx];
+                }
+                w.UpdateManually(wagon1BackPos);
             }
         }
 
