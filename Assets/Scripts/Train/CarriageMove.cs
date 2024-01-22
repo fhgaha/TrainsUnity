@@ -7,17 +7,15 @@ namespace Trains
 {
     public class CarriageMove : MonoBehaviour
     {
-        [SerializeField] private Transform supportFront;
-        [SerializeField] private Transform supportBack;
-        public Transform Leader;
-        public int LengthIndeces
-        {
-            get
-            {
-                var distBetweenSupports = Vector3.Distance(supportFront.position, supportBack.position);
-                return (int)(distBetweenSupports / DubinsMath.driveDistance);
-            }
-        }
+        [field: SerializeField] public Transform Leader { get; set; }
+        [field: SerializeField] public Transform Front { get; private set; }   //same as transform
+        [field: SerializeField] public Transform Back { get; private set; }    //same as joint
+        [field: SerializeField] public Transform SupportFront { get; private set; }
+        [field: SerializeField] public Transform SupportBack { get; private set; }
+
+        public int LengthIndeces => (int)(Vector3.Distance(Front.position, Back.position) / DubinsMath.driveDistance);
+        public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
+        public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
 
         private List<Vector3> path;
 
@@ -28,13 +26,19 @@ namespace Trains
             return this;
         }
 
-        public void UpdateManually(Vector3 backPos)
+        public void UpdateManually(Vector3 backPos, float rotSpeed)
         {
             Vector3 dir = (Leader.position - backPos).normalized;
             transform.SetPositionAndRotation(
-                Leader.position,
-                Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), 10 * Time.deltaTime)
+                Leader.position - (Front.position - SupportFront.position),
+                Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir, Vector3.up), rotSpeed * Time.deltaTime)
             );
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.DrawLine(SupportFront.position, SupportFront.position + Vector3.up * 5);
+            Gizmos.DrawLine(SupportBack.position, SupportBack.position + Vector3.up * 5);
         }
     }
 }

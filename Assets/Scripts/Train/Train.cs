@@ -29,44 +29,26 @@ namespace Trains
         public string CurPathAsString;
 
         private LocomotiveMove loco;
-        private List<CarriageMove> wagons = new();
+        private List<CarriageMove> carriages = new();
         private bool isCoroutineRunning = false;
         private List<Vector3> curPath;
         private bool KeepMoving = true;
         private int curTargetIdx;
+        private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
 
         public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab)
         {
             Data = data;
 
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
-            loco.Configure(data.Route.PathForward[loco.LengthIndeces]);
-            CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Joint);
-            wagons.Add(wagon1);
+            Vector3 locoStartDir = (data.Route.PathForward[loco.LengthIndeces] - data.Route.PathForward[0]).normalized;
+            Quaternion locoStartRot = Quaternion.LookRotation(locoStartDir, Vector3.up);
+            loco.Configure(data.Route.PathForward[loco.LengthIndeces], locoStartRot);
 
-            //StartCoroutine(wagon1.Move_Routine(3, 3, 11));
+            CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Back);
+            carriages.Add(wagon1);
+
             StartCoroutine(Move_Routine(3, 3, 21));
-        }
-
-        private void Update()
-        {
-            //foreach (var car in wagons)
-            //{
-            //    //unreadable
-            //    //TODO better LengthIndices
-            //    int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - car.LengthIndeces;
-            //    Vector3 wagon1BackPos;
-            //    if (wagon1BackPosIdx < 0)
-            //    {
-            //        Vector3 displasement = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-            //        wagon1BackPos = loco.SupportFront.transform.position + displasement;
-            //    }
-            //    else
-            //    {
-            //        wagon1BackPos = CurPath[wagon1BackPosIdx];
-            //    }
-            //    car.UpdateManually(wagon1BackPos);
-            //}
         }
 
         public IEnumerator Move_Routine(float unloadTime, float loadTime, int idx)
@@ -111,47 +93,52 @@ namespace Trains
                 else
                 {
                     //not reached end
-                    //loco.MoveFurther(curTargetIdx);
+                    int farIdx = curTargetIdx + slowDownDistIndeces;
+                    if (farIdx >= curPath.Count)
+                    {
+                        farIdx = curTargetIdx;
+                    }
 
                     Vector3 frontPt = curPath[curTargetIdx];
-                    Vector3 backPt = curPath[curTargetIdx - loco.LengthIndeces];
-                    Vector3 dir = (frontPt - backPt).normalized;
-                    var dot = Vector3.Dot(loco.transform.forward, (frontPt - backPt).normalized);
+                    Vector3 backPt = curPath[curTargetIdx - loco.SupportLengthIndeces];
+
+                    Vector3 locoDir = (frontPt - backPt).normalized;
+                    var locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
+                    var dot = Vector3.Dot(locoToFarPtDir, locoDir);
                     float t = Mathf.InverseLerp(0.96f, 1f, dot);
                     float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
                     if (ReachingDestination()) reqSpeed = SlowSpeed;
-                    CurSpeed += (CurSpeed > reqSpeed ? -1 : 1) * SpeedStep;
+
+                    if (CurSpeed < reqSpeed) CurSpeed += SpeedStep;
+                    else
+                    if (CurSpeed > reqSpeed) CurSpeed -= SpeedStep;
 
                     //TODO move this to loco
                     loco.transform.SetPositionAndRotation(
                         position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
-                        rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(dir), CurSpeed * Time.deltaTime)
+                        rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(locoDir), CurSpeed * Time.deltaTime)
                     );
 
 
                     //carriages
-                    foreach (var car in wagons)
+                    foreach (var car in carriages)
                     {
                         //unreadable
-                        //TODO better LengthIndices
-                        int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - car.LengthIndeces - 5;
-                        Vector3 wagon1BackPos;
-                        if (wagon1BackPosIdx < 0)
+                        int trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
+                        int car1BackPosIdx = trainLengthIndeces - car.FrontToSupportFrontLengthIndeces - car.SupportLengthIndeces;
+                        Vector3 car1BackPos;
+                        if (car1BackPosIdx < 0)
                         {
+                            //set rot the same as leader's
                             Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-                            wagon1BackPos = car.Leader.position + fromFrontToBack;
+                            car1BackPos = car.Leader.position + fromFrontToBack;
                         }
                         else
                         {
-                            wagon1BackPos = CurPath[wagon1BackPosIdx];
+                            car1BackPos = CurPath[car1BackPosIdx];
                         }
-                        car.UpdateManually(wagon1BackPos);
+                        car.UpdateManually(car1BackPos, CurSpeed);
                     }
-
-
-
-
-
 
 
 
@@ -172,6 +159,27 @@ namespace Trains
         private int GetTrainLengthIndeces()
         {
             return loco.LengthIndeces;
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            ShowGizmos();
+        }
+
+        private void ShowGizmos()
+        {
+            if (CurPath == null || CurPath.Count == 0) return;
+
+            for (int i = 0; i < CurPath.Count; i++)
+            {
+                Gizmos.color = Color.yellow;
+                if (i < curTargetIdx) Gizmos.color = Color.red;
+                if (i > curTargetIdx) Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(CurPath[i], 1f);
+            }
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(CurPath[curTargetIdx], CurPath[curTargetIdx] + Vector3.up * 5);
         }
     }
 }
