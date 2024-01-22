@@ -35,6 +35,7 @@ namespace Trains
         private bool KeepMoving = true;
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
+        private int trainLengthIndeces;
 
         public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab)
         {
@@ -47,6 +48,9 @@ namespace Trains
 
             CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Back);
             carriages.Add(wagon1);
+
+            CarriageMove wagon2 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, wagon1.Back);
+            carriages.Add(wagon2);
 
             StartCoroutine(Move_Routine(3, 3, 21));
         }
@@ -121,26 +125,31 @@ namespace Trains
 
 
                     //carriages
-                    foreach (var car in carriages)
+                    for (int i = 0; i < carriages.Count; i++)
                     {
-                        //unreadable
-                        int trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
-                        int car1BackPosIdx = trainLengthIndeces - car.FrontToSupportFrontLengthIndeces - car.SupportLengthIndeces;
-                        Vector3 car1BackPos;
-                        if (car1BackPosIdx < 0)
+                        //count length of cars before
+                        trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
+                        for (int j = 0; j < carriages.Count; j++)
+                        {
+                            if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
+                        }
+
+
+                        int backPosIdx = trainLengthIndeces - carriages[i].FrontToSupportFrontLengthIndeces - carriages[i].SupportLengthIndeces;
+                        Vector3 backPos;
+                        if (backPosIdx < 0)
                         {
                             //set rot the same as leader's
                             Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-                            car1BackPos = car.Leader.position + fromFrontToBack;
+                            backPos = carriages[i].Leader.position + fromFrontToBack;
                         }
                         else
                         {
-                            car1BackPos = CurPath[car1BackPosIdx];
+                            backPos = CurPath[backPosIdx];
                         }
-                        car.UpdateManually(car1BackPos, CurSpeed);
+
+                        carriages[i].UpdateManually(backPos, CurSpeed);
                     }
-
-
 
                     yield return new WaitForEndOfFrame();
                 }
