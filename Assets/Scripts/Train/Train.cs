@@ -50,23 +50,23 @@ namespace Trains
 
         private void Update()
         {
-            foreach (var w in wagons)
-            {
-                //unreadable
-                //TODO better LengthIndices
-                int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - w.LengthIndeces;
-                Vector3 wagon1BackPos;
-                if (wagon1BackPosIdx < 0)
-                {
-                    Vector3 displasement = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-                    wagon1BackPos = loco.SupportFront.transform.position + displasement;
-                }
-                else
-                {
-                    wagon1BackPos = CurPath[wagon1BackPosIdx];
-                }
-                w.UpdateManually(wagon1BackPos);
-            }
+            //foreach (var car in wagons)
+            //{
+            //    //unreadable
+            //    //TODO better LengthIndices
+            //    int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - car.LengthIndeces;
+            //    Vector3 wagon1BackPos;
+            //    if (wagon1BackPosIdx < 0)
+            //    {
+            //        Vector3 displasement = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
+            //        wagon1BackPos = loco.SupportFront.transform.position + displasement;
+            //    }
+            //    else
+            //    {
+            //        wagon1BackPos = CurPath[wagon1BackPosIdx];
+            //    }
+            //    car.UpdateManually(wagon1BackPos);
+            //}
         }
 
         public IEnumerator Move_Routine(float unloadTime, float loadTime, int idx)
@@ -127,6 +127,33 @@ namespace Trains
                         position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
                         rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(dir), CurSpeed * Time.deltaTime)
                     );
+
+
+                    //carriages
+                    foreach (var car in wagons)
+                    {
+                        //unreadable
+                        //TODO better LengthIndices
+                        int wagon1BackPosIdx = curTargetIdx - loco.LengthIndeces - car.LengthIndeces - 5;
+                        Vector3 wagon1BackPos;
+                        if (wagon1BackPosIdx < 0)
+                        {
+                            Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
+                            wagon1BackPos = car.Leader.position + fromFrontToBack;
+                        }
+                        else
+                        {
+                            wagon1BackPos = CurPath[wagon1BackPosIdx];
+                        }
+                        car.UpdateManually(wagon1BackPos);
+                    }
+
+
+
+
+
+
+
 
                     yield return new WaitForEndOfFrame();
                 }

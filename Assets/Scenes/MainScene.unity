@@ -2337,6 +2337,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locoPrefab: {fileID: 4526171818635052939, guid: c9b0c24370a1acf4d9430e064dc17eda, type: 3}
+  carriagePrefab: {fileID: 4526171818635052939, guid: b0fe7c4793d84714fbc17e92f4877fa0, type: 3}
   sc: {fileID: 789078737}
   rc: {fileID: 794959165}
 --- !u!1 &1212633455
