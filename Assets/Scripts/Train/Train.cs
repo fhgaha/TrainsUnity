@@ -96,66 +96,72 @@ namespace Trains
                 }
                 else
                 {
-                    //not reached end
-                    int farIdx = curTargetIdx + slowDownDistIndeces;
-                    if (farIdx >= curPath.Count)
-                    {
-                        farIdx = curTargetIdx;
-                    }
-
-                    Vector3 frontPt = curPath[curTargetIdx];
-                    Vector3 backPt = curPath[curTargetIdx - loco.SupportLengthIndeces];
-
-                    Vector3 locoDir = (frontPt - backPt).normalized;
-                    var locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
-                    var dot = Vector3.Dot(locoToFarPtDir, locoDir);
-                    float t = Mathf.InverseLerp(0.96f, 1f, dot);
-                    float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
-                    if (ReachingDestination()) reqSpeed = SlowSpeed;
-
-                    if (CurSpeed < reqSpeed) CurSpeed += SpeedStep;
-                    else
-                    if (CurSpeed > reqSpeed) CurSpeed -= SpeedStep;
-
-                    //TODO move this to loco
-                    loco.transform.SetPositionAndRotation(
-                        position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
-                        rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(locoDir), CurSpeed * Time.deltaTime)
-                    );
-
-
-                    //carriages
-                    for (int i = 0; i < carriages.Count; i++)
-                    {
-                        //count length of cars before
-                        trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
-                        for (int j = 0; j < carriages.Count; j++)
-                        {
-                            if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
-                        }
-
-
-                        int backPosIdx = trainLengthIndeces - carriages[i].FrontToSupportFrontLengthIndeces - carriages[i].SupportLengthIndeces;
-                        Vector3 backPos;
-                        if (backPosIdx < 0)
-                        {
-                            //set rot the same as leader's
-                            Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-                            backPos = carriages[i].Leader.position + fromFrontToBack;
-                        }
-                        else
-                        {
-                            backPos = CurPath[backPosIdx];
-                        }
-
-                        carriages[i].UpdateManually(backPos, CurSpeed);
-                    }
+                    MoveToCurPt();
 
                     yield return new WaitForEndOfFrame();
                 }
             }
             isCoroutineRunning = false;
 
+        }
+
+        private void MoveToCurPt()
+        {
+            //not reached end
+            int farIdx = curTargetIdx + slowDownDistIndeces;
+            if (farIdx >= curPath.Count)
+            {
+                farIdx = curTargetIdx;
+            }
+
+            Vector3 frontPt = curPath[curTargetIdx];
+            Vector3 backPt = curPath[curTargetIdx - loco.SupportLengthIndeces];
+
+            Vector3 locoDir = (frontPt - backPt).normalized;
+            var locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
+            var dot = Vector3.Dot(locoToFarPtDir, locoDir);
+            float t = Mathf.InverseLerp(0.96f, 1f, dot);
+            float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
+            if (ReachingDestination()) reqSpeed = SlowSpeed;
+
+            if (CurSpeed < reqSpeed) CurSpeed += SpeedStep;
+            else
+            if (CurSpeed > reqSpeed) CurSpeed -= SpeedStep;
+
+            //TODO move this to loco
+            loco.transform.SetPositionAndRotation(
+                position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
+                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(locoDir), CurSpeed * Time.deltaTime)
+            );
+
+
+            //carriages
+            for (int i = 0; i < carriages.Count; i++)
+            {
+                //count length of cars before
+                trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
+                for (int j = 0; j < carriages.Count; j++)
+                {
+                    if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
+                }
+
+                //calculate where back support should be placed
+                int backPosIdx = trainLengthIndeces - carriages[i].FrontToSupportFrontLengthIndeces - carriages[i].SupportLengthIndeces;
+                Vector3 backPos;
+                if (backPosIdx < 0)
+                {
+                    //set rot the same as leader's
+                    Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
+                    backPos = carriages[i].Leader.position + fromFrontToBack;
+                }
+                else
+                {
+                    backPos = CurPath[backPosIdx];
+                }
+
+                //rot is calculated based on backPos
+                carriages[i].UpdateManually(backPos, CurSpeed);
+            }
         }
 
         private bool ReachingDestination()
