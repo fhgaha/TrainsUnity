@@ -28,11 +28,12 @@ namespace Trains
 
         public string CurPathAsString;
 
+        [SerializeField] public bool keepMoving = true;
         private LocomotiveMove loco;
         private List<CarriageMove> carriages = new();
         private bool isCoroutineRunning = false;
         private List<Vector3> curPath;
-        private bool KeepMoving = true;
+        
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
         private int trainLengthIndeces;
@@ -65,7 +66,7 @@ namespace Trains
 
             new WaitForSeconds(loadTime);
 
-            while (KeepMoving)
+            while (keepMoving)
             {
                 var distance = Vector3.Distance(loco.transform.position, CurPath[curTargetIdx]);
                 if (distance * distance < 0.1f)
@@ -73,9 +74,8 @@ namespace Trains
                     curTargetIdx++;
                 }
 
-                if (curTargetIdx >= CurPath.Count)
+                if (ReachedEnd())
                 {
-                    //reached end
                     if (LoopThroughPoints)
                     {
                         curTargetIdx = GetTrainLengthIndeces() + 1;
@@ -100,6 +100,8 @@ namespace Trains
 
                     yield return new WaitForEndOfFrame();
                 }
+
+                if (!keepMoving) yield return new WaitUntil(() => keepMoving);
             }
             isCoroutineRunning = false;
 
@@ -128,7 +130,6 @@ namespace Trains
             else
             if (CurSpeed > reqSpeed) CurSpeed -= SpeedStep;
 
-            //TODO move this to loco
             loco.transform.SetPositionAndRotation(
                 position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
                 rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(locoDir), CurSpeed * Time.deltaTime)
@@ -169,6 +170,12 @@ namespace Trains
             float threshold = 30;
             float dist = (curPath.Count - curTargetIdx) * DubinsMath.driveDistance;
             return dist < threshold;
+        }
+
+        private bool ReachedEnd()
+        {
+            var d = Vector3.Distance(loco.Front.position, CurPath[^1]);
+            return curTargetIdx >= CurPath.Count || d * d < 0.1f;
         }
 
         private int GetTrainLengthIndeces()
