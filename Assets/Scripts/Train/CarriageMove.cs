@@ -17,12 +17,10 @@ namespace Trains
         public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
         public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
 
-        private List<Vector3> path;
-
-        public CarriageMove Configure(List<Vector3> path, Transform leader)
+        public CarriageMove Configure(Transform leader, Vector3 pos, Quaternion rot)
         {
-            this.Leader = leader;
-            this.path = path;
+            Leader = leader;
+            transform.SetPositionAndRotation(pos, rot);
             return this;
         }
 

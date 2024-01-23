@@ -19,6 +19,15 @@ namespace Trains
             }
         }
         public bool LoopThroughPoints { get; private set; } = true;
+        public int LengthIndeces
+        {
+            get
+            {
+                var indcs = loco.LengthIndeces;
+                carriages.ForEach(c => indcs += c.LengthIndeces);
+                return indcs;
+            }
+        }
 
         public float SlowSpeed = 5;
         public float MaxSpeed = 20;
@@ -28,30 +37,33 @@ namespace Trains
 
         public string CurPathAsString;
 
-        [SerializeField] public bool keepMoving = true;
+        [SerializeField] private bool keepMoving = true;
+
         private LocomotiveMove loco;
         private List<CarriageMove> carriages = new();
         private bool isCoroutineRunning = false;
-        private List<Vector3> curPath;
-        
+        private List<Vector3> curPath, pathFwd, pathBack;
+
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
-        private int trainLengthIndeces;
 
         public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab)
         {
             Data = data;
+            pathFwd = data.Route.PathForward;
+            pathBack = data.Route.PathBack;
 
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
-            Vector3 locoStartDir = (data.Route.PathForward[loco.LengthIndeces] - data.Route.PathForward[0]).normalized;
-            Quaternion locoStartRot = Quaternion.LookRotation(locoStartDir, Vector3.up);
-            loco.Configure(data.Route.PathForward[loco.LengthIndeces], locoStartRot);
+            CarriageMove car1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
+            carriages.Add(car1);
+            CarriageMove car2 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
+            carriages.Add(car2);
 
-            CarriageMove wagon1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, loco.Back);
-            carriages.Add(wagon1);
-
-            CarriageMove wagon2 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>().Configure(data.Route.PathForward, wagon1.Back);
-            carriages.Add(wagon2);
+            //set positions in reverse order
+            Quaternion startRot = Quaternion.LookRotation((pathFwd[5] - pathFwd[0]).normalized);
+            car2.Configure(car1.Back, pathFwd[car2.LengthIndeces - car2.FrontToSupportFrontLengthIndeces], startRot);
+            car1.Configure(loco.Back, pathFwd[car2.LengthIndeces + car1.LengthIndeces - car1.FrontToSupportFrontLengthIndeces], startRot);
+            loco.Configure(pathFwd[car2.LengthIndeces + car1.LengthIndeces + loco.LengthIndeces], startRot);
 
             StartCoroutine(Move_Routine(3, 3, 21));
         }
@@ -62,9 +74,11 @@ namespace Trains
             isCoroutineRunning = true;
 
             CurPath = Data.Route.PathForward;
-            curTargetIdx = GetTrainLengthIndeces() + 1;
+            curTargetIdx = LengthIndeces + 1;
 
-            new WaitForSeconds(loadTime);
+            //do this once to set cars into in-between positions
+            MoveToCurPt();
+            yield return new WaitForSeconds(loadTime);
 
             while (keepMoving)
             {
@@ -78,14 +92,23 @@ namespace Trains
                 {
                     if (LoopThroughPoints)
                     {
-                        curTargetIdx = GetTrainLengthIndeces() + 1;
-                        CurPath = CurPath == Data.Route.PathForward ? Data.Route.PathBack : Data.Route.PathForward;
+                        curTargetIdx = LengthIndeces + 1;
+                        CurPath = CurPath == pathFwd ? pathBack: pathFwd;
                         yield return new WaitForSeconds(unloadTime);
 
                         //flip train instantly
                         //TODO LocoFlipRotOnStation
-                        loco.transform.position = CurPath[curTargetIdx];
+
+                        loco.transform.position = CurPath[LengthIndeces];
                         loco.transform.Rotate(0, 180, 0, Space.Self);
+
+                        foreach (CarriageMove car in carriages)
+                        {
+                            car.transform.position = car.Leader.position;
+                            car.transform.Rotate(0, 180, 0, Space.Self);
+                        }
+                        //do this once to set cars into in-between positions
+                        MoveToCurPt();
                         yield return new WaitForSeconds(loadTime);
                     }
                     else
@@ -140,7 +163,7 @@ namespace Trains
             for (int i = 0; i < carriages.Count; i++)
             {
                 //count length of cars before
-                trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
+                var trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
                 for (int j = 0; j < carriages.Count; j++)
                 {
                     if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
@@ -178,7 +201,7 @@ namespace Trains
             return curTargetIdx >= CurPath.Count || d * d < 0.1f;
         }
 
-        private int GetTrainLengthIndeces()
+        private int GetLocoLengthIndeces()
         {
             return loco.LengthIndeces;
         }
