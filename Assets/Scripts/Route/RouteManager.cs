@@ -34,20 +34,20 @@ namespace Trains
             }
         }
 
-        public List<Vector3> CreateRoutePoints(List<int> selectedIds)
+        public Route CreateRoute(List<int> selectedIds)
         {
-            List<Vector3> finalPath = new();
             StationContainer sc = Global.Instance.StationContainer;
             TrainContainer tc = Global.Instance.TrainContainer;
+            List<Vector3> finalPath = new();
 
-            Station[] stations = selectedIds.Select(id => sc.Stations[id]).ToArray();
-            for (int i = 0; i < stations.Length - 1; i++)
+            List<Station> stations = selectedIds.Select(id => sc.Stations[id]).ToList();
+            for (int i = 0; i < stations.Count - 1; i++)
             {
                 (List<Vector3> list, float len, Node fromNode, Node toNode) = FindShortestPath(stations[i], stations[i + 1]);
                 if (list.Count == 0 || len == 0f)
                 {
                     Debug.LogError("Can't find path");
-                    return new List<Vector3>();
+                    return new Route();
                 }
 
                 //upon reaching station segment's entry move till meet another entry
@@ -64,7 +64,7 @@ namespace Trains
                 finalPath.AddRange(list);
             }
 
-            return finalPath;
+            return new Route(stations, finalPath, finalPath.Reverse<Vector3>().ToList());
         }
 
         private (List<Vector3> list, float len, Node fromNode, Node toNode) FindShortestPath(Station stationFrom, Station stationTo)
@@ -74,6 +74,7 @@ namespace Trains
             Node toEntry1 = graph.AllNodes.First(n => n.Pos == stationTo.Entry1);
             Node toEntry2 = graph.AllNodes.First(n => n.Pos == stationTo.Entry2);
 
+            //e1e2 means 'from station, entry 1 -> to station, entry 2' etc.
             List<Vector3> e1e1 = graph.RunDijkstraGetPath(fromEntry1, toEntry1);
             List<Vector3> e1e2 = graph.RunDijkstraGetPath(fromEntry1, toEntry2);
             List<Vector3> e2e1 = graph.RunDijkstraGetPath(fromEntry2, toEntry1);

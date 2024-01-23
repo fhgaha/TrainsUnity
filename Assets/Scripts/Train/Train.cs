@@ -30,7 +30,7 @@ namespace Trains
             }
         }
 
-        public float SlowSpeed = 5;
+        public float SlowSpeed = 10;
         public float MaxSpeed = 20;
         public float SpeedStep = 0.1f;
         public float CurSpeed = 0;
@@ -133,16 +133,12 @@ namespace Trains
 
         private void MoveToCurPt()
         {
-            //not reached end
             int farIdx = curTargetIdx + slowDownDistIndeces;
-            if (farIdx >= curPath.Count)
-            {
-                farIdx = curTargetIdx;
-            }
+            if (farIdx >= curPath.Count) farIdx = curTargetIdx;
 
             Vector3 frontPt = curPath[curTargetIdx];
             Vector3 backPt = curPath[curTargetIdx - loco.SupportLengthIndeces];
-            Vector3 locoDir = (frontPt - backPt).normalized;
+            Vector3 nextLocoDir = (frontPt - backPt).normalized;
             Vector3 locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
 
             float dot = Vector3.Dot(locoToFarPtDir, loco.transform.forward);
@@ -159,7 +155,7 @@ namespace Trains
 
             loco.transform.SetPositionAndRotation(
                 position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
-                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(locoDir), CurSpeed * Time.deltaTime)
+                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(nextLocoDir), CurSpeed * Time.deltaTime)
             );
 
 
@@ -169,9 +165,7 @@ namespace Trains
                 //count length of cars before
                 var trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
                 for (int j = 0; j < carriages.Count; j++)
-                {
                     if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
-                }
 
                 //calculate where back support should be placed
                 int backPosIdx = trainLengthIndeces - carriages[i].FrontToSupportFrontLengthIndeces - carriages[i].SupportLengthIndeces;

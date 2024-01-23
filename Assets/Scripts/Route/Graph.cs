@@ -10,6 +10,7 @@ namespace Trains
     {
         public Vector3 Pos;
         public List<Node> Neighbours;
+        public IPlayer Owner;
 
         public Node(Vector3 pos)
         {
