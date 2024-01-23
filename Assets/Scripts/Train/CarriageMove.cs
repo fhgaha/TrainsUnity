@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class CarriageMove : MonoBehaviour
+    public class CarriageMove : MonoBehaviour, ILocoCarriageMove
     {
         [field: SerializeField] public Transform Leader { get; set; }
         [field: SerializeField] public Transform Front { get; private set; }   //same as transform

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -14,7 +15,7 @@ namespace Trains
             get => curPath;
             set
             {
-                CurPathAsString = value == Data.Route.PathForward ? nameof(Data.Route.PathForward) : nameof(Data.Route.PathBack);
+                CurPathAsString = value == pathFwd ? nameof(pathFwd) : nameof(pathBack);
                 curPath = value;
             }
         }
@@ -93,7 +94,7 @@ namespace Trains
                     if (LoopThroughPoints)
                     {
                         curTargetIdx = LengthIndeces + 1;
-                        CurPath = CurPath == pathFwd ? pathBack: pathFwd;
+                        CurPath = CurPath == pathFwd ? pathBack : pathFwd;
                         yield return new WaitForSeconds(unloadTime);
 
                         //flip train instantly
@@ -141,10 +142,13 @@ namespace Trains
 
             Vector3 frontPt = curPath[curTargetIdx];
             Vector3 backPt = curPath[curTargetIdx - loco.SupportLengthIndeces];
-
             Vector3 locoDir = (frontPt - backPt).normalized;
-            var locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
-            var dot = Vector3.Dot(locoToFarPtDir, locoDir);
+            Vector3 locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
+
+            float dot = Vector3.Dot(locoToFarPtDir, loco.transform.forward);
+            float minCarDot = carriages.Select(c => Vector3.Dot(c.transform.forward, loco.transform.forward)).Min();
+            dot = Math.Min(dot, minCarDot);
+
             float t = Mathf.InverseLerp(0.96f, 1f, dot);
             float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
             if (ReachingDestination()) reqSpeed = SlowSpeed;
