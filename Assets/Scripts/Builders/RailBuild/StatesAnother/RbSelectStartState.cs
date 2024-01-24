@@ -50,12 +50,12 @@ namespace Trains
                 rb.SnappedStartRoad = rb.DetectedStation.segment;
                 rb.SnappedStartPoints = new List<Vector3> { rb.SnappedStartRoad.Start, rb.SnappedStartRoad.End };
             }
-            else if (rb.DetectedRoad != null)
+            else if (rb.DetectedRoadByEnd != null)
             {
-                rb.start.pos = machine.GetClosestPoint(rb.DetectedRoad.Points, hitPoint);
+                rb.start.pos = machine.GetClosestPoint(rb.DetectedRoadByEnd.Points, hitPoint);
                 rb.SnappedStart = rb.start.pos;
-                rb.SnappedStartRoad = rb.DetectedRoad;
-                rb.SnappedStartPoints = rb.DetectedRoad.Points.Select(p => p).ToList();
+                rb.SnappedStartRoad = rb.DetectedRoadByEnd;
+                rb.SnappedStartPoints = rb.DetectedRoadByEnd.Points.Select(p => p).ToList();
             }
             else
             {

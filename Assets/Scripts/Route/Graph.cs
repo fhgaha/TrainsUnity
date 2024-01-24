@@ -12,10 +12,11 @@ namespace Trains
         public List<Node> Neighbours;
         public IPlayer Owner;
 
-        public Node(Vector3 pos)
+        public Node(Vector3 pos, IPlayer owner)
         {
             Pos = pos;
             Neighbours = new();
+            Owner = owner;
         }
 
         public Node AddNeigh(Node n)

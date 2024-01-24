@@ -58,7 +58,7 @@ namespace Trains
                         regHelp.RegisterIT(roadMidConnected: startRoad, newRoad: rb.Segment, connection: start);
                     }
                 }
-                else if (rb.DetectedRoad != null)
+                else if (rb.DetectedRoadByEnd != null)
                 {
                     HandleSnappedStartSnappedEnd();
                 }
@@ -73,7 +73,7 @@ namespace Trains
                 {
                     regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
                 }
-                else if (rb.DetectedRoad != null)
+                else if (rb.DetectedRoadByEnd != null)
                 {
                     HandleUnsnappedStartSnappedEnd();
                 }
@@ -91,7 +91,7 @@ namespace Trains
         private void HandleSnappedStartSnappedEnd()
         {
             RoadSegment startRoad = rb.SnappedStartRoad;
-            RoadSegment endRoad = rb.DetectedRoad;
+            RoadSegment endRoad = rb.DetectedRoadByEnd;
             Vector3 start = rb.Segment.Start;
             Vector3 end = rb.Segment.End;
 
@@ -117,14 +117,14 @@ namespace Trains
         private void HandleUnsnappedStartSnappedEnd()
         {
             //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
-            if (rb.DetectedRoad.IsPointSnappedOnEnding(rb.Segment.End))
+            if (rb.DetectedRoadByEnd.IsPointSnappedOnEnding(rb.Segment.End))
             {
                 regHelp.RegisterII(rb.Segment.Start, rb.Segment.End);
             }
             else
             {
                 // Unsnapped start, end snapped to mid
-                regHelp.RegisterT(rb.Segment.Start, rb.Segment.End, rb.DetectedRoad, rb.Segment.Points);
+                regHelp.RegisterT(rb.Segment.Start, rb.Segment.End, rb.DetectedRoadByEnd, rb.Segment.Points);
             }
         }
 
@@ -166,9 +166,9 @@ namespace Trains
                     rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateDubinsPoints();
                 }
-                else if (rb.DetectedRoad != null)
+                else if (rb.DetectedRoadByEnd != null)
                 {
-                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(rb.DetectedRoadByEnd.Points, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateDubinsPoints();
                 }
                 else
@@ -183,9 +183,9 @@ namespace Trains
                     rb.end = GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
                 }
-                else if (rb.DetectedRoad != null)
+                else if (rb.DetectedRoadByEnd != null)
                 {
-                    rb.end = GetSnappedEnd(rb.DetectedRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
+                    rb.end = GetSnappedEnd(rb.DetectedRoadByEnd.Points, hitPoint, rb.end.pos - rb.start.pos);
                     rb.CalculateCSPointsReversed();
                 }
                 else

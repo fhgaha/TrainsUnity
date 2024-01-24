@@ -120,12 +120,12 @@ namespace Trains
         //A: create, add neigh B
         //B: create, add neigh A
         //AB: create, set length
-        public void RegisterI(Vector3 start, Vector3 end, float length)
+        public void RegisterI(Vector3 start, Vector3 end, float length, IPlayer owner)
         {
             if (printDebugInfo) Debug.Log($"RegisterI called");
 
-            Node a = CreateNode(start);
-            Node b = CreateNode(end);
+            Node a = CreateNode(start, owner);
+            Node b = CreateNode(end, owner);
             a.AddNeigh(b);
             b.AddNeigh(a);
             Edge ab = CreateEdge(a, b, length);
@@ -152,12 +152,12 @@ namespace Trains
         //C: create, add neigh B 
         //B: add neigh C
         //BC: create, set length
-        public void RegisterII(Vector3 newPos, Vector3 otherPos, float length)
+        public void RegisterII(Vector3 newPos, Vector3 otherPos, float length, IPlayer owner)
         {
             if (printDebugInfo) Debug.Log($"RegisterII called");
 
             Node b = GetNode(otherPos);
-            Node c = CreateNode(newPos);
+            Node c = CreateNode(newPos, owner);
             b.AddNeigh(c);
             c.AddNeigh(b);
             Edge bc = CreateEdge(b, c, length);
@@ -184,13 +184,14 @@ namespace Trains
         public void RegisterT(
             Vector3 newSegmStart, Vector3 connection, float newSegmLength,
             Vector3 edgeToRemoveStart, Vector3 edgeToRemoveEnd,
-            float newEdge1Length, float newEdge2Length
+            float newEdge1Length, float newEdge2Length,
+            IPlayer owner
         )
         {
             if (printDebugInfo) Debug.Log($"RegisterT called");
 
-            Node a = CreateNode(newSegmStart);
-            Node b = CreateNode(connection);
+            Node a = CreateNode(newSegmStart, owner);
+            Node b = CreateNode(connection, owner);
             Node c = GetNode(edgeToRemoveStart);
             Node d = GetNode(edgeToRemoveEnd);
             a.AddNeigh(b);
@@ -228,7 +229,8 @@ namespace Trains
             Vector3 aPos, float aeLength,
             Vector3 bPos, float ebLength,
             Vector3 cPos, float cfLength,
-            Vector3 dPos, float fdLength
+            Vector3 dPos, float fdLength,
+            IPlayer owner
         )
         {
             if (printDebugInfo) Debug.Log($"RegisterH called");
@@ -237,8 +239,8 @@ namespace Trains
             Node b = GetNode(bPos);
             Node c = GetNode(cPos);
             Node d = GetNode(dPos);
-            Node e = CreateNode(ePos);
-            Node f = CreateNode(fPos);
+            Node e = CreateNode(ePos, owner);
+            Node f = CreateNode(fPos, owner);
             a.RemoveNeigh(b).AddNeigh(e);
             b.RemoveNeigh(a).AddNeigh(e);
             c.RemoveNeigh(d).AddNeigh(f);
@@ -299,7 +301,8 @@ namespace Trains
         //AD, DB, DC: create, set length
         public void RegisterIT(
             Vector3 dPos, float adLength, float dbLength, float dcLength,
-            Vector3 aPos, Vector3 bPos, Vector3 cPos
+            Vector3 aPos, Vector3 bPos, Vector3 cPos,
+            IPlayer owner
         )
         {
             if (printDebugInfo) Debug.Log($"RegisterIT called");
@@ -307,7 +310,7 @@ namespace Trains
             Node a = GetNode(aPos);
             Node b = GetNode(bPos);
             Node c = GetNode(cPos);
-            Node d = CreateNode(dPos);
+            Node d = CreateNode(dPos, owner);
             a.RemoveNeigh(b).AddNeigh(d);
             b.RemoveNeigh(a).AddNeigh(d);
             c.AddNeigh(d);
@@ -323,7 +326,7 @@ namespace Trains
             //DebugDraw();
         }
 
-        private Node CreateNode(Vector3 pos) => new Node(pos);
+        private Node CreateNode(Vector3 pos, IPlayer owner) => new Node(pos, owner);
         private Edge CreateEdge(Node n, Node m, float length) => new Edge { Node1 = n, Node2 = m, Length = length };
         private Node GetNode(Vector3 pos) => graph.AllNodes.First(n => n.Pos == pos);
         private Edge GetEdge(Node a, Node b) => graph.AllEdges.First(e => e.Contains(a, b));

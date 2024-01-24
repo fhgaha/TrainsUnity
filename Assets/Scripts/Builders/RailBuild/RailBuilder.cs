@@ -10,10 +10,21 @@ namespace Trains
     {
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
-        public RoadSegment DetectedRoad { get; set; }
+        public RoadSegment DetectedRoadByEnd { get; set; }
         public Station DetectedStation { get; set; }
         public HeadedPoint start, end;
-        public IPlayer Parent;
+        public IPlayer Owner
+        {
+            get { return owner; }
+            private set
+            {
+                ownerName = $"{value.GetType()}, id: {value.Id}";
+                owner = value;
+            }
+        }
+        [SerializeField] private string ownerName = "---";
+        private IPlayer owner;
+
         public Vector3 tangent1, tangent2;
 
         [SerializeField] private Vector3 snappedStartPos;   //to display in editor
@@ -41,60 +52,68 @@ namespace Trains
 
         public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
 
+        public RailBuilder Configure(IPlayer owner)
+        {
+            Owner = owner;
+            return this;
+        }
+
         private void Awake()
         {
             detector = GetComponentInChildren<Detector>();
             detector.Configure(this, segment);
 
+            detector.OnRoadDetected += SetDetectedRoad;
+            detector.OnStationDetected += OnStationDetected;
+
             regHelp = GetComponent<RegisterHelper>();
-            regHelp.Configure(segment, railContainer);
+            regHelp.Configure(segment, railContainer, this);
 
             stateMachine = new RbStateMachine(this, regHelp);
         }
 
-        private void Start()
-        {
-        }
-
         private void OnEnable()
         {
-            detector.OnRoadDetected += SetDetectedRoad;
-            detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
-
-            //if (state is null)
+            //if (Owner is HumanPlayer)
             //{
-            //    state = new RailBuilderState().Configure(this, regHelp); //all other states are null
+            //    detector.OnRoadDetected += SetDetectedRoad;
+            //    detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
             //}
         }
 
         private void OnDisable()
         {
-            detector.OnRoadDetected -= SetDetectedRoad;
-            detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
-
-            //state = new RailBuilderState().Configure(this, regHelp);
-            RemoveMesh();
+            //if (Owner is HumanPlayer)
+            //{
+            //    detector.OnRoadDetected -= SetDetectedRoad;
+            //    detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
+            //    RemoveMesh();
+            //}
         }
 
         private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)
         {
             if (sender is not Detector d || d != detector) return;
 
-            DetectedRoad = e.Other;
+            DetectedRoadByEnd = e.Other;
+        }
+
+        private void OnStationDetected(object sender, StationDetectorEventArgs e)
+        {
+            DetectedStation = e.Station;
         }
 
         public void Update()
         {
-            if (Parent is AiPlayer) return;
+            if (Owner is AiPlayer) return;
 
+            //TODO main camera assigned! ai player should have its own camera
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
             if (wasHit)
             {
                 detector.transform.position = hit.point;
             }
 
-            //state = state.Handle(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
-            //stateName = state.GetType().Name;
             stateMachine.UpdateState(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
             if (HasPoints)
@@ -110,6 +129,8 @@ namespace Trains
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
+            detector.transform.position = new Vector3(0, -1000, 0);
+            yield return new WaitForFixedUpdate();
             //selecting start state
             //move det, set up detected road if any
             detector.transform.position = start;

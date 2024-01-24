@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,26 +8,32 @@ namespace Trains
 {
     public interface IPlayer
     {
+        public Guid Id { get; set; }
         public Color Color { get; set; }
     }
 
     public class AiPlayer : MonoBehaviour, IPlayer
     {
+        public Guid Id { get; set; }
+        public Color Color { get; set; } = Color.red;
+        
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
-        public Color Color { get; set; } = Color.red;
-        private ComplexRailBuilder railBuilder;
+
+        private ComplexRailBuilder cmplxRailBuilder;
 
         private void Awake()
         {
-            railBuilder = new ComplexRailBuilder(rb);
+            Id = new Guid();
+            cmplxRailBuilder = new ComplexRailBuilder(rb);
         }
 
         private void Start()
         {
-            rb.Parent = this;
+            rb.Configure(this);
             rb.gameObject.SetActive(true);
+            sb.Configure(this);
 
             //Turn off this game object if tests are not required
 
@@ -51,16 +58,17 @@ namespace Trains
             StartCoroutine(Routine());
             IEnumerator Routine()
             {
-                sb.Configure(this);
-                yield return new WaitUntil(() => sb.AssertConfigured());
-
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
+                //Debug.Log(from);
                 yield return new WaitUntil(() => from != null);
 
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
+                //Debug.Log(to);
                 yield return new WaitUntil(() => to != null);
 
-                yield return railBuilder.Build_Routine(
+                yield return new WaitUntil(() => rb.Owner != null && sb.Owner != null);
+
+                yield return cmplxRailBuilder.Build_Routine(
                     from.Entry1,
                     new Vector3(-10, 0, -50),
                     new Vector3(10, 0, 0),
@@ -84,7 +92,7 @@ namespace Trains
         {
             //Doesn't work with Vector3.zero but works any other
 
-            railBuilder.Build(
+            cmplxRailBuilder.Build(
                 from.Entry1,
                 new Vector3(-10, 0, -50),
                 new Vector3(10, 0, 0),

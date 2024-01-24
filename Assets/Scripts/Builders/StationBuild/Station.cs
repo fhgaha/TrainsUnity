@@ -20,23 +20,17 @@ namespace Trains
             }
         }
         public string OwnerName = "---";
-
-        [SerializeField] private List<Vector3> originalPoints;
         private IPlayer owner;
+
+        public override string ToString() => $"Station {GetInstanceID()}, entry1: {Entry1}, entry2: {Entry2}";
+        [SerializeField] private List<Vector3> originalPoints;
+
 
         private void Awake()
         {
             segment = GetComponentInChildren<RoadSegment>();
             GetComponentInChildren<StationRotator>().Configure(this);
             GetComponentInChildren<MeshCollider>().sharedMesh = segment.GetMesh();
-        }
-
-        private void OnEnable()
-        {
-        }
-
-        private void OnDisable()
-        {
         }
 
         private void OnTriggerEnter(Collider other)

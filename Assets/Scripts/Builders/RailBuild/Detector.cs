@@ -22,13 +22,13 @@ namespace Trains
         public event EventHandler<RoadDetectorEventArgs> OnRoadDetected;
         public event EventHandler<StationDetectorEventArgs> OnStationDetected;
 
-        private RailBuilder parent;
+        private RailBuilder rb;
         [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
         [SerializeField] private List<RoadSegment> detectedRoads = new();
 
         public void Configure(RailBuilder parent, RoadSegment curRS)
         {
-            this.parent = parent;
+            this.rb = parent;
             this.curSegm = curRS;
         }
 

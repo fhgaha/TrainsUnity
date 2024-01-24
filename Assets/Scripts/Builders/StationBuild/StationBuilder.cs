@@ -10,20 +10,30 @@ namespace Trains
         [SerializeField] private StationContainer stationContainer;
         //[SerializeField] private GameObject stationPrefab;  //prefab imported using this: https://github.com/atteneder/glTFast
 
-        public IPlayer Parent { get; private set; }
+        public IPlayer Owner
+        {
+            get { return owner; }
+            private set
+            {
+                ownerName = $"{value.GetType()}, id: {value.Id}";
+                owner = value;
+            }
+        }
+        [SerializeField] private string ownerName = "---";
+        private IPlayer owner;
 
         private Vector3 mousePos;
         private Station station;
-        
-        public void Configure(IPlayer parent)
+
+        public void Configure(IPlayer owner)
         {
-            Parent = parent;
-            station.SetUpRoadSegment(Parent);
+            Owner = owner;
+            station.SetUpRoadSegment(Owner);
         }
 
         public bool AssertConfigured()
         {
-            if (Parent == null) throw new System.Exception($"Parent should be configured. Parent is {Parent}.");
+            if (Owner == null) throw new System.Exception($"Parent should be configured. Parent is {Owner}.");
             return true;
         }
 
@@ -62,7 +72,7 @@ namespace Trains
         private Station PlaceStation()
         {
             Station instance = stationContainer.Add(station);
-            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.segment.GetApproxLength());
+            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.segment.GetApproxLength(), Owner);
             return instance;
         }
 

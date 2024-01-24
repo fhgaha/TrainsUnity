@@ -82,10 +82,10 @@ namespace Trains
                 NamedToggle nt = toggle.GetComponent<NamedToggle>();
                 nt.Id = id;
                 //uncomment this to make not player's station toggles non-interactable
-                //nt.interactable = s.Owner is HumanPlayer;
+                nt.interactable = s.Owner == Global.Instance.MainPlayer;
                 nt.OnToggleChanged += OnTogglePressed;
 
-                this.stationIcons.Add(id, toggle.GetComponent<Toggle>());
+                stationIcons.Add(id, toggle.GetComponent<Toggle>());
             }
         }
 

@@ -12,6 +12,7 @@ namespace Trains
         [field: SerializeField] public TrainContainer TrainContainer { get; set; }
         [field: SerializeField] public RailBuilder RailBuilder { get; set; }
         [field: SerializeField] public StationBuilder StationBuilder { get; set; }
+        public IPlayer MainPlayer { get; set; }
 
         public float DriveDistance { get; private set; } = 1f;
         public int MapWidth = 1024;

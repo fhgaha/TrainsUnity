@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,21 +13,24 @@ namespace Trains
 
     public class HumanPlayer : MonoBehaviour, IPlayer
     {
+        public Guid Id { get ; set ; }
+        public Color Color { get; set; } = Color.blue;
+
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
 
         public float MoneyBalance { get; set; } = 1000;
-        public Color Color { get; set; } = Color.blue;
-
         private PlayerState state;
 
         private void Start()
         {
             EventManager.Instance.OnBuildRailPressed += OnBuildRailPressed;
+            //TODO temporary, probably stick main player to current camera
+            Global.Instance.MainPlayer = this;
 
             state = PlayerState.None;
-            rb.Parent = this;
+            rb.Configure(this);
             rb.gameObject.SetActive(false);
             sb.Configure(this);
         }

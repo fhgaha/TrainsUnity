@@ -9,18 +9,20 @@ namespace Trains
     {
         private RoadSegment segment;
         private RailContainer railContainer;
+        private RailBuilder rb;
 
-        public void Configure(RoadSegment segment, RailContainer railContainer)
+        public void Configure(RoadSegment segment, RailContainer railContainer, RailBuilder rb)
         {
             this.segment = segment;
             this.railContainer = railContainer;
+            this.rb = rb;
         }
 
         public void RegisterI(Vector3 start, Vector3 end) 
-            => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength());
+            => RouteManager.Instance.RegisterI(start, end, segment.GetApproxLength(), rb.Owner);
 
         public void RegisterII(Vector3 newNodePos, Vector3 nodeWeConnectedToPos) 
-            => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength());
+            => RouteManager.Instance.RegisterII(newNodePos, nodeWeConnectedToPos, segment.GetApproxLength(), rb.Owner);
 
         public void RegisterT(Vector3 start, Vector3 connection, RoadSegment otherRoad, List<Vector3> pts)
         {
@@ -29,7 +31,8 @@ namespace Trains
             RouteManager.Instance.RegisterT(
                 start, connection, RoadSegment.GetApproxLength(pts),
                 otherRoad.Start, otherRoad.End,
-                segment1.GetApproxLength(), segment2.GetApproxLength()
+                segment1.GetApproxLength(), segment2.GetApproxLength(),
+                rb.Owner
             );
 
             railContainer.Remove(otherRoad);
@@ -52,7 +55,8 @@ namespace Trains
                 oldRoad1.Start, ae.GetApproxLength(),
                 oldRoad1.End, eb.GetApproxLength(),
                 oldRoad2.Start, cf.GetApproxLength(),
-                oldRoad2.End, fd.GetApproxLength()
+                oldRoad2.End, fd.GetApproxLength(),
+                rb.Owner
             );
 
             railContainer.Remove(oldRoad1);
@@ -73,7 +77,8 @@ namespace Trains
 
             RouteManager.Instance.RegisterIT(
                 connection, ad.GetApproxLength(), db.GetApproxLength(), newRoad.GetApproxLength(),
-                roadMidConnected.Start, roadMidConnected.End, end
+                roadMidConnected.Start, roadMidConnected.End, end,
+                rb.Owner
             );
 
             railContainer.Remove(roadMidConnected);
