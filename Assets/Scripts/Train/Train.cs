@@ -30,8 +30,8 @@ namespace Trains
             }
         }
 
-        public float SlowSpeed = 10;
-        public float MaxSpeed = 20;
+        public float SlowSpeed = 20;
+        public float MaxSpeed = 50;
         public float SpeedStep = 0.1f;
         public float CurSpeed = 0;
         public float RotSpeed = 10;
@@ -95,6 +95,7 @@ namespace Trains
                     {
                         curTargetIdx = LengthIndeces + 1;
                         CurPath = CurPath == pathFwd ? pathBack : pathFwd;
+                        CurSpeed = 0;
                         yield return new WaitForSeconds(unloadTime);
 
                         //flip train instantly

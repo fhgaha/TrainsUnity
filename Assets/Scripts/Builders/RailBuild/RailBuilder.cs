@@ -129,8 +129,6 @@ namespace Trains
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
-            detector.transform.position = new Vector3(0, -1000, 0);
-            yield return new WaitForFixedUpdate();
             //selecting start state
             //move det, set up detected road if any
             detector.transform.position = start;
@@ -155,21 +153,6 @@ namespace Trains
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
         }
-
-
-
-        //public void RemoveBuiltRoads(params Vector3[] pts)
-        //{
-        //    RouteManager rm = RouteManager.Instance;
-        //    for (int i = 0; i < pts.Length - 1; i++)
-        //    {
-        //        Vector3 start = pts[i];
-        //        Vector3 end = pts[i + 1];
-        //        railContainer.RemoveSegm(start, end);
-        //        rm.UnregisterNodes(start);
-        //    }
-        //    rm.UnregisterNode(pts[^1]);
-        //}
 
         public void RemoveRoad(Vector3 start, Vector3 end)
         {

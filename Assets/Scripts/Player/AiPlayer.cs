@@ -59,14 +59,7 @@ namespace Trains
             IEnumerator Routine()
             {
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-                //Debug.Log(from);
-                yield return new WaitUntil(() => from != null);
-
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
-                //Debug.Log(to);
-                yield return new WaitUntil(() => to != null);
-
-                yield return new WaitUntil(() => rb.Owner != null && sb.Owner != null);
 
                 yield return cmplxRailBuilder.Build_Routine(
                     from.Entry1,
