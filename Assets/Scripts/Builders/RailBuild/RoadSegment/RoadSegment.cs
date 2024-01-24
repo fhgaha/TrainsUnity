@@ -16,6 +16,9 @@ namespace Trains
         public RoadSegmentData data;
 
         [SerializeField] private Mesh2D shape2D;
+        [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material defaultMaterial;
+
         private Mesh mesh;
         private MeshCollider meshCollider;
 
@@ -177,9 +180,8 @@ namespace Trains
 
         public bool IsPointSnappedOnEnding(Vector3 point) => Start == point || End == point;
 
-        //private void OnCollisionEnter(Collision collision) => Debug.Log("OnCollisionEnter from RoadSegment");
+        public void SetBlueprintMaterial() => GetComponent<MeshRenderer>().material = blueprintMaterial;
 
-        //private void OnTriggerEnter(Collider other) => Debug.Log("OnTriggerEnter from RoadSegment");
-
+        public void SetDefaultMaterial() => GetComponent<MeshRenderer>().material = defaultMaterial;
     }
 }

@@ -69,9 +69,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28f09e1d78f2d4e4daded8d53573afcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <Cargo>k__BackingField:
+    <Passengers>k__BackingField: 10
+    <Mail>k__BackingField: 20
+    <Freight>k__BackingField:
+      <WoodAmnt>k__BackingField: 30
   segment: {fileID: 0}
   OwnerName: ---
   originalPoints: []
+  blueprintMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
+  defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  visual: {fileID: 8680178971901487963}
 --- !u!114 &7676467304431621852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,9 +190,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f1ab7cc44f66964396477ad23be3fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <Points>k__BackingField: []
   Start: {x: 0, y: 0, z: 0}
   End: {x: 0, y: 0, z: 0}
-  <Points>k__BackingField: []
   data:
     start:
       pos: {x: 0, y: 0, z: 0}
@@ -195,6 +203,8 @@ MonoBehaviour:
     tangent1: {x: 0, y: 0, z: 0}
     tangent2: {x: 0, y: 0, z: 0}
   shape2D: {fileID: 11400000, guid: 525732b36ebb11348889648cff1efc1a, type: 2}
+  blueprintMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
+  defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!64 &4956084078655259696
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -305,5 +315,10 @@ PrefabInstance:
 --- !u!4 &3222720150977625950 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5499554889900253811, guid: 932ae1db8e6d6d24c993609b5611b127, type: 3}
+  m_PrefabInstance: {fileID: 2239627190200705747}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8680178971901487963 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7449782648777001352, guid: 932ae1db8e6d6d24c993609b5611b127, type: 3}
   m_PrefabInstance: {fileID: 2239627190200705747}
   m_PrefabAsset: {fileID: 0}

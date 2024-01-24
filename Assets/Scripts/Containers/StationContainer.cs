@@ -20,12 +20,9 @@ namespace Trains
             copy.name = $"Station {copy.GetInstanceID()}";
             copy.SetUpRoadSegment(copy.Owner);
             copy.CopyInfoFrom(original);
-            //copy.segment.CopyPoints(original.segment);
-            //copy.segment.Start = original.segment.Start;
-            //copy.segment.End = original.segment.End;
+            copy.SetDefaultMaterial();
 
             Stations.Add(copy.GetInstanceID(), copy);
-            //Debug.Log($"{this}: {copy.GetInstanceID()}");
 
             OnStationAdded?.Invoke(this, EventArgs.Empty);
 

@@ -55,6 +55,7 @@ namespace Trains
         private void Start()
         {
             gameObject.SetActive(false);
+            station.SetBlueprintMaterial();
         }
 
         void Update()

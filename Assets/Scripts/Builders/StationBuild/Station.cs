@@ -21,10 +21,12 @@ namespace Trains
         }
         public string OwnerName = "---";
         private IPlayer owner;
-
         public override string ToString() => $"Station {GetInstanceID()}, entry1: {Entry1}, entry2: {Entry2}";
+        
         [SerializeField] private List<Vector3> originalPoints;
-
+        [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material defaultMaterial;
+        [SerializeField] private GameObject visual;
 
         private void Awake()
         {
@@ -77,11 +79,23 @@ namespace Trains
             }
             segment.Start = segment.Points[0];
             segment.End = segment.Points[^1];
-
-            //Debug.DrawRay(segment.Start, 10 * Vector3.up, Color.white, Time.deltaTime);
-            //Debug.DrawRay(segment.End, 10 * Vector3.up, Color.white, Time.deltaTime);
         }
 
         public void UpdateRotation(float yAngle) => transform.rotation = Quaternion.Euler(0, yAngle, 0);
+
+        public void SetBlueprintMaterial()
+        {
+            visual.GetComponent<MeshRenderer>().material = blueprintMaterial;
+            //segment.GetComponent<MeshRenderer>().material = blueprintMaterial;
+            segment.SetBlueprintMaterial();
+        }
+
+        public void SetDefaultMaterial()
+        {
+            visual.GetComponent<MeshRenderer>().material = defaultMaterial;
+            //TODO this hould be in segment
+            //segment.GetComponent<MeshRenderer>().material = defaultMaterial;
+            segment.SetDefaultMaterial();
+        }
     }
 }
