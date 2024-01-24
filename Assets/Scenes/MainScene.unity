@@ -290,7 +290,7 @@ Transform:
   m_GameObject: {fileID: 101948705}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.234646, y: -10.274553, z: -20.111137}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -760,6 +760,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 101948707}
     m_Modifications:
+    - target: {fileID: 449576234784620204, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4379605455220814728, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 4605006460226770976, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
       propertyPath: cam
       value: 
@@ -768,6 +776,10 @@ PrefabInstance:
       propertyPath: stationContainer
       value: 
       objectReference: {fileID: 789078737}
+    - target: {fileID: 5094125305059099574, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 6042740891803323571, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
       propertyPath: m_Name
       value: StationBuilder
@@ -3704,6 +3716,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 3.4
       objectReference: {fileID: 0}
+    - target: {fileID: 2414487025802908661, guid: e6b9ca3ae21005d41b25b1c11fe89b09, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 2414487025984448689, guid: e6b9ca3ae21005d41b25b1c11fe89b09, type: 3}
       propertyPath: m_Name
       value: RailBuilder
@@ -3990,6 +4006,10 @@ PrefabInstance:
       value: -108
       objectReference: {fileID: 0}
     - target: {fileID: 2414487025802908661, guid: e6b9ca3ae21005d41b25b1c11fe89b09, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2414487025802908661, guid: e6b9ca3ae21005d41b25b1c11fe89b09, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -4219,9 +4239,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2042967258}
     m_Modifications:
+    - target: {fileID: 449576234784620204, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2349374017691080226, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
       propertyPath: m_LocalPosition.x
       value: 26.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4379605455220814728, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4605006460226770976, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
       propertyPath: cam
@@ -4231,6 +4259,10 @@ PrefabInstance:
       propertyPath: stationContainer
       value: 
       objectReference: {fileID: 789078737}
+    - target: {fileID: 5094125305059099574, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
+      propertyPath: m_Layer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 6042740891803323571, guid: 986d927a410bcf34496c7b85991ec1ca, type: 3}
       propertyPath: m_Name
       value: StationBuilder

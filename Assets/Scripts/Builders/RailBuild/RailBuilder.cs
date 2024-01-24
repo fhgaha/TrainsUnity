@@ -63,9 +63,6 @@ namespace Trains
             detector = GetComponentInChildren<Detector>();
             detector.Configure(this, segment);
 
-            detector.OnRoadDetected += SetDetectedRoad;
-            detector.OnStationDetected += OnStationDetected;
-
             regHelp = GetComponent<RegisterHelper>();
             regHelp.Configure(segment, railContainer, this);
 
@@ -74,21 +71,15 @@ namespace Trains
 
         private void OnEnable()
         {
-            //if (Owner is HumanPlayer)
-            //{
-            //    detector.OnRoadDetected += SetDetectedRoad;
-            //    detector.OnStationDetected += (sender, e) => DetectedStation = e.Station;
-            //}
+            detector.OnRoadDetected += SetDetectedRoad;
+            detector.OnStationDetected += OnStationDetected;
         }
 
         private void OnDisable()
         {
-            //if (Owner is HumanPlayer)
-            //{
-            //    detector.OnRoadDetected -= SetDetectedRoad;
-            //    detector.OnStationDetected -= (sender, e) => DetectedStation = e.Station;
-            //    RemoveMesh();
-            //}
+            detector.OnRoadDetected -= SetDetectedRoad;
+            detector.OnStationDetected -= OnStationDetected;
+            RemoveMesh();
         }
 
         private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)

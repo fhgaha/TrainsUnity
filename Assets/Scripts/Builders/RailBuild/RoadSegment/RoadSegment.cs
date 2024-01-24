@@ -9,10 +9,12 @@ namespace Trains
     [RequireComponent(typeof(MeshRenderer))]
     public class RoadSegment : MonoBehaviour
     {
+        [field: SerializeField] public List<Vector3> Points { get; set; }
+        public IPlayer Owner { get; set; }
         public Vector3 Start = Vector3.zero;
         public Vector3 End = Vector3.zero;
-        [field: SerializeField] public List<Vector3> Points { get; set; }
         public RoadSegmentData data;
+
         [SerializeField] private Mesh2D shape2D;
         private Mesh mesh;
         private MeshCollider meshCollider;

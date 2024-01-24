@@ -50,10 +50,30 @@ namespace Trains
             //railBuilder.BuildAndDestroyAllSeveralTimes();
 
 
-            BuildTwoStationsRoadSendTrain();
+            //BuildTwoStationsCurvyRoadSendTrain();
+
+            BuildTwoStationsStraghtRoadSendTrain();
         }
 
-        private void BuildTwoStationsRoadSendTrain()
+        private void BuildTwoStationsStraghtRoadSendTrain()
+        {
+            StartCoroutine(Routine());
+            IEnumerator Routine()
+            {
+                Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
+                Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
+
+                yield return cmplxRailBuilder.Build_Routine(
+                    from.Entry1,
+                    to.Entry1
+                );
+
+                Route r = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
+                Global.Instance.TrainContainer.SendTrain(r);
+            }
+        }
+
+        private void BuildTwoStationsCurvyRoadSendTrain()
         {
             StartCoroutine(Routine());
             IEnumerator Routine()
