@@ -13,7 +13,7 @@ namespace Trains
 
     public class HumanPlayer : MonoBehaviour, IPlayer
     {
-        public Guid Id { get ; set ; }
+        public int Id { get ; set ; }
         public Color Color { get; set; } = Color.blue;
 
         [SerializeField] private RailBuilder rb;
@@ -22,6 +22,11 @@ namespace Trains
 
         public float MoneyBalance { get; set; } = 1000;
         private PlayerState state;
+
+        private void Awake()
+        {
+            Id = GetInstanceID();
+        }
 
         private void Start()
         {

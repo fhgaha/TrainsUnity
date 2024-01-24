@@ -8,25 +8,25 @@ namespace Trains
 {
     public interface IPlayer
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public Color Color { get; set; }
     }
 
     public class AiPlayer : MonoBehaviour, IPlayer
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public Color Color { get; set; } = Color.red;
         
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
 
-        private ComplexRailBuilder cmplxRailBuilder;
+        private RailGenerator railGen;
 
         private void Awake()
         {
-            Id = new Guid();
-            cmplxRailBuilder = new ComplexRailBuilder(rb);
+            Id = GetInstanceID();
+            railGen = new RailGenerator(rb);
         }
 
         private void Start()
@@ -63,7 +63,7 @@ namespace Trains
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
 
-                yield return cmplxRailBuilder.Build_Routine(
+                yield return railGen.Build_Routine(
                     from.Entry1,
                     to.Entry1
                 );
@@ -81,7 +81,7 @@ namespace Trains
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
 
-                yield return cmplxRailBuilder.Build_Routine(
+                yield return railGen.Build_Routine(
                     from.Entry1,
                     new Vector3(-10, 0, -50),
                     new Vector3(10, 0, 0),
@@ -105,7 +105,7 @@ namespace Trains
         {
             //Doesn't work with Vector3.zero but works any other
 
-            cmplxRailBuilder.Build(
+            railGen.Build(
                 from.Entry1,
                 new Vector3(-10, 0, -50),
                 new Vector3(10, 0, 0),

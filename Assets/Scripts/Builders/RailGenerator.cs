@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class ComplexRailBuilder
+    public class RailGenerator
     {
         private RailBuilder rb;
 
-        public ComplexRailBuilder(RailBuilder rb)
+        public RailGenerator(RailBuilder rb)
         {
             this.rb = rb;
         }
