@@ -96,7 +96,6 @@ namespace Trains
 
         public void Update()
         {
-            Debug.Log("update" + ownerName);
             if (Owner is AiPlayer) return;
 
             //TODO main camera assigned! ai player should have its own camera

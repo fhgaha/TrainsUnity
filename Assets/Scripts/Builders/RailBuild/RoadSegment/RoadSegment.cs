@@ -18,6 +18,7 @@ namespace Trains
         [SerializeField] private Mesh2D shape2D;
         [SerializeField] private Material blueprintMaterial;
         [SerializeField] private Material defaultMaterial;
+        [SerializeField] private Material forbiddenMaterial;
 
         private Mesh mesh;
         private MeshCollider meshCollider;
@@ -180,8 +181,10 @@ namespace Trains
 
         public bool IsPointSnappedOnEnding(Vector3 point) => Start == point || End == point;
 
-        public void SetBlueprintMaterial() => GetComponent<MeshRenderer>().material = blueprintMaterial;
+        public void BecomeGreen() => GetComponent<MeshRenderer>().material = blueprintMaterial;
 
-        public void SetDefaultMaterial() => GetComponent<MeshRenderer>().material = defaultMaterial;
+        public void BecomeRed() => GetComponent<MeshRenderer>().material = forbiddenMaterial;
+
+        public void BecomeDefaultColor() => GetComponent<MeshRenderer>().material = defaultMaterial;
     }
 }

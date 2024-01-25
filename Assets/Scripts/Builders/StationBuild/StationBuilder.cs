@@ -6,10 +6,6 @@ namespace Trains
 {
     public class StationBuilder : MonoBehaviour
     {
-        [SerializeField] private Camera cam;
-        [SerializeField] private StationContainer stationContainer;
-        //[SerializeField] private GameObject stationPrefab;  //prefab imported using this: https://github.com/atteneder/glTFast
-
         public IPlayer Owner
         {
             get { return owner; }
@@ -22,6 +18,10 @@ namespace Trains
         [SerializeField] private string ownerName = "---";
         private IPlayer owner;
 
+        [SerializeField] private Camera cam;
+        [SerializeField] private StationContainer stationContainer;
+        //[SerializeField] private GameObject stationPrefab;  //prefab imported using this: https://github.com/atteneder/glTFast
+
         private Vector3 mousePos;
         private Station station;
 
@@ -29,6 +29,8 @@ namespace Trains
         {
             Owner = owner;
             station.SetUpRoadSegment(Owner);
+            station.gameObject.AddComponent<Rigidbody>().useGravity = false;
+            station.GetComponent<BoxCollider>().isTrigger = true;
         }
 
         public bool AssertConfigured()
@@ -55,7 +57,7 @@ namespace Trains
         private void Start()
         {
             gameObject.SetActive(false);
-            station.SetBlueprintMaterial();
+            station.BecomeGreen();
         }
 
         void Update()
@@ -74,6 +76,9 @@ namespace Trains
         {
             Station instance = stationContainer.Add(station);
             RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.segment.GetApproxLength(), Owner);
+            instance.GetComponent<BoxCollider>().isTrigger = false;
+            instance.IsBlueprint = false;
+            Destroy(instance.GetComponent<Rigidbody>());
             return instance;
         }
 
@@ -88,6 +93,5 @@ namespace Trains
 
         private bool HitGround(Camera camera, out RaycastHit hit) =>
             Physics.Raycast(camera.ScreenPointToRay(Input.mousePosition), out hit, 1000f, LayerMask.GetMask("Ground"));
-
     }
 }

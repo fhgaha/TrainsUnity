@@ -20,7 +20,7 @@ namespace Trains
             copy.name = $"Station {copy.GetInstanceID()}";
             copy.SetUpRoadSegment(copy.Owner);
             copy.CopyInfoFrom(original);
-            copy.SetDefaultMaterial();
+            copy.BecomeDefaultColor();
 
             Stations.Add(copy.GetInstanceID(), copy);
 
