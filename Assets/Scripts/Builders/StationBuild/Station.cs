@@ -26,7 +26,7 @@ namespace Trains
         public override string ToString() => $"Station \"{name}\", id: {GetInstanceID()}, entry1: {Entry1}, entry2: {Entry2}";
 
         [SerializeField] private List<Vector3> originalPoints;
-        [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material allowedMaterial;
         [SerializeField] private Material defaultMaterial;
         [SerializeField] private Material forbiddenMaterial;
         [SerializeField] private GameObject visual;
@@ -80,7 +80,7 @@ namespace Trains
 
         public void BecomeGreen()
         {
-            visual.GetComponent<MeshRenderer>().material = blueprintMaterial;
+            visual.GetComponent<MeshRenderer>().material = allowedMaterial;
             segment.BecomeGreen();
         }
 
@@ -96,48 +96,86 @@ namespace Trains
             segment.BecomeRed();
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            Debug.Log("OnCollisionEnter: " + collision);
-        }
+        //paint itself red if touching objects
+        private List<Station> stationsEntered = new();
+        private List<RoadSegment> segmentsEntered = new();
 
         private void OnTriggerEnter(Collider other)
         {
-            DetectBuiltStation(other);
-
-            //if (other.transform.parent.TryGetComponent(out LocomotiveMove locMove))
-            //{
-            //    Debug.Log($"{this}: {locMove + "haha"}");
-            //}
+            HandleStatoinEnter(other);
+            HandleRoadEnter(other);
+            HandleTrainEnter(other);
         }
 
-        private List<Station> triggersEntered = new();
-        private void DetectBuiltStation(Collider collider)
+        private void HandleStatoinEnter(Collider collider)
         {
             Station other = collider.GetComponent<Station>();
             if (other is null) return;
 
             if (this.IsBlueprint && !other.IsBlueprint)
             {
-                //Debug.Log("OnTriggerEnter: " + other);
-                triggersEntered.Add(other);
+                stationsEntered.Add(other);
                 BecomeRed();
             }
         }
 
+        private void HandleRoadEnter(Collider collider)
+        {
+            RoadSegment other = collider.GetComponent<RoadSegment>();
+            if (other is null) return;
+
+            if (this.IsBlueprint)
+            {
+                //Debug.Log($"{this}: HandleRoadEnter: {other}");
+                segmentsEntered.Add(other);
+                BecomeRed();
+            }
+        }
+
+        private void HandleTrainEnter(Collider collider)
+        {
+            //if (other.transform.parent.TryGetComponent(out LocomotiveMove locMove))
+            //{
+            //    Debug.Log($"{this}: {locMove + "haha"}");
+            //}
+        }
+
         private void OnTriggerExit(Collider other)
+        {
+            HandleStationExit(other);
+            HandleRoadExit(other);
+        }
+
+        private void HandleStationExit(Collider other)
         {
             Station otherStation = other.GetComponent<Station>();
             if (otherStation is null) return;
 
             if (this.IsBlueprint && !otherStation.IsBlueprint)
             {
-                if (!triggersEntered.Contains(otherStation))
+                if (!stationsEntered.Contains(otherStation))
                     throw new Exception($"Station {otherStation} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
 
-                triggersEntered.Remove(otherStation);
+                stationsEntered.Remove(otherStation);
 
-                if (triggersEntered.Count == 0)
+                if (stationsEntered.Count == 0)
+                    BecomeGreen();
+            }
+        }
+
+        private void HandleRoadExit(Collider collider)
+        {
+            RoadSegment other = collider.GetComponent<RoadSegment>();
+            if (other is null) return;
+
+            if (this.IsBlueprint)
+            {
+                if (!segmentsEntered.Contains(other))
+                    throw new Exception($"Road segment {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
+
+                segmentsEntered.Remove(other);
+
+                if (segmentsEntered.Count == 0)
                     BecomeGreen();
             }
         }

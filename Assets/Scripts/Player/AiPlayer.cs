@@ -22,7 +22,7 @@ namespace Trains
         [SerializeField] private Camera cam;
 
         private RailGenerator railGen;
-
+        
         private void Awake()
         {
             Id = GetInstanceID();
@@ -52,10 +52,10 @@ namespace Trains
 
             //BuildTwoStationsCurvyRoadSendTrain();
 
-            BuildTwoStationsStraghtRoadSendTrain();
+            BuildTwoStationsStraightRoadSendTrain();
         }
 
-        private void BuildTwoStationsStraghtRoadSendTrain()
+        private void BuildTwoStationsStraightRoadSendTrain()
         {
             StartCoroutine(Routine());
             IEnumerator Routine()

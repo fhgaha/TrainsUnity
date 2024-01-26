@@ -16,7 +16,7 @@ namespace Trains
         public RoadSegmentData data;
 
         [SerializeField] private Mesh2D shape2D;
-        [SerializeField] private Material blueprintMaterial;
+        [SerializeField] private Material allowedMaterial;
         [SerializeField] private Material defaultMaterial;
         [SerializeField] private Material forbiddenMaterial;
 
@@ -181,7 +181,7 @@ namespace Trains
 
         public bool IsPointSnappedOnEnding(Vector3 point) => Start == point || End == point;
 
-        public void BecomeGreen() => GetComponent<MeshRenderer>().material = blueprintMaterial;
+        public void BecomeGreen() => GetComponent<MeshRenderer>().material = allowedMaterial;
 
         public void BecomeRed() => GetComponent<MeshRenderer>().material = forbiddenMaterial;
 

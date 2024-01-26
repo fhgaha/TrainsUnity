@@ -78,7 +78,7 @@ MonoBehaviour:
   segment: {fileID: 0}
   OwnerName: ---
   originalPoints: []
-  blueprintMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
+  allowedMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   forbiddenMaterial: {fileID: 2100000, guid: 90e3d19c9ef15af48892df70f3067475, type: 2}
   visual: {fileID: 8680178971901487963}
@@ -205,7 +205,7 @@ MonoBehaviour:
     tangent1: {x: 0, y: 0, z: 0}
     tangent2: {x: 0, y: 0, z: 0}
   shape2D: {fileID: 11400000, guid: 525732b36ebb11348889648cff1efc1a, type: 2}
-  blueprintMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
+  allowedMaterial: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   forbiddenMaterial: {fileID: 2100000, guid: 90e3d19c9ef15af48892df70f3067475, type: 2}
 --- !u!64 &4956084078655259696

@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c423273900d36f41b437abf5c93a907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ownerName: ---
   cam: {fileID: 0}
   stationContainer: {fileID: 0}
 --- !u!1001 &9100376255555671543
@@ -61,11 +62,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_Size.x
-      value: 16.7
+      value: 31.953512
       objectReference: {fileID: 0}
     - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_Size.z
-      value: 24.3
+      value: 33.092422
       objectReference: {fileID: 0}
     - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_Enabled
@@ -73,7 +74,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_Center.x
-      value: -3.2
+      value: -2.4736414
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
+      propertyPath: m_Center.z
+      value: -0.6658268
       objectReference: {fileID: 0}
     - target: {fileID: 6832418880548881365, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_RootOrder
