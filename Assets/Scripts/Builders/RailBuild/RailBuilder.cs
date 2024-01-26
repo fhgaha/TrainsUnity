@@ -80,6 +80,14 @@ namespace Trains
             detector.OnRoadDetected -= SetDetectedRoad;
             detector.OnStationDetected -= OnStationDetected;
             RemoveMesh();
+
+            ResetCustom();
+        }
+
+        public void ResetCustom()
+        {
+            RemoveMesh();
+            stateMachine = new RbStateMachine(this, regHelp);
         }
 
         private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)

@@ -40,9 +40,9 @@ namespace Trains
             sb.Configure(this);
         }
 
-        private void OnBuildRailPressed(object sender, Toggle e)
+        private void OnBuildRailPressed(object sender, Toggle toggle)
         {
-            if (e.isOn)
+            if (toggle.isOn)
             {
                 if (state == PlayerState.BuildingRoads) return;
 

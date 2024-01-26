@@ -31,7 +31,6 @@ namespace Trains
         [SerializeField] private Toggle buildRail;
         [SerializeField] private Toggle buildStation;
         [SerializeField] private Toggle selectStations;
-
         [SerializeField] private UiStationSelector stationSelector;
 
         private void Awake()
@@ -71,16 +70,23 @@ namespace Trains
         {
             if (Input.GetKeyUp(KeyCode.Mouse1))
             {
-                if (State == UiState.BuildStationIsActive)
+                switch (State)
                 {
-                    //TODO should be in BuildStationValueChanged()
-                    State = UiState.None;
-                    buildStation.isOn = false;
-                    OnBuildStationActivated?.Invoke(this, buildStation);
+                    case UiState.BuildStationIsActive:
+                        State = UiState.None;
+                        buildStation.isOn = false;
+                        OnBuildStationActivated?.Invoke(this, buildStation);
+                        break;
+                    case UiState.BuildRailIsActive:
+                        State = UiState.None;
+                        buildRail.isOn = false;
+                        OnBuildRailActivated?.Invoke(this, buildRail);
+                        break;
                 }
             }
         }
 
+        //
         private void BuildStationValueChanged(Toggle buildStation)
         {
             State = buildStation.isOn ? UiState.BuildStationIsActive : UiState.None;
