@@ -9,6 +9,7 @@ namespace Trains
     {
         [field: SerializeField] public bool IsBlueprint { get; set; } = true;
         [field: SerializeField] public Cargo Cargo { get; set; } = new();
+        [field: SerializeField] public Cargo Demand { get; set; } = Cargo.Empty;
 
         public RoadSegment Segment;
         public Vector3 Entry1 => Segment.Start;
@@ -18,7 +19,7 @@ namespace Trains
             get => owner;
             private set
             {
-                OwnerName = value == null ? string.Empty : ((MonoBehaviour)value).name;
+                OwnerName = value == null ? "---" : ((MonoBehaviour)value).name;
                 owner = value;
             }
         }
@@ -95,10 +96,10 @@ namespace Trains
 
         private void HandleTrainEnter(Collider collider)
         {
-            //if (other.transform.parent.TryGetComponent(out LocomotiveMove locMove))
-            //{
-            //    Debug.Log($"{this}: {locMove + "haha"}");
-            //}
+            if (collider.TryGetComponent(out LocomotiveMove locMove))
+            {
+                Debug.Log($"{this}: {locMove + "haha"}");
+            }
         }
 
         private void OnTriggerExit(Collider other)

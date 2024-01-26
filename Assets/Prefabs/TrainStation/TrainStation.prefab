@@ -75,6 +75,11 @@ MonoBehaviour:
     <Mail>k__BackingField: 20
     <Freight>k__BackingField:
       <WoodAmnt>k__BackingField: 30
+  <Demand>k__BackingField:
+    <Passengers>k__BackingField: 10
+    <Mail>k__BackingField: 20
+    <Freight>k__BackingField:
+      <WoodAmnt>k__BackingField: 30
   Segment: {fileID: 0}
   OwnerName: ---
   originalPoints: []

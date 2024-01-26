@@ -156,6 +156,7 @@ GameObject:
   - component: {fileID: 4526171818635052937}
   - component: {fileID: 4526171818635052936}
   - component: {fileID: 2921553220410281889}
+  - component: {fileID: 5278359593662311435}
   m_Layer: 8
   m_Name: Locomotive
   m_TagString: Untagged
@@ -215,7 +216,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -223,6 +224,33 @@ CapsuleCollider:
   m_Height: 9.96646
   m_Direction: 2
   m_Center: {x: 0, y: 2.9909334, z: -2.61}
+--- !u!54 &5278359593662311435
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4526171818635052939}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &4572594827748290579
 GameObject:
   m_ObjectHideFlags: 0

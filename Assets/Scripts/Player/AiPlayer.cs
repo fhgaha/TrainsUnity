@@ -16,7 +16,8 @@ namespace Trains
     {
         public int Id { get; set; }
         public Color Color { get; set; } = Color.red;
-        
+        public float MoneyBalance { get; set; } = 1000;
+
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
         [SerializeField] private Camera cam;
