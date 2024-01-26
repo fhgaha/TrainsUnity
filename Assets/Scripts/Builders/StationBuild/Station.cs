@@ -9,9 +9,9 @@ namespace Trains
     {
         [field: SerializeField] public bool IsBlueprint { get; set; } = true;
         [field: SerializeField] public Cargo Cargo { get; set; } = new();
-        public RoadSegment segment;
-        public Vector3 Entry1 => segment.Start;
-        public Vector3 Entry2 => segment.End;
+        public RoadSegment Segment;
+        public Vector3 Entry1 => Segment.Start;
+        public Vector3 Entry2 => Segment.End;
         public IPlayer Owner
         {
             get => owner;
@@ -26,16 +26,19 @@ namespace Trains
         public override string ToString() => $"Station \"{name}\", id: {GetInstanceID()}, entry1: {Entry1}, entry2: {Entry2}";
 
         [SerializeField] private List<Vector3> originalPoints;
-        [SerializeField] private Material allowedMaterial;
-        [SerializeField] private Material defaultMaterial;
-        [SerializeField] private Material forbiddenMaterial;
-        [SerializeField] private GameObject visual;
+        private StationVisual visual;
 
         private void Awake()
         {
-            segment = GetComponentInChildren<RoadSegment>();
+            Segment = GetComponentInChildren<RoadSegment>();
+            visual = GetComponentInChildren<StationVisual>().Configure(this);
             GetComponentInChildren<StationRotator>().Configure(this);
-            GetComponentInChildren<MeshCollider>().sharedMesh = segment.GetMesh();
+            GetComponentInChildren<MeshCollider>().sharedMesh = Segment.GetMesh();
+        }
+
+        private void Start()
+        {
+            if (IsBlueprint) visual.BecomeGreen();
         }
 
         public void SetUpRoadSegment(IPlayer owner)
@@ -49,15 +52,15 @@ namespace Trains
 
             List<Vector3> segmentPts = new();
             segmentPts.AddRange(originalPoints);
-            segment.GenerateMeshSafely(segmentPts);
+            Segment.GenerateMeshSafely(segmentPts);
         }
 
         public void CopyInfoFrom(Station original)
         {
             this.Owner = original.Owner;
-            this.segment.CopyPoints(original.segment);
-            this.segment.Start = original.segment.Start;
-            this.segment.End = original.segment.End;
+            this.Segment.CopyPoints(original.Segment);
+            this.Segment.Start = original.Segment.Start;
+            this.Segment.End = original.Segment.End;
         }
 
         public void UpdatePos(Vector3 newPos)
@@ -68,68 +71,23 @@ namespace Trains
 
         public void UpdatePos()
         {
-            for (int i = 0; i < segment.Points.Count; i++)
+            for (int i = 0; i < Segment.Points.Count; i++)
             {
-                segment.Points[i] = transform.rotation * originalPoints[i] + segment.transform.position;
+                Segment.Points[i] = transform.rotation * originalPoints[i] + Segment.transform.position;
             }
-            segment.Start = segment.Points[0];
-            segment.End = segment.Points[^1];
+            Segment.Start = Segment.Points[0];
+            Segment.End = Segment.Points[^1];
         }
 
         public void UpdateRotation(float yAngle) => transform.rotation = Quaternion.Euler(0, yAngle, 0);
 
-        public void BecomeGreen()
-        {
-            visual.GetComponent<MeshRenderer>().material = allowedMaterial;
-            segment.BecomeGreen();
-        }
-
-        public void BecomeDefaultColor()
-        {
-            visual.GetComponent<MeshRenderer>().material = defaultMaterial;
-            segment.BecomeDefaultColor();
-        }
-
-        public void BecomeRed()
-        {
-            visual.GetComponent<MeshRenderer>().material = forbiddenMaterial;
-            segment.BecomeRed();
-        }
-
-        //paint itself red if touching objects
-        private List<Station> stationsEntered = new();
-        private List<RoadSegment> segmentsEntered = new();
+        public void BecomeDefaultColor() => visual.BecomeDefaultColor();
 
         private void OnTriggerEnter(Collider other)
         {
-            HandleStatoinEnter(other);
-            HandleRoadEnter(other);
+            visual.HandleStatoinEnter(other);
+            visual.HandleRoadEnter(other);
             HandleTrainEnter(other);
-        }
-
-        private void HandleStatoinEnter(Collider collider)
-        {
-            Station other = collider.GetComponent<Station>();
-            if (other is null) return;
-
-            if (this.IsBlueprint && !other.IsBlueprint)
-            {
-                stationsEntered.Add(other);
-                BecomeRed();
-            }
-        }
-
-        private void HandleRoadEnter(Collider collider)
-        {
-            RoadSegment other = collider.GetComponent<RoadSegment>();
-            if (other is null) return;
-
-            if (this.IsBlueprint)
-            {
-                //Debug.Log($"{this}: HandleRoadEnter: {other}");
-                segmentsEntered.Add(other);
-                BecomeRed();
-            }
         }
 
         private void HandleTrainEnter(Collider collider)
@@ -142,42 +100,8 @@ namespace Trains
 
         private void OnTriggerExit(Collider other)
         {
-            HandleStationExit(other);
-            HandleRoadExit(other);
-        }
-
-        private void HandleStationExit(Collider other)
-        {
-            Station otherStation = other.GetComponent<Station>();
-            if (otherStation is null) return;
-
-            if (this.IsBlueprint && !otherStation.IsBlueprint)
-            {
-                if (!stationsEntered.Contains(otherStation))
-                    throw new Exception($"Station {otherStation} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
-
-                stationsEntered.Remove(otherStation);
-
-                if (stationsEntered.Count == 0)
-                    BecomeGreen();
-            }
-        }
-
-        private void HandleRoadExit(Collider collider)
-        {
-            RoadSegment other = collider.GetComponent<RoadSegment>();
-            if (other is null) return;
-
-            if (this.IsBlueprint)
-            {
-                if (!segmentsEntered.Contains(other))
-                    throw new Exception($"Road segment {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
-
-                segmentsEntered.Remove(other);
-
-                if (segmentsEntered.Count == 0)
-                    BecomeGreen();
-            }
+            visual.HandleStationExit(other);
+            visual.HandleRoadExit(other);
         }
     }
 }

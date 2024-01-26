@@ -57,7 +57,6 @@ namespace Trains
         private void Start()
         {
             gameObject.SetActive(false);
-            station.BecomeGreen();
         }
 
         void Update()
@@ -75,7 +74,7 @@ namespace Trains
         private Station PlaceStation()
         {
             Station instance = stationContainer.Add(station);
-            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.segment.GetApproxLength(), Owner);
+            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.Segment.GetApproxLength(), Owner);
             instance.GetComponent<BoxCollider>().isTrigger = false;
             instance.IsBlueprint = false;
             Destroy(instance.GetComponent<Rigidbody>());

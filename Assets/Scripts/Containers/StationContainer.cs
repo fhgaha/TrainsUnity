@@ -27,7 +27,7 @@ namespace Trains
             OnStationAdded?.Invoke(this, EventArgs.Empty);
 
             //what to do wth rail?
-            Global.Instance.RailContainer.AddDontCreateInstance(copy.segment);
+            Global.Instance.RailContainer.AddDontCreateInstance(copy.Segment);
             return copy;
         }
     }

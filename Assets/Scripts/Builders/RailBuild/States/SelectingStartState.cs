@@ -26,7 +26,7 @@ namespace Trains
             {
                 rb.start.pos = GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint);
                 rb.SnappedStart = rb.start.pos;
-                rb.SnappedStartRoad = rb.DetectedStation.segment;
+                rb.SnappedStartRoad = rb.DetectedStation.Segment;
                 rb.SnappedStartPoints = new List<Vector3> { rb.SnappedStartRoad.Start, rb.SnappedStartRoad.End };
             }
             else if (rb.DetectedRoadByEnd != null)

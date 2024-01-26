@@ -52,14 +52,14 @@ namespace Trains
 
                 //upon reaching station segment's entry move till meet another entry
                 if (fromNode.Pos == stations[i].Entry1)
-                    list.InsertRange(0, stations[i].segment.Points.AsEnumerable().Reverse());
+                    list.InsertRange(0, stations[i].Segment.Points.AsEnumerable().Reverse());
                 else if (fromNode.Pos == stations[i].Entry2)
-                    list.InsertRange(0, stations[i].segment.Points);
+                    list.InsertRange(0, stations[i].Segment.Points);
 
                 if (toNode.Pos == stations[i + 1].Entry1)
-                    list.InsertRange(list.Count, stations[i + 1].segment.Points);
+                    list.InsertRange(list.Count, stations[i + 1].Segment.Points);
                 else if (toNode.Pos == stations[i + 1].Entry2)
-                    list.InsertRange(list.Count, stations[i + 1].segment.Points.AsEnumerable().Reverse());
+                    list.InsertRange(list.Count, stations[i + 1].Segment.Points.AsEnumerable().Reverse());
 
                 finalPath.AddRange(list);
             }
