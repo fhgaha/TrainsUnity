@@ -9,6 +9,7 @@ namespace Trains
     {
         [field: SerializeField] public bool IsBlueprint { get; set; } = true;
         [field: SerializeField] public Cargo Cargo { get; set; } = new();
+
         public RoadSegment Segment;
         public Vector3 Entry1 => Segment.Start;
         public Vector3 Entry2 => Segment.End;
@@ -82,6 +83,8 @@ namespace Trains
         public void UpdateRotation(float yAngle) => transform.rotation = Quaternion.Euler(0, yAngle, 0);
 
         public void BecomeDefaultColor() => visual.BecomeDefaultColor();
+
+        public void ResetVisual() => visual.ResetColor();
 
         private void OnTriggerEnter(Collider other)
         {

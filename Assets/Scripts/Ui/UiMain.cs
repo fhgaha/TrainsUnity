@@ -67,9 +67,22 @@ namespace Trains
             OnBuildRailActivated?.Invoke(this, buildRail);
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.Mouse1))
+            {
+                if (State == UiState.BuildStationIsActive)
+                {
+                    //TODO should be in BuildStationValueChanged()
+                    State = UiState.None;
+                    buildStation.isOn = false;
+                    OnBuildStationActivated?.Invoke(this, buildStation);
+                }
+            }
+        }
+
         private void BuildStationValueChanged(Toggle buildStation)
         {
-            //Debug.Log($"BuildStationValueChanged: {buildStation.isOn}");
             State = buildStation.isOn ? UiState.BuildStationIsActive : UiState.None;
             OnBuildStationActivated?.Invoke(this, buildStation);
         }

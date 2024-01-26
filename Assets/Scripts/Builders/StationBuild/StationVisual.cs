@@ -99,5 +99,12 @@ namespace Trains
                     BecomeGreen();
             }
         }
+
+        public void ResetColor()
+        {
+            stationsEntered.Clear();
+            segmentsEntered.Clear();
+            BecomeDefaultColor();
+        }
     }
 }

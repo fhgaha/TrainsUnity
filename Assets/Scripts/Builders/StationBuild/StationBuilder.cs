@@ -59,6 +59,12 @@ namespace Trains
             gameObject.SetActive(false);
         }
 
+        private void OnDisable()
+        {
+            station.ResetVisual();
+            station.transform.position = Vector3.zero;
+        }
+
         void Update()
         {
             //mouse movement
@@ -69,6 +75,8 @@ namespace Trains
             {
                 PlaceStation();
             }
+
+            //rmb pressed is handled by ui
         }
 
         private Station PlaceStation()
