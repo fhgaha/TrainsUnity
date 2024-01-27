@@ -11,8 +11,8 @@ namespace Trains
     {
         public Station StationFrom { get; set; }
         public Station StationTo { get; set; }
-        public Vector3 StationFromEntry { get; set; }
-        public Vector3 StationToEntry { get; set; }
+        //public Vector3 StationFromEntry { get; set; }
+        //public Vector3 StationToEntry { get; set; }
         public List<Station> Stations { get; set; }
         public List<Vector3> PathForward { get; set; }
         public List<Vector3> PathBack { get; set; }     //not reversing PathForward cause oath back can be different? or it cant?
@@ -27,6 +27,25 @@ namespace Trains
             Stations = stations;
             PathForward = pathTo;
             PathBack = pathBack;
+        }
+
+        public Route Reversed()
+        {
+            Route reversed = new();
+
+            //this may not work
+            Station tempRoute = StationFrom;
+            reversed.StationFrom = StationTo;
+            reversed.StationTo = tempRoute;
+
+            reversed.Stations = Stations.Reverse<Station>().ToList();
+
+            //this may not work
+            List<Vector3> tempPath = PathForward;
+            PathForward = PathBack;
+            PathBack = tempPath;
+
+            return reversed;
         }
     }
 }

@@ -94,13 +94,18 @@ namespace Trains
                     if (LoopThroughPoints)
                     {
                         curTargetIdx = LengthIndeces + 1;
-                        CurPath = CurPath == pathFwd ? pathBack : pathFwd;
                         CurSpeed = 0;
                         yield return new WaitForSeconds(unloadTime);
 
-                        //flip train instantly
-                        //TODO LocoFlipRotOnStation
+                        //reverse route
+                        Data.Route = Data.Route.Reversed();
+                        Data.Route = RouteManager.Instance.CreateRoute(
+                            new List<int> { Data.Route.StationFrom.GetInstanceID(), Data.Route.StationTo.GetInstanceID() });
+                        pathFwd = Data.Route.PathForward;
+                        pathBack = Data.Route.PathBack;
+                        CurPath = pathFwd;
 
+                        //flip train instantly
                         loco.transform.position = CurPath[LengthIndeces];
                         loco.transform.Rotate(0, 180, 0, Space.Self);
 
@@ -109,8 +114,10 @@ namespace Trains
                             car.transform.position = car.Leader.position;
                             car.transform.Rotate(0, 180, 0, Space.Self);
                         }
+
                         //do this once to set cars into in-between positions
                         MoveToCurPt();
+
                         yield return new WaitForSeconds(loadTime);
                     }
                     else
