@@ -10,6 +10,7 @@ namespace Trains
     public class Train : MonoBehaviour
     {
         [field: SerializeField] public TrainData Data { get; private set; }
+        [field: SerializeField] public bool LoopThroughStations { get; private set; } = true;
         public List<Vector3> CurPath
         {
             get => curPath;
@@ -19,31 +20,28 @@ namespace Trains
                 curPath = value;
             }
         }
-        public bool LoopThroughStations { get; private set; } = true;
+        public string CurPathAsString;
         public int LengthIndeces
         {
             get
             {
-                var lenIndcs = loco.LengthIndeces;
+                int lenIndcs = loco.LengthIndeces;
                 carriages.ForEach(c => lenIndcs += c.LengthIndeces);
                 return lenIndcs;
             }
         }
 
-        public float SlowSpeed = 20;
-        public float MaxSpeed = 50;
-        public float SpeedStep = 0.1f;
-        public float CurSpeed = 0;
-        public float RotSpeed = 10;
-
-        public string CurPathAsString;
-
         [SerializeField] private bool keepMoving = true;
+        [SerializeField] private float slowSpeed = 20;
+        [SerializeField] private float maxSpeed = 50;
+        [SerializeField] private float speedStep = 0.1f;
+        [SerializeField] private float curSpeed = 0;
+        //[SerializeField] private float rotSpeed = 10;
 
         private LocomotiveMove loco;
         private List<CarriageMove> carriages = new();
-        private bool isCoroutineRunning = false;
         private List<Vector3> curPath, pathFwd, pathBack;
+        private bool isCoroutineRunning = false;
 
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
@@ -67,15 +65,14 @@ namespace Trains
             car1.Configure(loco.Back, pathFwd[car2.LengthIndeces + car1.LengthIndeces - car1.FrontToSupportFrontLengthIndeces], startRot);
             loco.Configure(pathFwd[car2.LengthIndeces + car1.LengthIndeces + loco.LengthIndeces], startRot);
 
-            StartCoroutine(Move_Routine(3, 3, 21));
+            StartCoroutine(Move_Routine(4, 3));
         }
 
-        public IEnumerator Move_Routine(float unloadTime, float loadTime, int idx)
+        public IEnumerator Move_Routine(float unloadTime, float loadTime)
         {
-            if (isCoroutineRunning == true) yield break;
+            if (isCoroutineRunning) yield break;
             isCoroutineRunning = true;
 
-            //CurPath = Data.Route.PathForward;
             curTargetIdx = LengthIndeces + 1;
 
             //do this once to set cars into in-between positions
@@ -90,40 +87,41 @@ namespace Trains
 
                 if (ReachedEnd())
                 {
-                    if (LoopThroughStations)
-                    {
-                        curTargetIdx = LengthIndeces + 1;
-                        CurSpeed = 0;
-                        yield return new WaitForSeconds(unloadTime);
-
-                        //reverse route
-                        Data.Route = Data.Route.Reversed();
-                        Data.Route = RouteManager.Instance.CreateRoute(
-                            new List<int>{
-                                Data.Route.StationFrom.GetInstanceID(),
-                                Data.Route.StationTo.GetInstanceID()
-                            });
-                        pathFwd = Data.Route.PathForward;
-                        pathBack = Data.Route.PathBack;
-                        CurPath = pathFwd;
-
-                        FlipTrain();
-
-                        //do this once to set cars into in-between positions
-                        MoveToCurPt();
-
-                        yield return new WaitForSeconds(loadTime);
-                    }
-                    else
+                    if (!LoopThroughStations)
                     {
                         //dont move
                         curTargetIdx--;
+                        yield return new WaitForSeconds(1);     //without this causes stack overflow
+                        continue;
                     }
+
+                    curTargetIdx = LengthIndeces + 1;
+                    curSpeed = 0;
+
+                    carriages.ForEach(c => c.PlayProfitAnim());
+                    //wait till animations stopped playing
+
+                    yield return new WaitForSeconds(unloadTime);
+
+                    //reverse route
+                    Data.Route = Data.Route.Reversed();
+                    Data.Route = RouteManager.Instance.CreateRoute(
+                        new List<int>{
+                                Data.Route.StationFrom.GetInstanceID(),
+                                Data.Route.StationTo.GetInstanceID()
+                        });
+                    pathFwd = Data.Route.PathForward;
+                    pathBack = Data.Route.PathBack;
+                    CurPath = pathFwd;
+
+                    FlipTrain();
+                    //do this once to set cars into in-between positions
+                    MoveToCurPt();
+                    yield return new WaitForSeconds(loadTime);
                 }
                 else
                 {
                     MoveToCurPt();
-
                     yield return new WaitForEndOfFrame();
                 }
 
@@ -165,24 +163,24 @@ namespace Trains
             dot = Math.Min(dot, minCarDot);
 
             float t = Mathf.InverseLerp(0.96f, 1f, dot);
-            float reqSpeed = Mathf.Lerp(SlowSpeed, MaxSpeed, t);
+            float reqSpeed = Mathf.Lerp(slowSpeed, maxSpeed, t);
 
             var remainingIdcs = curPath.Count - curTargetIdx;
             if (remainingIdcs < 30)
             {
                 t = Mathf.InverseLerp(30, 0, remainingIdcs);
-                CurSpeed = Mathf.Lerp(SlowSpeed, 0, t);
+                curSpeed = Mathf.Lerp(slowSpeed, 0, t);
             }
             else
             {
-                if (CurSpeed < reqSpeed) CurSpeed += SpeedStep;
+                if (curSpeed < reqSpeed) curSpeed += speedStep;
                 else
-                if (CurSpeed > reqSpeed) CurSpeed -= SpeedStep;
+                if (curSpeed > reqSpeed) curSpeed -= speedStep;
             }
 
             loco.transform.SetPositionAndRotation(
-                position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], CurSpeed * Time.deltaTime),
-                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(nextLocoDir), CurSpeed * Time.deltaTime)
+                position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], curSpeed * Time.deltaTime),
+                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(nextLocoDir), curSpeed * Time.deltaTime)
             );
 
             SetCarriagesPosRot();
@@ -212,7 +210,7 @@ namespace Trains
                 }
 
                 //rot is calculated based on backPos
-                carriages[i].UpdateManually(backPos, CurSpeed);
+                carriages[i].UpdateManually(backPos, curSpeed);
             }
         }
 

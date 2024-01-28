@@ -16,6 +16,8 @@ namespace Trains
         public int LengthIndeces => (int)(Vector3.Distance(Front.position, Back.position) / DubinsMath.driveDistance);
         public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
         public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
+        
+        [SerializeField] private ProfitNumber pf;
 
         public CarriageMove Configure(Transform leader, Vector3 pos, Quaternion rot)
         {
@@ -37,6 +39,13 @@ namespace Trains
         {
             Gizmos.DrawLine(SupportFront.position, SupportFront.position + Vector3.up * 5);
             Gizmos.DrawLine(SupportBack.position, SupportBack.position + Vector3.up * 5);
+        }
+
+        public void PlayProfitAnim()
+        {
+            pf.PlayAnim();
+
+            //wait till anim stopped playing
         }
     }
 }
