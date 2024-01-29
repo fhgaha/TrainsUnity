@@ -47,5 +47,12 @@ namespace Trains
 
             //wait till anim stopped playing
         }
+
+        [SerializeField] RectTransform r;
+        private void Update()
+        {
+            Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+            r.position = new Vector2(1920 * screenPos.x, 1080 * screenPos.y + 20);
+        }
     }
 }
