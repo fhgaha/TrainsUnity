@@ -8,34 +8,33 @@ namespace Trains
 {
     public class ProfitTextUsingTMPGUI : MonoBehaviour
     {
+        [SerializeField] private AnimationCurve curve;
         private TextMeshProUGUI tmpGui;
         private bool animIsRunning;
 
         public void PlayAnim()
         {
             gameObject.SetActive(true);
-            
-            Debug.Log($"{gameObject} {gameObject.activeSelf} {gameObject.activeInHierarchy}");
-            Debug.Log($"    {transform.parent.gameObject.activeSelf} {transform.parent.gameObject.activeInHierarchy}");
-
-
-            StartCoroutine(Coroutine());
+            StartCoroutine(AnimateText_Coroutine(3));
         }
 
-        IEnumerator Coroutine()
+        IEnumerator AnimateText_Coroutine(float timeSeconds)
         {
             animIsRunning = true;
             float animTime = 0;
-            tmpGui.transform.position = GetScreenPos();
+            Vector3 startPos = GetScreenPos();
+            tmpGui.transform.position = startPos;
+            float dist = 50;
 
-            while (animTime < 3)
+            while (animTime < timeSeconds)
             {
-                tmpGui.transform.position += 1 * Vector3.up;
+                float nextVal = curve.Evaluate(animTime / timeSeconds) * dist;
+
+                tmpGui.transform.position = startPos + nextVal * Vector3.up;
                 animTime += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
 
-            //yield return new WaitForSeconds(3);
             OnAnimationEnd();
             animIsRunning = false;
         }
@@ -54,9 +53,6 @@ namespace Trains
         private void Update()
         {
             if (animIsRunning) return;
-
-            tmpGui.transform.position = GetScreenPos();
-            //Debug.Log($"{transform.parent.transform.position} -> {screenPos } -> {transform.position }");
         }
 
         private Vector3 GetScreenPos()
