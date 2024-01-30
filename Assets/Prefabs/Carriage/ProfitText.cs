@@ -6,37 +6,34 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class ProfitTextUsingTMPGUI : MonoBehaviour
+    public class ProfitText : MonoBehaviour
     {
         [SerializeField] private AnimationCurve curve;
         private TextMeshProUGUI tmpGui;
-        private bool animIsRunning;
 
-        public void PlayAnim()
+        public void PlayAnim(string text)
         {
+            tmpGui.text = text;
             gameObject.SetActive(true);
             StartCoroutine(AnimateText_Coroutine(3));
         }
 
         IEnumerator AnimateText_Coroutine(float timeSeconds)
         {
-            animIsRunning = true;
-            float animTime = 0;
+            float passedSeconds = 0;
             Vector3 startPos = GetScreenPos();
             tmpGui.transform.position = startPos;
-            float dist = 50;
+            float maxDist = 50;
 
-            while (animTime < timeSeconds)
+            while (passedSeconds < timeSeconds)
             {
-                float nextVal = curve.Evaluate(animTime / timeSeconds) * dist;
-
-                tmpGui.transform.position = startPos + nextVal * Vector3.up;
-                animTime += Time.deltaTime;
+                float yVal = curve.Evaluate(passedSeconds / timeSeconds) * maxDist;
+                tmpGui.transform.position = startPos + yVal * Vector3.up;
+                passedSeconds += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
 
             OnAnimationEnd();
-            animIsRunning = false;
         }
 
         public void OnAnimationEnd()
@@ -48,11 +45,6 @@ namespace Trains
         {
             tmpGui = GetComponentInChildren<TextMeshProUGUI>();
             gameObject.SetActive(false);
-        }
-
-        private void Update()
-        {
-            if (animIsRunning) return;
         }
 
         private Vector3 GetScreenPos()

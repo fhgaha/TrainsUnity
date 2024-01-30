@@ -30,19 +30,7 @@ namespace Trains
                 Destroy(gameObject);
             }
         }
-
-        private void Start()
-        {
-            //if (Instance == null)
-            //{
-            //    DontDestroyOnLoad(gameObject);
-            //    Instance = this;
-            //}
-            //else if (Instance == this)
-            //{
-            //    throw new System.Exception($"Attempting to create instance of {this.GetType()} signleton when such instance already exists");
-            //    //Destroy(gameObject);
-            //}
-        }
     }
+
+
 }

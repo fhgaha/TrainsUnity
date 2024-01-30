@@ -21,15 +21,7 @@ namespace Trains
             }
         }
         public string CurPathAsString;
-        public int LengthIndeces
-        {
-            get
-            {
-                int lenIndcs = loco.LengthIndeces;
-                carriages.ForEach(c => lenIndcs += c.LengthIndeces);
-                return lenIndcs;
-            }
-        }
+        public int LengthIndeces => loco.LengthIndeces + carriages.Sum(c => c.LengthIndeces);
 
         [SerializeField] private bool keepMoving = true;
         [SerializeField] private float slowSpeed = 20;
@@ -53,13 +45,15 @@ namespace Trains
             pathBack = data.Route.PathBack;
             CurPath = data.Route.PathForward;
 
+            //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
             CarriageMove car1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
             carriages.Add(car1);
             CarriageMove car2 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
             carriages.Add(car2);
 
-            //set positions in reverse order
+            //set pos' and rots
+            //reversed order cause last car should have its back on first point of path
             Quaternion startRot = Quaternion.LookRotation((pathFwd[5] - pathFwd[0]).normalized);
             car2.Configure(car1.Back, pathFwd[car2.LengthIndeces - car2.FrontToSupportFrontLengthIndeces], startRot);
             car1.Configure(loco.Back, pathFwd[car2.LengthIndeces + car1.LengthIndeces - car1.FrontToSupportFrontLengthIndeces], startRot);
@@ -87,33 +81,23 @@ namespace Trains
 
                 if (ReachedEnd())
                 {
+                    curSpeed = 0;
+                    carriages.ForEach(c => c.PlayProfitAnim());
+
+                    yield return new WaitForSeconds(unloadTime);
+
                     if (!LoopThroughStations)
                     {
                         //dont move
                         curTargetIdx--;
-                        yield return new WaitForSeconds(1);     //without this causes stack overflow
-                        continue;
+                        //yield return new WaitForSeconds(1);     //without this causes stack overflow
+                        //continue;
+
+                        yield return new WaitUntil(() => LoopThroughStations);
                     }
 
                     curTargetIdx = LengthIndeces + 1;
-                    curSpeed = 0;
-
-                    carriages.ForEach(c => c.PlayProfitAnim());
-                    //wait till animations stopped playing
-
-                    yield return new WaitForSeconds(unloadTime);
-
-                    //reverse route
-                    Data.Route = Data.Route.Reversed();
-                    Data.Route = RouteManager.Instance.CreateRoute(
-                        new List<int>{
-                                Data.Route.StationFrom.GetInstanceID(),
-                                Data.Route.StationTo.GetInstanceID()
-                        });
-                    pathFwd = Data.Route.PathForward;
-                    pathBack = Data.Route.PathBack;
-                    CurPath = pathFwd;
-
+                    UpdateRoute();
                     FlipTrain();
                     //do this once to set cars into in-between positions
                     MoveToCurPt();
@@ -128,6 +112,20 @@ namespace Trains
                 if (!keepMoving) yield return new WaitUntil(() => keepMoving);
             }
             isCoroutineRunning = false;
+        }
+
+        private void UpdateRoute()
+        {
+            //reverse route
+            Data.Route = Data.Route.Reversed();
+            Data.Route = RouteManager.Instance.CreateRoute(
+                new List<int>() {
+                    Data.Route.StationFrom.GetInstanceID(),
+                    Data.Route.StationTo.GetInstanceID()
+                });
+            pathFwd = Data.Route.PathForward;
+            pathBack = Data.Route.PathBack;
+            CurPath = pathFwd;
         }
 
         private bool ReachedEnd()
