@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class ProfitText : MonoBehaviour
+    public class ProfitTextUsingTMP : MonoBehaviour
     {
         public void PlayAnim()
         {
@@ -16,9 +16,6 @@ namespace Trains
             transform.eulerAngles = rot;
             gameObject.SetActive(true); 
         }
-
-
-
 
         public void OnAnimationEnd()
         {

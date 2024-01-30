@@ -17,7 +17,7 @@ namespace Trains
         public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
         public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
         
-        [SerializeField] private ProfitNumber pf;
+        [SerializeField] private ProfitTextUsingTMPGUI pf;
 
         public CarriageMove Configure(Transform leader, Vector3 pos, Quaternion rot)
         {
@@ -51,8 +51,8 @@ namespace Trains
         [SerializeField] RectTransform r;
         private void Update()
         {
-            Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
-            r.position = new Vector2(1920 * screenPos.x, 1080 * screenPos.y + 20);
+            //Vector3 screenPos = Camera.main.WorldToViewportPoint(transform.position);
+            //r.position = new Vector2(1920 * screenPos.x, 1080 * screenPos.y + 20);
         }
     }
 }
