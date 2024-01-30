@@ -104,7 +104,7 @@ namespace Trains
         {
             if (collider.TryGetComponent(out LocomotiveMove locMove))
             {
-                Debug.Log($"{this}: {locMove + "haha"}"); 
+                //Debug.Log($"{this}: {locMove + "haha"}"); 
             }
         }
 

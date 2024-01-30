@@ -89,13 +89,13 @@ namespace Trains
                     Data.Route.StationTo.UnloadCargo(this);
                     string carText = $"+{(int)worth / 2}$";
 
-                    StartCoroutine(CarsPlayDelayedAnims_Coroutine());
-                    IEnumerator CarsPlayDelayedAnims_Coroutine()
+                    StartCoroutine(CarsPlayDelayedAnims_Coroutine(0.4f));
+                    IEnumerator CarsPlayDelayedAnims_Coroutine(float delay)
                     {
                         foreach (var car in carriages)
                         {
                             car.PlayProfitAnim(carText);
-                            yield return new WaitForSeconds(0.4f);
+                            yield return new WaitForSeconds(delay);
                         }
                     }
 
