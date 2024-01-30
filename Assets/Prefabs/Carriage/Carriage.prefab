@@ -423,7 +423,7 @@ MonoBehaviour:
   <Back>k__BackingField: {fileID: 1363268508683424710}
   <SupportFront>k__BackingField: {fileID: 3152766280876485692}
   <SupportBack>k__BackingField: {fileID: 1584162404044848124}
-  pf: {fileID: 4556867571960575970}
+  profitText: {fileID: 4556867571960575970}
 --- !u!1 &4572594827748290579
 GameObject:
   m_ObjectHideFlags: 0

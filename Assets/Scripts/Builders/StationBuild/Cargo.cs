@@ -8,7 +8,10 @@ namespace Trains
     {
         public static Cargo Empty => new() { PassengersAmnt = 0, MailAmnt = 0, Freight = new Freight(0) };
 
-        //those are amounts
+        public static int PassengersMaxAmnt => 15;
+        public static int MailMaxAmnt => 20;
+        public static int WoodMaxAmnt => 50;
+
         [field: SerializeField] public int PassengersAmnt { get; set; } = 10;
         [field: SerializeField] public int MailAmnt { get; set; } = 20;
         [field: SerializeField] public Freight Freight { get; set; } = new(30);

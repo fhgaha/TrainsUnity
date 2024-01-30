@@ -32,7 +32,7 @@ namespace Trains
         //[SerializeField] private float rotSpeed = 10;
 
         private LocomotiveMove loco;
-        private List<CarriageMove> carriages = new();
+        private List<Carriage> carriages = new();
         private List<Vector3> curPath, pathFwd, pathBack;
         private bool isCoroutineRunning = false;
 
@@ -49,9 +49,9 @@ namespace Trains
 
             //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
-            CarriageMove car1 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
+            Carriage car1 = Instantiate(carriagePrefab, transform).GetComponent<Carriage>();
             carriages.Add(car1);
-            CarriageMove car2 = Instantiate(carriagePrefab, transform).GetComponent<CarriageMove>();
+            Carriage car2 = Instantiate(carriagePrefab, transform).GetComponent<Carriage>();
             carriages.Add(car2);
 
             //set pos' and rots
@@ -85,14 +85,19 @@ namespace Trains
                 {
                     curSpeed = 0;
 
-                    //owner recieve profit
                     decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
-
-                    //stationTo recieve cargo
                     Data.Route.StationTo.UnloadCargo(this);
+                    string carText = $"+{(int)worth / 2}$";
 
-                    string carText = $"+{worth / 2}$";
-                    carriages.ForEach(c => c.PlayProfitAnim(carText));
+                    StartCoroutine(CarsPlayDelayedAnims_Coroutine());
+                    IEnumerator CarsPlayDelayedAnims_Coroutine()
+                    {
+                        foreach (var car in carriages)
+                        {
+                            car.PlayProfitAnim(carText);
+                            yield return new WaitForSeconds(0.4f);
+                        }
+                    }
 
                     yield return new WaitForSeconds(unloadTime);
 
@@ -146,7 +151,7 @@ namespace Trains
             loco.transform.position = CurPath[LengthIndeces];
             loco.transform.Rotate(0, 180, 0, Space.Self);
 
-            foreach (CarriageMove car in carriages)
+            foreach (Carriage car in carriages)
             {
                 car.transform.position = car.Leader.position;
                 car.transform.Rotate(0, 180, 0, Space.Self);

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class CarriageMove : MonoBehaviour, ILocoCarriageMove
+    public class Carriage : MonoBehaviour, ILocoCarriageMove
     {
         [field: SerializeField] public Transform Leader { get; set; }
         [field: SerializeField] public Transform Front { get; private set; }   //same as transform
@@ -13,13 +13,15 @@ namespace Trains
         [field: SerializeField] public Transform SupportFront { get; private set; }
         [field: SerializeField] public Transform SupportBack { get; private set; }
 
+        [field: SerializeField] public Transform Cargo { get; set; }
+
         public int LengthIndeces => (int)(Vector3.Distance(Front.position, Back.position) / DubinsMath.driveDistance);
         public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
         public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
         
-        [SerializeField] private ProfitText pf;
+        [SerializeField] private ProfitText profitText;
 
-        public CarriageMove Configure(Transform leader, Vector3 pos, Quaternion rot)
+        public Carriage Configure(Transform leader, Vector3 pos, Quaternion rot)
         {
             Leader = leader;
             transform.SetPositionAndRotation(pos, rot);
@@ -43,7 +45,7 @@ namespace Trains
 
         public void PlayProfitAnim(string text)
         {
-            pf.PlayAnim(text);
+            profitText.PlayAnim(text);
         }
     }
 }
