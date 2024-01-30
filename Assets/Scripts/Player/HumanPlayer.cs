@@ -15,7 +15,7 @@ namespace Trains
     {
         public int Id { get ; set ; }
         public Color Color { get; set; } = Color.blue;
-        public float MoneyBalance { get; set; } = 1000;
+        public decimal MoneyBalance { get; set; } = 1000;
 
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
@@ -56,6 +56,13 @@ namespace Trains
                 rb.gameObject.SetActive(false);
                 state = PlayerState.None;
             }
+        }
+
+        public decimal AddProfitForDeliveredCargo(Cargo cargo)
+        {
+            var worth = cargo.GetWorthValue();
+            MoneyBalance += worth;
+            return worth;
         }
 
         //private void Update()

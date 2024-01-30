@@ -44,7 +44,7 @@ namespace Trains
         private void CreateRouteAndSendTrain(StationSelectorEventArgs e)
         {
             Route r = routeMngr.CreateRoute(e.selectedIds);
-            trCont.SendTrain(r);
+            trCont.SendTrain(r, e.selectedBy);
         }
 
     }

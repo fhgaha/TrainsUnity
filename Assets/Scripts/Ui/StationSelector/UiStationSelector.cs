@@ -10,6 +10,7 @@ namespace Trains
     public class StationSelectorEventArgs : EventArgs
     {
         public List<int> selectedIds;
+        public IPlayer selectedBy;
     }
 
 
@@ -43,10 +44,14 @@ namespace Trains
         private void OnAcceptPressed()
         {
             if (stationIcons.All(s => !s.Value.isOn)) return;
-            
+
             //TODO: should also check if path between stations exists
 
-            OnStationsSelectedAcceptPressed?.Invoke(this, new StationSelectorEventArgs { selectedIds = selectedStations.Keys.ToList() });
+            OnStationsSelectedAcceptPressed?.Invoke(this, new StationSelectorEventArgs
+            {
+                selectedIds = selectedStations.Keys.ToList(),
+                selectedBy = Global.Instance.MainPlayer
+            });
         }
 
         private void OnCancelPressed()

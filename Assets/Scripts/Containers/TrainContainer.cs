@@ -18,7 +18,7 @@ namespace Trains
 
         }
 
-        public void SendTrain(Route route)
+        public void SendTrain(Route route, IPlayer owner)
         {
             if (route.PathForward.Count == 0 || route. PathBack.Count == 0) return;
 
@@ -28,10 +28,10 @@ namespace Trains
             TrainData data = ScriptableObject.CreateInstance<TrainData>();
             data.Configure(
                 route,
-                new Cargo { Freight = new Freight(10), Mail = 5, Passengers = 15 }
+                new Cargo { Freight = new Freight(10), MailAmnt = 5, PassengersAmnt = 15 }
             );
             Train trainComp = trainObj.GetComponent<Train>();
-            trainComp.Configure(data, locoPrefab, carriagePrefab);
+            trainComp.Configure(data, locoPrefab, carriagePrefab, owner);
         }
 
     }

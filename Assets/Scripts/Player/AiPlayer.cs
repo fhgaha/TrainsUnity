@@ -10,13 +10,14 @@ namespace Trains
     {
         public int Id { get; set; }
         public Color Color { get; set; }
+        public decimal AddProfitForDeliveredCargo(Cargo cargo);
     }
 
     public class AiPlayer : MonoBehaviour, IPlayer
     {
         public int Id { get; set; }
         public Color Color { get; set; } = Color.red;
-        public float MoneyBalance { get; set; } = 1000;
+        public decimal MoneyBalance { get; set; } = 1000;
 
         [SerializeField] private RailBuilder rb;
         [SerializeField] private StationBuilder sb;
@@ -70,7 +71,7 @@ namespace Trains
                 );
 
                 Route r = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
-                Global.Instance.TrainContainer.SendTrain(r);
+                Global.Instance.TrainContainer.SendTrain(r, this);
             }
         }
 
@@ -91,7 +92,7 @@ namespace Trains
                 );
 
                 Route r = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
-                Global.Instance.TrainContainer.SendTrain(r);
+                Global.Instance.TrainContainer.SendTrain(r, this);
             }
         }
 
@@ -115,6 +116,13 @@ namespace Trains
                 );
 
             //TODO: build road between the shortest ends
+        }
+
+        public decimal AddProfitForDeliveredCargo(Cargo cargo)
+        {
+            var worth = cargo.GetWorthValue();
+            MoneyBalance += worth;
+            return worth;
         }
     }
 }

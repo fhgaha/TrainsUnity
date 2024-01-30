@@ -11,6 +11,7 @@ namespace Trains
     {
         [field: SerializeField] public TrainData Data { get; private set; }
         [field: SerializeField] public bool LoopThroughStations { get; private set; } = true;
+        public IPlayer Owner { get; private set; }
         public List<Vector3> CurPath
         {
             get => curPath;
@@ -38,12 +39,13 @@ namespace Trains
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
 
-        public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab)
+        public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
         {
             Data = data;
             pathFwd = data.Route.PathForward;
             pathBack = data.Route.PathBack;
             CurPath = data.Route.PathForward;
+            Owner = owner;
 
             //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
@@ -82,7 +84,15 @@ namespace Trains
                 if (ReachedEnd())
                 {
                     curSpeed = 0;
-                    carriages.ForEach(c => c.PlayProfitAnim());
+
+                    //owner recieve profit
+                    decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
+
+                    //stationTo recieve cargo
+                    Data.Route.StationTo.UnloadCargo(this);
+
+                    string carText = $"+{worth / 2}$";
+                    carriages.ForEach(c => c.PlayProfitAnim(carText));
 
                     yield return new WaitForSeconds(unloadTime);
 
@@ -90,9 +100,6 @@ namespace Trains
                     {
                         //dont move
                         curTargetIdx--;
-                        //yield return new WaitForSeconds(1);     //without this causes stack overflow
-                        //continue;
-
                         yield return new WaitUntil(() => LoopThroughStations);
                     }
 

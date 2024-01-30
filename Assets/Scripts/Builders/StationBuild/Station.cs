@@ -87,6 +87,12 @@ namespace Trains
 
         public void ResetVisual() => visual.ResetColor();
 
+        public void UnloadCargo(Train train)
+        {
+            Cargo.Add(train.Data.Cargo);
+            train.Data.Cargo.Erase();
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             visual.HandleStatoinEnter(other);
@@ -107,5 +113,7 @@ namespace Trains
             visual.HandleStationExit(other);
             visual.HandleRoadExit(other);
         }
+
+        
     }
 }
