@@ -93,7 +93,15 @@ namespace Trains
         //    train.Data.Cargo.Erase();
         //}
 
-        public void UnloadCargo(Carriage car)
+        public void LoadCargoTo(Carriage car)
+        {
+            Dictionary<CargoType, int> maxAmnts = CarriageCargo.MaxAmnts;
+
+            //is station to needs that cargo?
+            //load not more than max amnt
+        }
+
+        public void UnloadCargoFrom(Carriage car)
         {
             Cargo.Add(car.Cargo);
             car.Cargo.Erase();

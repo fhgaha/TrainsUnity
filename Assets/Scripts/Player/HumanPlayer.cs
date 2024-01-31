@@ -58,12 +58,12 @@ namespace Trains
             }
         }
 
-        public decimal AddProfitForDeliveredCargo(Cargo cargo)
-        {
-            var worth = cargo.GetWorthValue();
-            MoneyBalance += worth;
-            return worth;
-        }
+        //public decimal AddProfitForDeliveredCargo(Cargo cargo)
+        //{
+        //    var worth = cargo.GetWorthValue();
+        //    MoneyBalance += worth;
+        //    return worth;
+        //}
 
         public decimal AddProfitForDeliveredCargo(CarriageCargo cargo)
         {

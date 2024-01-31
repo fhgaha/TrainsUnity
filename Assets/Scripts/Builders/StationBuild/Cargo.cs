@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Trains
@@ -6,45 +7,43 @@ namespace Trains
     [Serializable]
     public class Cargo
     {
-        public static Cargo Empty => new() { PassengersAmnt = 0, MailAmnt = 0, Freight = new Freight(0) };
-
-        public static int PassengersMaxAmnt => 15;
-        public static int MailMaxAmnt => 20;
-        public static int WoodMaxAmnt => 50;
-
-        [field: SerializeField] public int PassengersAmnt { get; set; } = 10;
-        [field: SerializeField] public int MailAmnt { get; set; } = 20;
-        [field: SerializeField] public Freight Freight { get; set; } = new(30);
-
-        public void Add(Cargo toAdd)
+        public static Cargo Empty
         {
-            PassengersAmnt += toAdd.PassengersAmnt;
-            MailAmnt += toAdd.MailAmnt;
-            Freight.WoodAmnt += toAdd.Freight.WoodAmnt;
+            get
+            {
+                Cargo c = new();
+                c.Erase();
+                return c;
+            }
         }
 
-        public void Add(CarriageCargo toAdd) => _ = toAdd.CargoType switch
+        [field: SerializeField] public Dictionary<CargoType, int> Amnts { get; private set; } = new()
         {
-            CargoType.Passengers    => PassengersAmnt   += toAdd.Amnt,
-            CargoType.Mail          => MailAmnt         += toAdd.Amnt,
-            CargoType.Wood          => Freight.WoodAmnt += toAdd.Amnt,
-            _ => throw new NotImplementedException(),
+            [CargoType.Passengers] = 5,
+            [CargoType.Mail] = 6,
+            [CargoType.Wood] = 7
         };
+
+        public Dictionary<CargoType, int> MaxAmnts { get; } = new()
+        {
+            [CargoType.Passengers] = 15,
+            [CargoType.Mail] = 20,
+            [CargoType.Wood] = 50
+        };
+
+        public void Add(CarriageCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
 
         public void Erase()
         {
-            PassengersAmnt = 0;
-            MailAmnt = 0;
-            Freight.WoodAmnt = 0;
+            Amnts[CargoType.Passengers] = 0;
+            Amnts[CargoType.Mail] = 0;
+            Amnts[CargoType.Wood] = 0;
         }
 
-        public decimal GetWorthValue()
+        public Cargo With(CargoType cargoType, int amnt)
         {
-            decimal worth = 0;
-            worth += Prices.PassengerPrice * PassengersAmnt;
-            worth += Prices.MailPrice * MailAmnt;
-            worth += Prices.Wood * Freight.WoodAmnt;
-            return worth;
+            Amnts[cargoType] = amnt;
+            return this;
         }
     }
 }

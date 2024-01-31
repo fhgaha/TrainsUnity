@@ -9,6 +9,8 @@ namespace Trains
     //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class Train : MonoBehaviour
     {
+        //google Steering Behavior Arrival
+
         [field: SerializeField] public Route Route { get; private set; }
         [field: SerializeField] public bool LoopThroughStations { get; private set; } = true;
         public IPlayer Owner { get; private set; }
@@ -98,7 +100,7 @@ namespace Trains
                         foreach (var car in carriages)
                         {
                             decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
-                            Route.StationTo.UnloadCargo(car);
+                            Route.StationTo.UnloadCargoFrom(car);
                             car.PlayProfitAnim($"+{(int)worth}$");
                             yield return new WaitForSeconds(delay);
                         }

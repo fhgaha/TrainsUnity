@@ -10,7 +10,6 @@ namespace Trains
     {
         public int Id { get; set; }
         public Color Color { get; set; }
-        public decimal AddProfitForDeliveredCargo(Cargo cargo);
         public decimal AddProfitForDeliveredCargo(CarriageCargo cargo);
     }
 
@@ -64,11 +63,9 @@ namespace Trains
             IEnumerator Routine()
             {
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-                from.Cargo = Cargo.Empty;
-                from.Cargo.PassengersAmnt = 10;
+                from.Cargo = Cargo.Empty.With(CargoType.Passengers, 10);
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
-                to.Cargo = Cargo.Empty;
-                to.Cargo.MailAmnt = 15;
+                to.Cargo = Cargo.Empty.With(CargoType.Mail, 15);
 
                 yield return railGen.Build_Routine(
                     from.Entry1,
@@ -123,12 +120,12 @@ namespace Trains
             //TODO: build road between the shortest ends
         }
 
-        public decimal AddProfitForDeliveredCargo(Cargo cargo)
-        {
-            var worth = cargo.GetWorthValue();
-            MoneyBalance += worth;
-            return worth;
-        }
+        //public decimal AddProfitForDeliveredCargo(Cargo cargo)
+        //{
+        //    var worth = cargo.GetWorthValue();
+        //    MoneyBalance += worth;
+        //    return worth;
+        //}
 
         public decimal AddProfitForDeliveredCargo(CarriageCargo cargo)
         {

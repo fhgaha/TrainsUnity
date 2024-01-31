@@ -12,7 +12,7 @@ namespace Trains
         [field: SerializeField] public Transform Back { get; private set; }    //same as joint
         [field: SerializeField] public Transform SupportFront { get; private set; }
         [field: SerializeField] public Transform SupportBack { get; private set; }
-        public CarriageCargo Cargo { get; set; }
+        [field: SerializeField] public CarriageCargo Cargo { get; set; }
         public int LengthIndeces => (int)(Vector3.Distance(Front.position, Back.position) / DubinsMath.driveDistance);
         public int SupportLengthIndeces => (int)(Vector3.Distance(SupportFront.position, SupportBack.position) / DubinsMath.driveDistance);
         public int FrontToSupportFrontLengthIndeces => (int)(Vector3.Distance(Front.position, SupportFront.position) / DubinsMath.driveDistance);
