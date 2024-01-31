@@ -22,16 +22,11 @@ namespace Trains
         {
             if (route.PathForward.Count == 0 || route. PathBack.Count == 0) return;
 
-            GameObject trainObj = new GameObject("Train", typeof(Train));
+            GameObject trainObj = new("Train", typeof(Train));
             trainObj.transform.parent = transform;
 
-            TrainData data = ScriptableObject.CreateInstance<TrainData>();
-            data.Configure(
-                route,
-                new Cargo { Freight = new Freight(10), MailAmnt = 5, PassengersAmnt = 15 }
-            );
             Train trainComp = trainObj.GetComponent<Train>();
-            trainComp.Configure(data, locoPrefab, carriagePrefab, owner);
+            trainComp.Configure(route, locoPrefab, carriagePrefab, owner);
         }
 
     }

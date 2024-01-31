@@ -65,6 +65,13 @@ namespace Trains
             return worth;
         }
 
+        public decimal AddProfitForDeliveredCargo(CarriageCargo cargo)
+        {
+            var worth = cargo.GetWorthValue();
+            MoneyBalance += worth;
+            return worth;
+        }
+
         //private void Update()
         //{
         //    if (!rb.gameObject.activeInHierarchy) return;

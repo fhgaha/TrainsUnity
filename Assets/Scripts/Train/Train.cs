@@ -9,7 +9,7 @@ namespace Trains
     //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class Train : MonoBehaviour
     {
-        [field: SerializeField] public TrainData Data { get; private set; }
+        [field: SerializeField] public Route Route { get; private set; }
         [field: SerializeField] public bool LoopThroughStations { get; private set; } = true;
         public IPlayer Owner { get; private set; }
         public List<Vector3> CurPath
@@ -39,12 +39,12 @@ namespace Trains
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
 
-        public void Configure(TrainData data, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
+        public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
         {
-            Data = data;
-            pathFwd = data.Route.PathForward;
-            pathBack = data.Route.PathBack;
-            CurPath = data.Route.PathForward;
+            Route = route;
+            pathFwd = route.PathForward;
+            pathBack = route.PathBack;
+            CurPath = route.PathForward;
             Owner = owner;
 
             //instantiate train objs
@@ -60,6 +60,9 @@ namespace Trains
             car2.Configure(car1.Back, pathFwd[car2.LengthIndeces - car2.FrontToSupportFrontLengthIndeces], startRot);
             car1.Configure(loco.Back, pathFwd[car2.LengthIndeces + car1.LengthIndeces - car1.FrontToSupportFrontLengthIndeces], startRot);
             loco.Configure(pathFwd[car2.LengthIndeces + car1.LengthIndeces + loco.LengthIndeces], startRot);
+
+            car2.Cargo = new CarriageCargo { CargoType = CargoType.Passengers, Amnt = 5 };
+            car1.Cargo = new CarriageCargo { CargoType = CargoType.Mail, Amnt = 8 };
 
             StartCoroutine(Move_Routine(4, 3));
         }
@@ -85,16 +88,18 @@ namespace Trains
                 {
                     curSpeed = 0;
 
-                    decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
-                    Data.Route.StationTo.UnloadCargo(this);
-                    string carText = $"+{(int)worth / 2}$";
+                    //decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
+                    //Data.Route.StationTo.UnloadCargo(this);
+                    //string carText = $"+{(int)worth / 2}$";
 
                     StartCoroutine(CarsPlayDelayedAnims_Coroutine(0.4f));
                     IEnumerator CarsPlayDelayedAnims_Coroutine(float delay)
                     {
                         foreach (var car in carriages)
                         {
-                            car.PlayProfitAnim(carText);
+                            decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
+                            Route.StationTo.UnloadCargo(car);
+                            car.PlayProfitAnim($"+{(int)worth}$");
                             yield return new WaitForSeconds(delay);
                         }
                     }
@@ -129,14 +134,14 @@ namespace Trains
         private void UpdateRoute()
         {
             //reverse route
-            Data.Route = Data.Route.Reversed();
-            Data.Route = RouteManager.Instance.CreateRoute(
+            Route = Route.Reversed();
+            Route = RouteManager.Instance.CreateRoute(
                 new List<int>() {
-                    Data.Route.StationFrom.GetInstanceID(),
-                    Data.Route.StationTo.GetInstanceID()
+                    Route.StationFrom.GetInstanceID(),
+                    Route.StationTo.GetInstanceID()
                 });
-            pathFwd = Data.Route.PathForward;
-            pathBack = Data.Route.PathBack;
+            pathFwd = Route.PathForward;
+            pathBack = Route.PathBack;
             CurPath = pathFwd;
         }
 

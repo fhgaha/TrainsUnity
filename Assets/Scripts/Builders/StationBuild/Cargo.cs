@@ -23,6 +23,14 @@ namespace Trains
             Freight.WoodAmnt += toAdd.Freight.WoodAmnt;
         }
 
+        public void Add(CarriageCargo toAdd) => _ = toAdd.CargoType switch
+        {
+            CargoType.Passengers    => PassengersAmnt   += toAdd.Amnt,
+            CargoType.Mail          => MailAmnt         += toAdd.Amnt,
+            CargoType.Wood          => Freight.WoodAmnt += toAdd.Amnt,
+            _ => throw new NotImplementedException(),
+        };
+
         public void Erase()
         {
             PassengersAmnt = 0;

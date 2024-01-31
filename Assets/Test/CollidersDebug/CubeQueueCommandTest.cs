@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class Cube : MonoBehaviour
+    public class CubeQueueCommandTest : MonoBehaviour
     {
         Queue queue;
 
