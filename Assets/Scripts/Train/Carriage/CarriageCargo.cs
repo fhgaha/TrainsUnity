@@ -9,6 +9,6 @@ namespace Trains
     public class CarriageCargo
     {
         public CargoType CargoType { get; set; }
-        public int CargoAmnt { get; set; } = 0;
+        public int Amnt { get; set; } = 0;
     }
 }
