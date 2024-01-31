@@ -10,7 +10,7 @@ namespace Trains
     {
         public int Id { get; set; }
         public Color Color { get; set; }
-        public decimal AddProfitForDeliveredCargo(CarriageCargo cargo);
+        public decimal AddProfitForDeliveredCargo(CarCargo cargo);
     }
 
     public class AiPlayer : MonoBehaviour, IPlayer
@@ -127,7 +127,7 @@ namespace Trains
         //    return worth;
         //}
 
-        public decimal AddProfitForDeliveredCargo(CarriageCargo cargo)
+        public decimal AddProfitForDeliveredCargo(CarCargo cargo)
         {
             var worth = cargo.GetWorthValue();
             MoneyBalance += worth;

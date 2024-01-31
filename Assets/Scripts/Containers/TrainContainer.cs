@@ -20,13 +20,21 @@ namespace Trains
 
         public void SendTrain(Route route, IPlayer owner)
         {
-            if (route.PathForward.Count == 0 || route. PathBack.Count == 0) return;
+            if (route.PathForward.Count == 0 || route.PathBack.Count == 0) return;
 
             GameObject trainObj = new("Train", typeof(Train));
             trainObj.transform.parent = transform;
 
             Train trainComp = trainObj.GetComponent<Train>();
-            trainComp.Configure(route, locoPrefab, carriagePrefab, owner);
+
+            List<CarCargo> cargoes = new()
+            {
+                new CarCargo { CargoType = CargoType.Passengers, Amnt = 5 },
+                new CarCargo { CargoType = CargoType.Mail, Amnt = 8 },
+                new CarCargo { CargoType = CargoType.Mail, Amnt = 8 },
+            };
+
+            trainComp.Configure(route, locoPrefab, carriagePrefab, cargoes, owner);
         }
 
     }

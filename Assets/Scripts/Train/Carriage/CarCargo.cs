@@ -8,7 +8,7 @@ namespace Trains
     public enum CargoType { Passengers, Mail, Wood };
 
     [Serializable]
-    public class CarriageCargo
+    public class CarCargo
     {
         public static Dictionary<CargoType, int> MaxAmnts { get; } = new()
         {

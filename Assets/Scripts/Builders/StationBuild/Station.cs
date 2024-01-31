@@ -95,7 +95,7 @@ namespace Trains
 
         public void LoadCargoTo(Carriage car)
         {
-            Dictionary<CargoType, int> maxAmnts = CarriageCargo.MaxAmnts;
+            Dictionary<CargoType, int> maxAmnts = CarCargo.MaxAmnts;
 
             //is station to needs that cargo?
             //load not more than max amnt

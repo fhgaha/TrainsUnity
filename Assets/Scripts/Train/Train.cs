@@ -24,7 +24,7 @@ namespace Trains
             }
         }
         public string CurPathAsString;
-        public int LengthIndeces => loco.LengthIndeces + carriages.Sum(c => c.LengthIndeces);
+        public int LengthIndeces => loco.LengthIndeces + cars.Sum(c => c.LengthIndeces);
 
         [SerializeField] private bool keepMoving = true;
         [SerializeField] private float slowSpeed = 20;
@@ -34,14 +34,14 @@ namespace Trains
         //[SerializeField] private float rotSpeed = 10;
 
         private LocomotiveMove loco;
-        private List<Carriage> carriages = new();
+        private List<Carriage> cars = new();
         private List<Vector3> curPath, pathFwd, pathBack;
         private bool isCoroutineRunning = false;
 
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
 
-        public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
+        public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes, IPlayer owner)
         {
             Route = route;
             pathFwd = route.PathForward;
@@ -49,22 +49,26 @@ namespace Trains
             CurPath = route.PathForward;
             Owner = owner;
 
+            int carsAmnt = cargoes.Count;
+
             //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
-            Carriage car1 = Instantiate(carriagePrefab, transform).GetComponent<Carriage>();
-            carriages.Add(car1);
-            Carriage car2 = Instantiate(carriagePrefab, transform).GetComponent<Carriage>();
-            carriages.Add(car2);
+            for (int i = 0; i < carsAmnt; i++)
+                cars.Add(Instantiate(carriagePrefab, transform).GetComponent<Carriage>());
 
             //set pos' and rots
             //reversed order cause last car should have its back on first point of path
             Quaternion startRot = Quaternion.LookRotation((pathFwd[5] - pathFwd[0]).normalized);
-            car2.Configure(car1.Back, pathFwd[car2.LengthIndeces - car2.FrontToSupportFrontLengthIndeces], startRot);
-            car1.Configure(loco.Back, pathFwd[car2.LengthIndeces + car1.LengthIndeces - car1.FrontToSupportFrontLengthIndeces], startRot);
-            loco.Configure(pathFwd[car2.LengthIndeces + car1.LengthIndeces + loco.LengthIndeces], startRot);
+            int lenIdcs = cars[0].LengthIndeces - cars[0].FrontToSupportFrontLengthIndeces;
 
-            car2.Cargo = new CarriageCargo { CargoType = CargoType.Passengers, Amnt = 5 };
-            car1.Cargo = new CarriageCargo { CargoType = CargoType.Mail, Amnt = 8 };
+            for (int i = cars.Count - 1; i > 0; i--)
+            {
+                cars[i].Configure(cars[i - 1].Back, pathFwd[lenIdcs], startRot);
+                lenIdcs += cars[0].LengthIndeces;
+                cars[i].Cargo = cargoes[i];
+            }
+            cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
+            loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
 
             StartCoroutine(Move_Routine(4, 3));
         }
@@ -97,7 +101,7 @@ namespace Trains
                     StartCoroutine(CarsPlayDelayedAnims_Coroutine(0.4f));
                     IEnumerator CarsPlayDelayedAnims_Coroutine(float delay)
                     {
-                        foreach (var car in carriages)
+                        foreach (var car in cars)
                         {
                             decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
                             Route.StationTo.UnloadCargoFrom(car);
@@ -158,7 +162,7 @@ namespace Trains
             loco.transform.position = CurPath[LengthIndeces];
             loco.transform.Rotate(0, 180, 0, Space.Self);
 
-            foreach (Carriage car in carriages)
+            foreach (Carriage car in cars)
             {
                 car.transform.position = car.Leader.position;
                 car.transform.Rotate(0, 180, 0, Space.Self);
@@ -176,7 +180,7 @@ namespace Trains
             Vector3 locoToFarPtDir = (curPath[farIdx] - loco.transform.position).normalized;
 
             float dot = Vector3.Dot(locoToFarPtDir, loco.transform.forward);
-            float minCarDot = carriages.Select(c => Vector3.Dot(c.transform.forward, loco.transform.forward)).Min();
+            float minCarDot = cars.Select(c => Vector3.Dot(c.transform.forward, loco.transform.forward)).Min();
             dot = Math.Min(dot, minCarDot);
 
             float t = Mathf.InverseLerp(0.96f, 1f, dot);
@@ -205,21 +209,21 @@ namespace Trains
 
         private void SetCarriagesPosRot()
         {
-            for (int i = 0; i < carriages.Count; i++)
+            for (int i = 0; i < cars.Count; i++)
             {
                 //count length of cars before
                 var trainLengthIndeces = curTargetIdx - loco.LengthIndeces;
-                for (int j = 0; j < carriages.Count; j++)
-                    if (j < i) trainLengthIndeces -= carriages[j].LengthIndeces;
+                for (int j = 0; j < cars.Count; j++)
+                    if (j < i) trainLengthIndeces -= cars[j].LengthIndeces;
 
                 //calculate where back support should be placed
-                int backPosIdx = trainLengthIndeces - carriages[i].FrontToSupportFrontLengthIndeces - carriages[i].SupportLengthIndeces;
+                int backPosIdx = trainLengthIndeces - cars[i].FrontToSupportFrontLengthIndeces - cars[i].SupportLengthIndeces;
                 Vector3 backPos;
                 if (backPosIdx < 0)
                 {
                     //set rot the same as leader's
                     Vector3 fromFrontToBack = loco.SupportBack.transform.position - loco.SupportFront.transform.position;
-                    backPos = carriages[i].Leader.position + fromFrontToBack;
+                    backPos = cars[i].Leader.position + fromFrontToBack;
                 }
                 else
                 {
@@ -227,7 +231,7 @@ namespace Trains
                 }
 
                 //rot is calculated based on backPos
-                carriages[i].UpdateManually(backPos, curSpeed);
+                cars[i].UpdateManually(backPos, curSpeed);
             }
         }
 
