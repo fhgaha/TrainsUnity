@@ -55,8 +55,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 50, y: 5, z: 50}
-  m_Center: {x: 0, y: 2.5, z: 0}
+  m_Size: {x: 26.152412, y: 5, z: 54.85159}
+  m_Center: {x: -4.4031725, y: 0, z: -0.000000694656}
 --- !u!114 &73846595378565815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,15 +71,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <IsBlueprint>k__BackingField: 1
   <Cargo>k__BackingField:
-    <Passengers>k__BackingField: 10
-    <Mail>k__BackingField: 20
-    <Freight>k__BackingField:
-      <WoodAmnt>k__BackingField: 30
+    Amnts:
+      _serializedList:
+      - Key: 0
+        Value: 5
+      - Key: 1
+        Value: 6
+      - Key: 2
+        Value: 7
   <Demand>k__BackingField:
-    <Passengers>k__BackingField: 10
-    <Mail>k__BackingField: 20
-    <Freight>k__BackingField:
-      <WoodAmnt>k__BackingField: 30
+    Amnts:
+      _serializedList:
+      - Key: 0
+        Value: 0
+      - Key: 1
+        Value: 0
+      - Key: 2
+        Value: 0
   Segment: {fileID: 0}
   OwnerName: ---
   originalPoints: []

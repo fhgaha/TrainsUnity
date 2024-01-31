@@ -48,8 +48,8 @@ namespace Trains
             Owner = owner;
 
             originalPoints = new();
-            Vector3 p1 = new() { x = 0, y = 0, z = 10 };
-            Vector3 p2 = new() { x = 0, y = 0, z = -10 };
+            Vector3 p1 = new() { x = 0, y = 0, z =  20 };
+            Vector3 p2 = new() { x = 0, y = 0, z = -20 };
             MyMath.CalculateStraightLine(originalPoints, p1, p2, Global.Instance.DriveDistance);
 
             List<Vector3> segmentPts = new();
