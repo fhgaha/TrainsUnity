@@ -113,7 +113,7 @@ namespace Trains
 
         private void HandleLmbPressed()
         {
-            rb.PutDrawnSegmentIntoContainer();
+            rb.PlaceSegment();
 
             //register in route manager
             if (rb.IsStartSnapped)

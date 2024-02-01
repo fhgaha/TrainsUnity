@@ -29,7 +29,7 @@ namespace Trains
 
         private void HandleLmbPressed()
         {
-            rb.PutDrawnSegmentIntoContainer();
+            rb.PlaceSegment();
 
             //start is always snapped
             if (rb.DetectedStation != null)

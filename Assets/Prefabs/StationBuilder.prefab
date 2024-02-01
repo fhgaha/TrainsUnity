@@ -60,26 +60,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: TrainStation
       objectReference: {fileID: 0}
-    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
-      propertyPath: m_Size.x
-      value: 31.953512
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
-      propertyPath: m_Size.z
-      value: 33.092422
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
-      propertyPath: m_Center.x
-      value: -2.4736414
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333282176779828300, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
-      propertyPath: m_Center.z
-      value: -0.6658268
-      objectReference: {fileID: 0}
     - target: {fileID: 6832418880548881365, guid: 5cb6f6052159561489aca1badb039fe1, type: 3}
       propertyPath: m_RootOrder
       value: 0

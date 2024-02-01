@@ -67,6 +67,8 @@ namespace Trains
             regHelp.Configure(segment, railContainer, this);
 
             stateMachine = new RbStateMachine(this, regHelp);
+
+            segment.BecomeGreen();
         }
 
         private void OnEnable()
@@ -84,34 +86,14 @@ namespace Trains
             ResetCustom();
         }
 
-        public void ResetCustom()
+        private void Update()
         {
-            RemoveMesh();
-            stateMachine = new RbStateMachine(this, regHelp);
-        }
-
-        private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)
-        {
-            if (sender is not Detector d || d != detector) return;
-
-            DetectedRoadByEnd = e.Other;
-        }
-
-        private void OnStationDetected(object sender, StationDetectorEventArgs e)
-        {
-            DetectedStation = e.Station;
-        }
-
-        public void Update()
-        {
-            if (Owner is AiPlayer) return;
+            if (Owner is not HumanPlayer) return;
 
             //TODO main camera assigned! ai player should have its own camera
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
             if (wasHit)
-            {
                 detector.transform.position = hit.point;
-            }
 
             stateMachine.UpdateState(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
@@ -124,6 +106,43 @@ namespace Trains
 
             //debug
             snappedStartPos = SnappedStart;
+        }
+
+        public void ResetCustom()
+        {
+            RemoveMesh();
+            stateMachine = new RbStateMachine(this, regHelp);
+        }
+
+        private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)
+        {
+            if (sender is not Detector d || d != detector) return;
+            
+            DetectedRoadByEnd = e.Other;
+
+
+            //recolor if collided with another road
+            RoadSegment other = e.Other;
+
+            if (other is null)
+            {
+                segment.BecomeGreen();
+            }
+            else if (other.Owner == Owner)
+            {
+                DetectedRoadByEnd = e.Other;
+            }
+            else
+            {
+                Debug.Log($"This is not {Owner} segment! This is {other.Owner}'s segment!");
+
+                segment.BecomeRed();
+            }
+        }
+
+        private void OnStationDetected(object sender, StationDetectorEventArgs e)
+        {
+            DetectedStation = e.Station;
         }
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
@@ -175,13 +194,6 @@ namespace Trains
             //UpdateSegmentEndings(pts);
         }
 
-        public void UpdateSegmentEndings() => UpdateSegmentEndings(Points);
-        private void UpdateSegmentEndings(List<Vector3> pts)
-        {
-            segment.Start = pts[0];
-            segment.End = pts[^1];
-        }
-
         ///Curve + straight
         public void CalculateCSPoints() => CalculateCSPoints(start.pos, start.heading, end.pos);
 
@@ -221,14 +233,10 @@ namespace Trains
             segment.GenerateMeshSafely(Points);
         }
 
-        public void PutDrawnSegmentIntoContainer()
+        public void PlaceSegment()
         {
-            //Debug.DrawRay(Points[0], 20 * Vector3.up, Color.green, float.PositiveInfinity);
-            //Debug.DrawRay(Points[^1], 20 * Vector3.up, Color.red, float.PositiveInfinity);
-
-            segment.data = new RoadSegmentData(start, end, tangent1, tangent2); //not used
-            segment.Points = Points;
-            UpdateSegmentEndings();
+            segment.BecomeDefaultColor();
+            segment.SetPointsAndOwner(Points, Owner);
             railContainer.AddCreateInstance(segment);
         }
 

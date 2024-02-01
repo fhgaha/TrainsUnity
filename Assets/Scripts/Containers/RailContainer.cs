@@ -1,5 +1,6 @@
 using AYellowpaper.SerializedCollections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace Trains
         public void AddCreateInstance(RoadSegment original)
         {
             RoadSegment copy = Instantiate(original, transform);
-            copy.ConfigureFrom(original);
+            copy.DestroyRigBodyCopyAndPlace(original);
             segments.Add(copy.GetInstanceID(), copy);
         }
 

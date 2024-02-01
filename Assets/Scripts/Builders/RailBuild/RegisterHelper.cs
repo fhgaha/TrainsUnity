@@ -93,8 +93,8 @@ namespace Trains
 
             (List<Vector3> splitted1, List<Vector3> splitted2) = SplitPointsInTwoSets(roadToSplit.Points, splitPt);
 
-            segment1.ConfigureFrom(splitted1);
-            segment2.ConfigureFrom(splitted2);
+            segment1.GenerateMeshAndSetPoints(splitted1, rb.Owner);
+            segment2.GenerateMeshAndSetPoints(splitted2, rb.Owner);
 
             return (segment1, segment2);
         }

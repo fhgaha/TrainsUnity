@@ -60,7 +60,7 @@ namespace Trains
         public void CopyInfoFrom(Station original)
         {
             this.Owner = original.Owner;
-            this.Segment.CopyPoints(original.Segment);
+            this.Segment.CopyPointsByValue(original.Segment);
             this.Segment.Start = original.Segment.Start;
             this.Segment.End = original.Segment.End;
         }

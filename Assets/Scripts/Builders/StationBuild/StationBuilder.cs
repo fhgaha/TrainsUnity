@@ -81,12 +81,15 @@ namespace Trains
 
         private Station PlaceStation()
         {
-            Station instance = stationContainer.Add(station);
-            RouteManager.Instance.RegisterI(instance.Entry1, instance.Entry2, instance.Segment.GetApproxLength(), Owner);
-            instance.GetComponent<BoxCollider>().isTrigger = false;
-            instance.IsBlueprint = false;
-            Destroy(instance.GetComponent<Rigidbody>());
-            return instance;
+            Station stationInst = stationContainer.Add(station);
+            RouteManager.Instance.RegisterI(stationInst.Entry1, stationInst.Entry2, stationInst.Segment.GetApproxLength(), Owner);
+            stationInst.GetComponent<BoxCollider>().isTrigger = false;
+            stationInst.IsBlueprint = false;
+            Destroy(stationInst.GetComponent<Rigidbody>());
+
+            stationInst.Segment.PlaceFromStationBuilder();
+
+            return stationInst;
         }
 
         private void HandleMouseMovement()

@@ -77,7 +77,7 @@ namespace Trains
 
         private void HandleLmbPressed(RbStateMachine machine)
         {
-            rb.PutDrawnSegmentIntoContainer();
+            rb.PlaceSegment();
 
             //start is always snapped
             if (rb.DetectedStation != null)

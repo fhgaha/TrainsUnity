@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace Trains
 {
@@ -10,10 +11,21 @@ namespace Trains
     public class RoadSegment : MonoBehaviour
     {
         [field: SerializeField] public List<Vector3> Points { get; set; }
-        public IPlayer Owner { get; set; }
+        [field: SerializeField] public bool IsBlueprint { get; set; } = true;
+        public string OwnerAsString = "---";
+        public IPlayer Owner
+        {
+            get => owner;
+            set
+            {
+                OwnerAsString = value?.GetType().Name;
+                owner = value;
+            }
+        }
+        private IPlayer owner;
+
         public Vector3 Start = Vector3.zero;
         public Vector3 End = Vector3.zero;
-        public RoadSegmentData data;
 
         [SerializeField] private Mesh2D shape2D;
         [SerializeField] private Material allowedMaterial;
@@ -23,25 +35,79 @@ namespace Trains
         private Mesh mesh;
         private MeshCollider meshCollider;
 
-        public void ConfigureFrom(RoadSegment from)
+        private void Awake()
         {
-            CopyPoints(from);
-            SetMesh(from.GetMesh());
-            SetCollider(from.GetMesh());
-            name = $"Road Segment {GetInstanceID()}";
-            //to.Points = from.Points;  //we do this on first line
-            Start = from.Start;
-            End = from.End;
+            Points = new List<Vector3>();
+            mesh = new Mesh { name = "Segment" };
+            meshCollider = GetComponent<MeshCollider>();
+            gameObject.layer = LayerMask.NameToLayer("Road");
+            GetComponent<MeshFilter>().mesh = mesh;
         }
 
-        public void ConfigureFrom(List<Vector3> pts)
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!IsBlueprint) return;
+            if (other.GetComponent<Detector>() is not null) return;
+
+            RoadSegment rs = other.GetComponent<RoadSegment>();
+
+            if (rs is null)
+            {
+                other.GetComponents<Component>().ToList().ForEach(c => Debug.Log($"--{c}"));
+            }
+            else
+            {
+                //Debug.Log($"Road Segment {this.transform.GetInstanceID()} collided with {other.gameObject.transform.GetInstanceID()}");
+                BecomeRed();
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (!IsBlueprint) return;
+            if (other.GetComponent<Detector>() is not null) return;
+
+            BecomeGreen();
+        }
+
+        public void DestroyRigBodyCopyAndPlace(RoadSegment from)
+        {
+            Destroy(GetComponent<Rigidbody>());
+            
+            CopyPointsByValue(from);
+            SetMesh(from.GetMesh());
+            TrySetCollider(from.GetMesh());
+            name = $"Road Segment {GetInstanceID()}";
+            Start = from.Start;
+            End = from.End;
+            Owner = from.Owner;
+
+            IsBlueprint = false;
+            meshCollider.isTrigger = false;
+            meshCollider.convex = false;
+        }
+
+        public void GenerateMeshAndSetPoints(List<Vector3> pts, IPlayer owner)
+        {
+            GenerateMesh(pts);
+            TrySetCollider(GetComponent<MeshFilter>().mesh);
+            name = $"Road Segment {GetInstanceID()}";
+            SetPointsAndOwner(pts, owner);
+        }
+
+        public void SetPointsAndOwner(List<Vector3> pts, IPlayer owner)
         {
             Points = pts;
-            GenerateMesh(pts);
-            SetCollider(GetComponent<MeshFilter>().mesh);
-            name = $"Road Segment {GetInstanceID()}";
             Start = pts[0];
             End = pts[^1];
+            Owner = owner;
+        }
+
+        public void PlaceFromStationBuilder()
+        {
+            IsBlueprint = false;
+            meshCollider.isTrigger = false;
+            //meshCollider.convex = false;
         }
 
         public static float GetApproxLength(List<Vector3> points)
@@ -56,23 +122,32 @@ namespace Trains
             //return dist;
         }
 
-        private void Awake()
-        {
-            Points = new List<Vector3>();
-            mesh = new Mesh { name = "Segment" };
-            meshCollider = GetComponent<MeshCollider>();
-            gameObject.layer = LayerMask.NameToLayer("Road");
-            GetComponent<MeshFilter>().mesh = mesh;
-        }
-
-        public void CopyPoints(RoadSegment from)
+        public void CopyPointsByValue(RoadSegment from)
         {
             Points.Clear();
             from.Points.ForEach(p => Points.Add(p));
         }
 
-        public void UpdateCollider() => meshCollider.sharedMesh = mesh;
-        public void SetCollider(Mesh mesh) => meshCollider.sharedMesh = mesh;
+        public bool TryUpdateCollider()
+        {
+            if (mesh.vertexCount > 0)
+            {
+                meshCollider.sharedMesh = mesh;
+                return true;
+            }
+            return false;
+        }
+
+        public bool TrySetCollider(Mesh mesh)
+        {
+            if (mesh.vertexCount > 0)
+            {
+                meshCollider.sharedMesh = mesh;
+                return true;
+            }
+            return false;
+        }
+
         public Mesh GetMesh() => mesh;
         public void SetMesh(Mesh mesh)
         {
@@ -86,6 +161,7 @@ namespace Trains
             this.mesh.SetNormals(mesh.normals);
             this.mesh.SetUVs(0, mesh.uv);
             this.mesh.SetTriangles(mesh.triangles, 0);
+
         }
 
         public void GenerateMeshSafely(List<Vector3> pts)
@@ -96,9 +172,10 @@ namespace Trains
 
             GenerateMesh(pts);
             Points = pts;
+            TryUpdateCollider();
         }
 
-        public void GenerateMesh(List<Vector3> pts) 
+        public void GenerateMesh(List<Vector3> pts)
         {
             mesh.Clear();
 
