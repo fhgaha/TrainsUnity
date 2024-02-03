@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5454406363662578494}
   - component: {fileID: 5454406363662578490}
   - component: {fileID: 5454406363662578493}
+  - component: {fileID: 83100007300383737}
   m_Layer: 7
   m_Name: RoadSegment
   m_TagString: Road
@@ -121,6 +122,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <Points>k__BackingField: []
+  <IsBlueprint>k__BackingField: 1
+  OwnerAsString: ---
   Start: {x: 0, y: 0, z: 0}
   End: {x: 0, y: 0, z: 0}
   shape2D: {fileID: 11400000, guid: 525732b36ebb11348889648cff1efc1a, type: 2}
@@ -144,3 +147,15 @@ MonoBehaviour:
   startSecond: {fileID: 0}
   endFirst: {fileID: 0}
   endSecond: {fileID: 0}
+--- !u!114 &83100007300383737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5454406363662578488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 048e6e8ec616c6f43a95c3ed75995354, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

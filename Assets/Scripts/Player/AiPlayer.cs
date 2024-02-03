@@ -37,6 +37,9 @@ namespace Trains
             rb.gameObject.SetActive(true);
             sb.Configure(this);
 
+            rb.gameObject.SetActive(false);
+            sb.gameObject.SetActive(false);
+
             //Turn off this game object if tests are not required
 
             //railBuilder.Build_I();
@@ -62,6 +65,9 @@ namespace Trains
             StartCoroutine(Routine());
             IEnumerator Routine()
             {
+                rb.gameObject.SetActive(true);
+                sb.gameObject.SetActive(true);
+
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
                 from.Cargo = Cargo.Empty.With(CargoType.Passengers, 10);
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
@@ -74,6 +80,9 @@ namespace Trains
 
                 Route r = RouteManager.Instance.CreateRoute(new List<int> { from.GetInstanceID(), to.GetInstanceID() });
                 Global.Instance.TrainContainer.SendTrain(r, this);
+
+                rb.gameObject.SetActive(false);
+                sb.gameObject.SetActive(false);
             }
         }
 

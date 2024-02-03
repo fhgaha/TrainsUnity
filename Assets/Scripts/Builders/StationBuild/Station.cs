@@ -54,7 +54,7 @@ namespace Trains
 
             List<Vector3> segmentPts = new();
             segmentPts.AddRange(originalPoints);
-            Segment.GenerateMeshSafely(segmentPts);
+            Segment.UpdateMeshAndCollider(segmentPts);
         }
 
         public void CopyInfoFrom(Station original)

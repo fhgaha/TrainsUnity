@@ -55,6 +55,7 @@ namespace Trains
         public RailBuilder Configure(IPlayer owner)
         {
             Owner = owner;
+            segment.Owner = Owner;
             return this;
         }
 
@@ -73,13 +74,13 @@ namespace Trains
 
         private void OnEnable()
         {
-            detector.OnRoadDetected += SetDetectedRoad;
+            detector.OnRoadDetected += OnRoadDetected;
             detector.OnStationDetected += OnStationDetected;
         }
 
         private void OnDisable()
         {
-            detector.OnRoadDetected -= SetDetectedRoad;
+            detector.OnRoadDetected -= OnRoadDetected;
             detector.OnStationDetected -= OnStationDetected;
             RemoveMesh();
 
@@ -114,30 +115,33 @@ namespace Trains
             stateMachine = new RbStateMachine(this, regHelp);
         }
 
-        private void SetDetectedRoad(object sender, RoadDetectorEventArgs e)
+        private void OnRoadDetected(object sender, RoadDetectorEventArgs e)
         {
             if (sender is not Detector d || d != detector) return;
-            
-            DetectedRoadByEnd = e.Other;
+
+            RoadSegment detected = e.Other;
+            if (detected is null) return;
+            if (detected.Owner == Owner)
+                DetectedRoadByEnd = e.Other;
 
 
             //recolor if collided with another road
-            RoadSegment other = e.Other;
+            //RoadSegment other = e.Other;
 
-            if (other is null)
-            {
-                segment.BecomeGreen();
-            }
-            else if (other.Owner == Owner)
-            {
-                DetectedRoadByEnd = e.Other;
-            }
-            else
-            {
-                Debug.Log($"This is not {Owner} segment! This is {other.Owner}'s segment!");
+            //if (other is null)
+            //{
+            //    segment.BecomeGreen();
+            //}
+            //else if (other.Owner == Owner)
+            //{
+            //    DetectedRoadByEnd = e.Other;
+            //}
+            //else
+            //{
+            //    Debug.Log($"This is not {Owner} segment! This is {other.Owner}'s segment!");
 
-                segment.BecomeRed();
-            }
+            //    segment.BecomeRed();
+            //}
         }
 
         private void OnStationDetected(object sender, StationDetectorEventArgs e)
@@ -184,14 +188,12 @@ namespace Trains
             end = new HeadedPoint(endPos, Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up));
 
             MyMath.CalculateStraightLine(Points, startPos, endPos, driveDist);
-            //UpdateSegmentEndings(Points);
-            segment.GenerateMeshSafely(Points);
+            segment.UpdateMeshAndCollider(Points);
         }
 
         private void UpdatePoints(List<Vector3> pts)
         {
             Points = pts;
-            //UpdateSegmentEndings(pts);
         }
 
         ///Curve + straight
@@ -203,7 +205,7 @@ namespace Trains
             //UpdateSegmentEndings(Points);
             tangent2 = Vector3.positiveInfinity;
             end = new HeadedPoint(endPos, endHeading);
-            segment.GenerateMeshSafely(Points);
+            segment.UpdateMeshAndCollider(Points);
         }
 
         public void CalculateCSPointsReversed() => CalculateCSPointsReversed(start.pos, end.pos, end.heading);
@@ -219,7 +221,7 @@ namespace Trains
             float newStartHeading = MyMath.ClampToPlusMinus180DegreesRange(reversedStartHeading + 180);
 
             start = new HeadedPoint(startPos, newStartHeading);
-            segment.GenerateMeshSafely(Points);
+            segment.UpdateMeshAndCollider(Points);
         }
 
         public void CalculateDubinsPoints() => CalculateDubinsPoints(start.pos, start.heading, end.pos, end.heading);
@@ -230,7 +232,7 @@ namespace Trains
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
             UpdatePoints(shortest.pathCoordinates);
-            segment.GenerateMeshSafely(Points);
+            segment.UpdateMeshAndCollider(Points);
         }
 
         public void PlaceSegment()

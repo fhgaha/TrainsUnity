@@ -56,7 +56,6 @@ namespace Trains
         {
             if (!wasHit) return;
             if (mousePos == hitPoint) return;
-            //if (!ArePointsToCloseToDraw(rb.start.pos, hit.point)) return;
 
             if (rb.DetectedStation != null)
             {

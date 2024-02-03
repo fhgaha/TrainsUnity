@@ -35,6 +35,9 @@ namespace Trains
         private Mesh mesh;
         private MeshCollider meshCollider;
 
+        public event EventHandler OnColliderSharedMeshUpdated;
+        public override string ToString() => $"RoadSegm {GetInstanceID()}";
+
         private void Awake()
         {
             Points = new List<Vector3>();
@@ -42,38 +45,64 @@ namespace Trains
             meshCollider = GetComponent<MeshCollider>();
             gameObject.layer = LayerMask.NameToLayer("Road");
             GetComponent<MeshFilter>().mesh = mesh;
+
+            OnColliderSharedMeshUpdated += OnColliderSharedMeshUpdatedHandle;
         }
+
+        Dictionary<int, Collider> detected = new();
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!IsBlueprint) return;
-            if (other.GetComponent<Detector>() is not null) return;
-
-            RoadSegment rs = other.GetComponent<RoadSegment>();
-
-            if (rs is null)
+            if (other.TryGetComponent(out RoadSegment rs)
+                 && IsBlueprint
+                 && Owner is HumanPlayer)
             {
-                other.GetComponents<Component>().ToList().ForEach(c => Debug.Log($"--{c}"));
-            }
-            else
-            {
-                //Debug.Log($"Road Segment {this.transform.GetInstanceID()} collided with {other.gameObject.transform.GetInstanceID()}");
-                BecomeRed();
+                //Debug.Log($"RoadSegment.OnTriggerEnter, {transform.GetInstanceID()} detected {rs.transform.GetInstanceID()}");
+                //detected[other.GetInstanceID()] = other;
+                //    ReliableOnTriggerExit.NotifyTriggerEnter(other, gameObject, OnTriggerExit);
+                //BecomeRed();
+
             }
         }
 
+        //does not get called cause collider mesh is new every time?
         private void OnTriggerExit(Collider other)
         {
-            if (!IsBlueprint) return;
-            if (other.GetComponent<Detector>() is not null) return;
+            if (other.TryGetComponent(out RoadSegment rs)
+                && IsBlueprint
+                && Owner is HumanPlayer)
+            {
+                //Debug.LogWarning($"RoadSegment.OnTriggerExit, {transform.GetInstanceID()} detected {rs.transform.GetInstanceID()}");
+                //    ReliableOnTriggerExit.NotifyTriggerExit(other, gameObject);
+                //BecomeGreen();
+            }
+        }
 
-            BecomeGreen();
+        //private void OnTriggerStay(Collider other)
+        //{
+        //    if (IsBlueprint && Owner is HumanPlayer)
+        //        if (other.TryGetComponent(out RoadSegment rs))
+        //        {
+        //            Debug.Log($"RoadSegment.OnTriggerStay, {transform.GetInstanceID()} detected {rs.transform.GetInstanceID()}");
+        //        }
+        //}
+
+        private void OnColliderSharedMeshUpdatedHandle(object sender, EventArgs e)
+        {
+            if (IsBlueprint)
+            {
+                foreach (KeyValuePair<int, Collider> pair in detected)
+                {
+                    //OnTriggerExit(pair.Value);
+                }
+                detected.Clear();
+            }
         }
 
         public void DestroyRigBodyCopyAndPlace(RoadSegment from)
         {
             Destroy(GetComponent<Rigidbody>());
-            
+
             CopyPointsByValue(from);
             SetMesh(from.GetMesh());
             TrySetCollider(from.GetMesh());
@@ -132,10 +161,50 @@ namespace Trains
         {
             if (mesh.vertexCount > 0)
             {
+                ///generate box shape for mesh collider
+
+
                 meshCollider.sharedMesh = mesh;
+
+
+                //if (meshCollider.sharedMesh is null)
+                //{
+                //    meshCollider.sharedMesh = mesh;
+                //}
+                //else
+                //{
+                //    meshCollider.sharedMesh.SetVertices(mesh.vertices);
+                //    meshCollider.sharedMesh.SetNormals(mesh.normals);
+                //    meshCollider.sharedMesh.SetUVs(0, mesh.uv);
+                //    meshCollider.sharedMesh.SetTriangles(mesh.triangles, 0);
+
+                //    meshCollider.sharedMesh.RecalculateNormals();
+                //    meshCollider.sharedMesh.RecalculateBounds();
+                //    meshCollider.sharedMesh.RecalculateTangents();
+                //    meshCollider.sharedMesh.RecalculateUVDistributionMetrics();
+                //}
+
+
+                //OnColliderSharedMeshUpdated?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
+
+            //if (meshCollider.sharedMesh is null) meshCollider.sharedMesh = mesh;
+            //if (mesh.vertexCount > 0)
+            //{
+            //    //meshCollider.sharedMesh.SetVertices(mesh.vertices);
+            //    //meshCollider.sharedMesh.SetNormals(mesh.normals);
+            //    //meshCollider.sharedMesh.SetUVs(0, mesh.uv);
+            //    //meshCollider.sharedMesh.SetTriangles(mesh.triangles, 0);
+
+            //    meshCollider.sharedMesh.vertices = mesh.vertices;
+            //    meshCollider.sharedMesh.normals = mesh.normals;
+            //    meshCollider.sharedMesh.uv = mesh.uv;
+            //    meshCollider.sharedMesh.triangles = mesh.triangles;
+            //    return true;
+            //}
+            //return false;
         }
 
         public bool TrySetCollider(Mesh mesh)
@@ -164,7 +233,7 @@ namespace Trains
 
         }
 
-        public void GenerateMeshSafely(List<Vector3> pts)
+        public void UpdateMeshAndCollider(List<Vector3> pts)
         {
             //https://forum.unity.com/threads/when-assigning-mesh-collider-errors-about-doesnt-have-read-write-enabled.1248541/
 
