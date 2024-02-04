@@ -30,11 +30,14 @@ namespace Trains
         [SerializeField] private List<RoadSegment> detectedRoads = new();
 
         private List<Collider> children;
+        private float childWidth;
+        // < other collider detected, times it was detected by children(once by each child) >
         private Dictionary<Collider, int> detectedTimes = new();
 
         private void Awake()
         {
             children = GetComponentsInChildren<Collider>().ToList();
+            childWidth = 2 * children[0].GetComponent<CapsuleCollider>().radius * children[0].transform.localScale.x;
         }
 
         public void Configure(RailBuilder parent, RoadSegment curRS)
@@ -43,65 +46,61 @@ namespace Trains
             this.curSegm = curRS;
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void Update()
         {
-            Check(other, null);
-
-            DetectRoad();
-            DetectStation();
-
-            void DetectRoad()
+            if (curSegm is not null && curSegm.Points?.Count > 0)
             {
-                if (other.TryGetComponent<RoadSegment>(out var otherSegm))
-                {
-                    if (otherSegm == curSegm) return;
-                    //Debug.Log($"{this} Det on trig ent");
+                UpdateChildren();
+            }
+        }
 
-                    detectedRoads.Add(otherSegm);
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = otherSegm });
-                    //Debug.Log($"road detected: {otherSegment}");
+        private void UpdateChildren()
+        {
+            Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
+            transform.rotation = Quaternion.LookRotation(dir);
+
+            children = GetComponentsInChildren<Collider>().ToList();
+            int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
+
+            if (fittingAmnt > children.Count)
+            {
+                //add more chidren
+                var newAmnt = fittingAmnt - children.Count;
+                for (int i = 0; i < newAmnt; i++)
+                {
+                    //some children with no colliders
+                    var copy = Instantiate(children[0], transform, false);
+                    copy.name = $"DetChild {copy.GetInstanceID()}";
+                    copy.transform.position = children[^1].transform.position - childWidth * dir;
                 }
             }
-
-            void DetectStation()
+            else if (fittingAmnt < children.Count)
             {
-                //should i have list for stations as well, like for the roads?
-                if (!other.CompareTag("Station")) return;
+                //remove children that dont fit
+                int amntToDestroy = Mathf.Abs(fittingAmnt - children.Count);
+                for (int i = 0; i < amntToDestroy; i++)
+                {
+                    if (children.Count == 1)
+                        return;
 
-                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = other.GetComponent<Station>() });
+                    Destroy(children[^1].gameObject);
+                }
             }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            DetectRoad(other, () => { });
+            DetectStation(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            Uncheck(other, null);
-
-            UndetectRoad();
-            UndetectStation();
-
-            void UndetectRoad()
-            {
-                if (other.TryGetComponent<RoadSegment>(out var otherSegm))
-                {
-                    if (otherSegm == curSegm) return;
-                    //Debug.Log($"{this} Det on trig exit");
-
-                    //bool managedToRemove = detectedRoads.Remove(otherSegm);
-                    //if (!managedToRemove) throw new Exception("couldnt remove from list");
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = detectedRoads.LastOrDefault() });
-                }
-            }
-
-            void UndetectStation()
-            {
-                if (!other.CompareTag("Station")) return;
-
-                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
-            }
+            UndetectRoad(other, () => { });
+            UndetectStation(other);
         }
 
-
-        private void Check(Collider other, Action action)
+        private void DetectRoad(Collider other, Action action)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
@@ -114,7 +113,9 @@ namespace Trains
 
                 if (detectedTimes[other] == 1)
                 {
+                    //logic here
                     action();
+                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = rs });
                     Debug.Log("enter");
                 }
 
@@ -123,7 +124,7 @@ namespace Trains
             }
         }
 
-        private void Uncheck(Collider other, Action action)
+        private void UndetectRoad(Collider other, Action action)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
@@ -135,11 +136,30 @@ namespace Trains
 
                 if (detectedTimes[other] == 0)
                 {
+                    //logic here
                     action();
+                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = null });
                     Debug.Log($"exit");
                 }
 
             }
         }
+
+        private void DetectStation(Collider other)
+        {
+            //should i have list for stations as well, like for the roads?
+            if (!other.CompareTag("Station")) return;
+
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = other.GetComponent<Station>() });
+        }
+
+        void UndetectStation(Collider other)
+        {
+            if (!other.CompareTag("Station")) return;
+
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
+        }
+
+
     }
 }

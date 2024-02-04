@@ -120,9 +120,18 @@ namespace Trains
             if (sender is not Detector d || d != detector) return;
 
             RoadSegment detected = e.Other;
-            if (detected is null) return;
-            if (detected.Owner == Owner)
-                DetectedRoadByEnd = e.Other;
+
+            if (detected is null)
+            {
+                segment.BecomeGreen();
+            }
+            else
+            {
+                segment.BecomeRed();
+
+                if (detected.Owner == Owner)
+                    DetectedRoadByEnd = e.Other;
+            }
 
 
             //recolor if collided with another road
@@ -263,7 +272,7 @@ namespace Trains
 
         public void RemoveMesh()
         {
-            segment.SetMesh(null);
+            segment.CopyMeshValuesFrom(null);
             Points.Clear();
         }
 
