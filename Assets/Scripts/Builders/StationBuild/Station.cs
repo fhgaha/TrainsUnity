@@ -33,6 +33,7 @@ namespace Trains
         private void Awake()
         {
             Segment = GetComponentInChildren<RoadSegment>();
+            Segment.name = $"Station's {Segment}";
             visual = GetComponentInChildren<StationVisual>().Configure(this);
             GetComponentInChildren<StationRotator>().Configure(this);
             GetComponentInChildren<MeshCollider>().sharedMesh = Segment.GetMesh();

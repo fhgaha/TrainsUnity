@@ -46,17 +46,37 @@ namespace Trains
             this.curSegm = curRS;
         }
 
+        private void OnEnable()
+        {
+
+        }
+
+        //odisable
+        //ontriggerenter
+        //update
+
+
+        private void OnDisable()
+        {
+            for (int i = 1; i < children.Count; i++)
+            {
+                Destroy(children[i].gameObject);
+                detectedRoads.Clear();
+            }
+        }
+
         private void Update()
         {
-            if (curSegm is not null && curSegm.Points?.Count > 0)
-            {
-                UpdateChildren();
-            }
+            UpdateChildren();
         }
 
         private void UpdateChildren()
         {
+            if (curSegm is null || (curSegm.Points?.Count) <= 1) return;
+
             Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
+            if (MyMath.Approx(dir, Vector3.zero)) return;
+
             transform.rotation = Quaternion.LookRotation(dir);
 
             children = GetComponentsInChildren<Collider>().ToList();
@@ -64,14 +84,19 @@ namespace Trains
 
             if (fittingAmnt > children.Count)
             {
+                //if move fast children on top of each other
                 //add more chidren
                 var newAmnt = fittingAmnt - children.Count;
+                var newPos = children[^1].transform.position;
                 for (int i = 0; i < newAmnt; i++)
                 {
                     //some children with no colliders
                     var copy = Instantiate(children[0], transform, false);
                     copy.name = $"DetChild {copy.GetInstanceID()}";
-                    copy.transform.position = children[^1].transform.position - childWidth * dir;
+                    newPos += childWidth * (-dir);
+                    copy.transform.position = newPos;
+
+                    //check if OnTriggerEnter gets called
                 }
             }
             else if (fittingAmnt < children.Count)
@@ -84,23 +109,24 @@ namespace Trains
                         return;
 
                     Destroy(children[^1].gameObject);
+                    //if there is collider in detectedTimes we should decrease times value
                 }
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            DetectRoad(other, () => { });
+            DetectRoad(other);
             DetectStation(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            UndetectRoad(other, () => { });
+            UndetectRoad(other);
             UndetectStation(other);
         }
 
-        private void DetectRoad(Collider other, Action action)
+        private void DetectRoad(Collider other)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
@@ -114,7 +140,7 @@ namespace Trains
                 if (detectedTimes[other] == 1)
                 {
                     //logic here
-                    action();
+
                     OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = rs });
                     Debug.Log("enter");
                 }
@@ -124,7 +150,7 @@ namespace Trains
             }
         }
 
-        private void UndetectRoad(Collider other, Action action)
+        private void UndetectRoad(Collider other)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
@@ -137,7 +163,7 @@ namespace Trains
                 if (detectedTimes[other] == 0)
                 {
                     //logic here
-                    action();
+
                     OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = null });
                     Debug.Log($"exit");
                 }

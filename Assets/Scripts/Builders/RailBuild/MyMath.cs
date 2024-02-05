@@ -231,5 +231,10 @@ namespace Trains
         }
 
         public static bool ApproxXZ(Vector3 first, Vector3 second) => Mathf.Approximately(first.x, second.x) && Mathf.Approximately(first.z, second.z);
+
+        public static bool Approx(Vector3 vec1, Vector3 vec2)
+            => Approximately(vec1.x, vec2.x)
+            && Approximately(vec1.y, vec2.y)
+            && Approximately(vec1.z, vec2.z);
     }
 }

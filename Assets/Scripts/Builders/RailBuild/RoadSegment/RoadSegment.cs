@@ -46,6 +46,17 @@ namespace Trains
             GetComponent<MeshFilter>().mesh = mesh;
         }
 
+        private void OnEnable()
+        {
+            TrySetCollider(mesh);
+        }
+
+        private void OnDisable()
+        {
+            //when sharedMesh verticies count is zero, error happens
+            meshCollider.sharedMesh = null;    
+        }
+
         public void DestroyRigBodyCopyAndPlace(RoadSegment from)
         {
             Destroy(GetComponent<Rigidbody>());
