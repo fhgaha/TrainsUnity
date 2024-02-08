@@ -236,5 +236,12 @@ namespace Trains
             => Approximately(vec1.x, vec2.x)
             && Approximately(vec1.y, vec2.y)
             && Approximately(vec1.z, vec2.z);
+
+        public static Vector3 InverseLerp(Vector3 a, Vector3 b, Vector3 value)
+            => new Vector3(
+                Mathf.InverseLerp(a.x, b.x, value.x),
+                Mathf.InverseLerp(a.y, b.y, value.y),
+                Mathf.InverseLerp(a.z, b.z, value.z)
+                );
     }
 }

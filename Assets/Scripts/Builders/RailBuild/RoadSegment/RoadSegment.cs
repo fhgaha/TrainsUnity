@@ -34,6 +34,7 @@ namespace Trains
 
         private Mesh mesh;
         private MeshCollider meshCollider;
+        private MeshRenderer meshRenderer;
 
         public override string ToString() => $"RoadSegm {GetInstanceID()}";
 
@@ -42,6 +43,7 @@ namespace Trains
             Points = new List<Vector3>();
             mesh = new Mesh { name = "Segment" };
             meshCollider = GetComponent<MeshCollider>();
+            meshRenderer = GetComponent<MeshRenderer>();
             gameObject.layer = LayerMask.NameToLayer("Road");
             GetComponent<MeshFilter>().mesh = mesh;
             name = ToString();
@@ -55,7 +57,7 @@ namespace Trains
         private void OnDisable()
         {
             //when sharedMesh verticies count is zero, error happens
-            meshCollider.sharedMesh = null;    
+            meshCollider.sharedMesh = null;
         }
 
         public void DestroyRigBodyCopyAndPlace(RoadSegment from)
@@ -65,7 +67,7 @@ namespace Trains
             CopyPointsByValue(from);
             CopyMeshValuesFrom(from.GetMesh());
             TrySetCollider(from.GetMesh());
-            BecomeDefaultColor();
+            PaintDefaultColor();
             name = $"Road Segment {GetInstanceID()}";
             Start = from.Start;
             End = from.End;
@@ -247,10 +249,28 @@ namespace Trains
 
         public bool IsPointSnappedOnEnding(Vector3 point) => Start == point || End == point;
 
-        public void BecomeGreen() => GetComponent<MeshRenderer>().material = allowedMaterial;
+        public void PaintGreen()
+        {
+            if (!IsGreen)
+                meshRenderer.material = allowedMaterial;
+        }
+        public bool IsGreen => meshRenderer.material == allowedMaterial;
 
-        public void BecomeRed() => GetComponent<MeshRenderer>().material = forbiddenMaterial;
+        public void PaintRed()
+        {
+            if (!IsRed)
+                meshRenderer.material = forbiddenMaterial;
+        }
 
-        public void BecomeDefaultColor() => GetComponent<MeshRenderer>().material = defaultMaterial;
+        public bool IsRed => meshRenderer.material == forbiddenMaterial;
+
+        public void PaintDefaultColor()
+        {
+            if (!IsDefaultColor)
+                meshRenderer.material = defaultMaterial;
+        }
+
+        public bool IsDefaultColor => meshRenderer.material == defaultMaterial;
+
     }
 }

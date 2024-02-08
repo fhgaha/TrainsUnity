@@ -26,19 +26,19 @@ namespace Trains
         public void BecomeGreen()
         {
             meshRend.material = allowedMaterial;
-            station.Segment.BecomeGreen();
+            station.Segment.PaintGreen();
         }
 
         public void BecomeRed()
         {
             meshRend.material = forbiddenMaterial;
-            station.Segment.BecomeRed();
+            station.Segment.PaintRed();
         }
 
         public void BecomeDefaultColor()
         {
             meshRend.material = defaultMaterial;
-            station.Segment.BecomeDefaultColor();
+            station.Segment.PaintDefaultColor();
         }
 
         public void HandleStatoinEnter(Collider collider)

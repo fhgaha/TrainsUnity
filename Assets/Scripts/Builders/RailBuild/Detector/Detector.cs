@@ -1,3 +1,4 @@
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,14 @@ namespace Trains
     {
         public RoadSegment CurrentRoad { get; set; }
         public RoadSegment Other { get; set; }
+        public bool IsSentByMainDetChild { get; set; }
+
+        public RoadDetectorEventArgs(RoadSegment currentRoad, RoadSegment other, bool isSentByMainDetChild)
+        {
+            CurrentRoad = currentRoad;
+            Other = other;
+            IsSentByMainDetChild = isSentByMainDetChild;
+        }
     }
 
     public class StationDetectorEventArgs : EventArgs
@@ -18,8 +27,11 @@ namespace Trains
     }
 
 
+    //create children for cur segm
+    //when moving cursor update children pos and amnt
+    //if one of children collide with road paint segm red
+    //if none of chilren collide with road pain segm green
     public class Detector : MonoBehaviour
-    //public class Detector : DetectorWithChildren
     {
         public event EventHandler<RoadDetectorEventArgs> OnRoadDetected;
         public event EventHandler<StationDetectorEventArgs> OnStationDetected;
@@ -28,22 +40,23 @@ namespace Trains
         private RailBuilder rb;
         [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
 
-        private List<Collider> children;
         private float childWidth;
         // < other collider detected, times it was detected by children(once by each child) >
-        private Dictionary<DetChild, Dictionary<RoadSegment, int>> childDetectedSegmTimes = new();
+        [SerializeField] private SerializedDictionary<DetChild, SerializedDictionary<RoadSegment, int>> childDetectedSegmTimes = new();
+        private DetChild mainChild;
 
         private void Awake()
         {
-            children = GetComponentsInChildren<Collider>().ToList();
-            childWidth = 2 * children[0].GetComponent<CapsuleCollider>().radius * children[0].transform.localScale.x;
+            GetComponentsInChildren<DetChild>().ToList().ForEach(c => childDetectedSegmTimes.Add(c, new SerializedDictionary<RoadSegment, int>()));
+            mainChild = childDetectedSegmTimes.First().Key;
+            childWidth = 2 * mainChild.GetComponent<CapsuleCollider>().radius * mainChild.transform.localScale.x;
         }
 
         public void Configure(RailBuilder parent, RoadSegment curRS)
         {
             rb = parent;
             curSegm = curRS;
-            children[0].GetComponent<DetChild>().Configure(curSegm);
+            mainChild.Configure(curSegm);
         }
 
         private void OnEnable()
@@ -53,26 +66,34 @@ namespace Trains
 
         private void OnChildDetectedRoad(object sender, DetChildEventArgs e)
         {
-            Debug.Log($"{sender}, {e.IsEnter}, {e.CollidedWith}");
+            Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
-            DetChild child = ((DetChild)sender); 
+            DetChild child = ((DetChild)sender);
+
 
             if (e.IsEnter)
                 DetectRoad(child, e.CollidedWith.GetComponent<Collider>());
             else
                 UndetectRoad(child, e.CollidedWith.GetComponent<Collider>());
+
         }
 
         private void OnDisable()
         {
             DetChild.OnRoadDetected -= OnChildDetectedRoad;
 
-            for (int i = children.Count - 1; i >= 0; i--)
+            DestroyChildren();
+        }
+
+        public void DestroyChildren()
+        {
+            for (int i = childDetectedSegmTimes.Count - 1; i >= 0; i--)
             {
                 if (i == 0) continue;
 
-                Destroy(children[i].gameObject);
-                children.RemoveAt(i);
+                DetChild toRemove = childDetectedSegmTimes.Keys.ElementAt(i);
+                Destroy(toRemove.gameObject);
+                childDetectedSegmTimes.Remove(toRemove);
             }
             childDetectedSegmTimes.Clear();
         }
@@ -81,6 +102,40 @@ namespace Trains
         {
             UpdateChildren();
         }
+
+        //private void UpdateChildren()
+        //{
+        //    if (curSegm is null || (curSegm.Points?.Count) <= 1) return;
+
+        //    List<Vector3> pts = curSegm.Points;
+        //    Vector3 dir = (pts[^1] - pts[0]).normalized;
+        //    if (MyMath.Approx(dir, Vector3.zero)) return;
+
+        //    transform.rotation = Quaternion.LookRotation(dir);
+
+        //    children = GetComponentsInChildren<Collider>().ToList();
+        //    int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
+
+        //    List<Vector3> newList = new() { pts[^1] };
+        //    for (int i = pts.Count - 1; i >= 0; i--)
+        //    {
+        //        if (Vector3.Distance(newList.Last(), pts[i]) > childWidth)
+        //        {
+        //            newList.Add(pts[i]);
+        //            continue;
+        //        }
+        //    }
+
+        //    for (int i = 0; i < newList.Count - 1; i++)
+        //    {
+        //        if (i == 0) continue;
+
+        //        var copy = Instantiate(children[0], transform, false);
+        //        copy.name = $"DetChild {copy.GetInstanceID()}";
+        //        copy.transform.position = newList[i];
+        //        children.Add(copy);
+        //    }
+        //}
 
         private void UpdateChildren()
         {
@@ -91,19 +146,19 @@ namespace Trains
 
             transform.rotation = Quaternion.LookRotation(dir);
 
-            children = GetComponentsInChildren<Collider>().ToList();
+            //children = GetComponentsInChildren<Collider>().ToList();
             int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
 
-            if (fittingAmnt > children.Count)
+            if (fittingAmnt > childDetectedSegmTimes.Count)
             {
                 //if move fast children on top of each other
                 //add more chidren
-                var newAmnt = fittingAmnt - children.Count;
-                var newPos = children[^1].transform.position;
+                var newAmnt = fittingAmnt - childDetectedSegmTimes.Count;
+                var newPos = childDetectedSegmTimes.Keys.Last().transform.position;
                 for (int i = 0; i < newAmnt; i++)
                 {
                     //some children with no colliders
-                    var copy = Instantiate(children[0], transform, false);
+                    var copy = Instantiate(mainChild, transform, false);
                     copy.name = $"DetChild {copy.GetInstanceID()}";
                     newPos += childWidth * (-dir);
                     copy.transform.position = newPos;
@@ -111,16 +166,18 @@ namespace Trains
                     //check if OnTriggerEnter gets called
                 }
             }
-            else if (fittingAmnt < children.Count)
+            else if (fittingAmnt < childDetectedSegmTimes.Count)
             {
                 //remove children that dont fit
-                int amntToDestroy = Mathf.Abs(fittingAmnt - children.Count);
+                int amntToDestroy = Mathf.Abs(fittingAmnt - childDetectedSegmTimes.Count);
                 for (int i = 0; i < amntToDestroy; i++)
                 {
-                    if (children.Count == 1)
+                    if (childDetectedSegmTimes.Count == 1)
                         return;
 
-                    Destroy(children[^1].gameObject);
+                    DetChild last = childDetectedSegmTimes.Keys.Last();
+                    childDetectedSegmTimes.Remove(last.GetComponent<DetChild>());
+                    Destroy(last.gameObject);
                     //if there is collider in detectedTimes we should decrease times value
                 }
             }
@@ -141,7 +198,7 @@ namespace Trains
 
         private void DetectRoad(DetChild sender, Collider other)
         {
-            if (!children.Contains(other)
+            if (!other.TryGetComponent<DetChild>(out _)
                 && other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
@@ -158,24 +215,23 @@ namespace Trains
                 }
                 else
                 {
-                    childDetectedSegmTimes.Add(sender, new Dictionary<RoadSegment, int> { [rs] = 1});
+                    childDetectedSegmTimes.Add(sender, new SerializedDictionary<RoadSegment, int> { [rs] = 1 });
                 }
 
-                if (childDetectedSegmTimes[sender][rs] == 1)
+                if (AtLeastOneTimesNotZero())
                 {
-                    //logic here
-                    curSegm.BecomeRed();
-
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = rs });
-                    //Debug.Log($"enter other {rs}, times {detectedTimes[other]}");
+                    curSegm.PaintRed();
                 }
+
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(curSegm, rs, sender == mainChild));
+                //Debug.Log($"enter other {rs}, times {detectedTimes[other]}");
 
             }
         }
 
         private void UndetectRoad(DetChild sender, Collider other)
         {
-            if (!children.Contains(other)
+            if (!other.TryGetComponent<DetChild>(out _)
                 && other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
@@ -184,15 +240,18 @@ namespace Trains
                     throw new Exception($"should not be!");
 
                 if (childDetectedSegmTimes[sender][rs] == 0)
-                {
-                    //logic here
-                    curSegm.BecomeGreen();
+                    childDetectedSegmTimes[sender].Remove(rs);
 
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = null });
-                    //Debug.Log($"exit other {"null"}, times {detectedTimes[other]}");
+                if (AreAllTimesZero())
+                {
+                    curSegm.PaintGreen();
+                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(curSegm, null, sender == mainChild));
                 }
 
+                //Debug.Log($"exit other {"null"}, times {detectedTimes[other]}");
             }
+
+
         }
 
         private void DetectStation(Collider other)
@@ -210,6 +269,8 @@ namespace Trains
             OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
         }
 
+        bool AreAllTimesZero() => childDetectedSegmTimes.Values.All(innerDict => innerDict.Values.All(times => times == 0));
 
+        bool AtLeastOneTimesNotZero() => childDetectedSegmTimes.Values.Any(innerDict => innerDict.Values.Any(times => times > 0));
     }
 }

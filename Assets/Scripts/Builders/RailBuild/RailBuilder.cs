@@ -69,7 +69,7 @@ namespace Trains
 
             stateMachine = new RbStateMachine(this, regHelp);
 
-            segment.BecomeGreen();
+            segment.PaintGreen();
         }
 
         private void OnEnable()
@@ -123,15 +123,14 @@ namespace Trains
 
             if (detected is null)
             {
-                //segment.BecomeGreen();
-                DetectedRoadByEnd = null;
+                if (e.IsSentByMainDetChild)
+                    DetectedRoadByEnd = null;
             }
             else
             {
-                //segment.BecomeRed();
-
                 if (detected.Owner == Owner)
-                    DetectedRoadByEnd = e.Other;
+                    if (e.IsSentByMainDetChild)
+                        DetectedRoadByEnd = e.Other;
             }
 
 
