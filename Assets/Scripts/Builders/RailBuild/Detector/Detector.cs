@@ -27,12 +27,11 @@ namespace Trains
 
         private RailBuilder rb;
         [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
-        [SerializeField] private List<RoadSegment> detectedRoads = new();
 
         private List<Collider> children;
         private float childWidth;
         // < other collider detected, times it was detected by children(once by each child) >
-        private Dictionary<Collider, int> detectedTimes = new();
+        private Dictionary<DetChild, Dictionary<RoadSegment, int>> childDetectedSegmTimes = new();
 
         private void Awake()
         {
@@ -42,27 +41,40 @@ namespace Trains
 
         public void Configure(RailBuilder parent, RoadSegment curRS)
         {
-            this.rb = parent;
-            this.curSegm = curRS;
+            rb = parent;
+            curSegm = curRS;
+            children[0].GetComponent<DetChild>().Configure(curSegm);
         }
 
         private void OnEnable()
         {
-
+            DetChild.OnRoadDetected += OnChildDetectedRoad;
         }
 
-        //odisable
-        //ontriggerenter
-        //update
+        private void OnChildDetectedRoad(object sender, DetChildEventArgs e)
+        {
+            Debug.Log($"{sender}, {e.IsEnter}, {e.CollidedWith}");
 
+            DetChild child = ((DetChild)sender); 
+
+            if (e.IsEnter)
+                DetectRoad(child, e.CollidedWith.GetComponent<Collider>());
+            else
+                UndetectRoad(child, e.CollidedWith.GetComponent<Collider>());
+        }
 
         private void OnDisable()
         {
-            for (int i = 1; i < children.Count; i++)
+            DetChild.OnRoadDetected -= OnChildDetectedRoad;
+
+            for (int i = children.Count - 1; i >= 0; i--)
             {
+                if (i == 0) continue;
+
                 Destroy(children[i].gameObject);
-                detectedRoads.Clear();
+                children.RemoveAt(i);
             }
+            childDetectedSegmTimes.Clear();
         }
 
         private void Update()
@@ -114,58 +126,70 @@ namespace Trains
             }
         }
 
+
         private void OnTriggerEnter(Collider other)
         {
-            DetectRoad(other);
+            //DetectRoad(other);
             DetectStation(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            UndetectRoad(other);
+            //UndetectRoad(other);
             UndetectStation(other);
         }
 
-        private void DetectRoad(Collider other)
+        private void DetectRoad(DetChild sender, Collider other)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
-                if (detectedTimes.Keys.Contains(other))
-                    detectedTimes[other]++;
-                else
-                    detectedTimes.Add(other, 1);
-
-                if (detectedTimes[other] == 1)
+                if (childDetectedSegmTimes.Keys.Contains(sender))
                 {
-                    //logic here
-
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = rs });
-                    Debug.Log("enter");
+                    if (childDetectedSegmTimes[sender].Keys.Contains(rs))
+                    {
+                        childDetectedSegmTimes[sender][rs]++;
+                    }
+                    else
+                    {
+                        childDetectedSegmTimes[sender].Add(rs, 1);
+                    }
+                }
+                else
+                {
+                    childDetectedSegmTimes.Add(sender, new Dictionary<RoadSegment, int> { [rs] = 1});
                 }
 
-                if (detectedTimes[other] > children.Count)
-                    throw new Exception("should not be");
+                if (childDetectedSegmTimes[sender][rs] == 1)
+                {
+                    //logic here
+                    curSegm.BecomeRed();
+
+                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = rs });
+                    //Debug.Log($"enter other {rs}, times {detectedTimes[other]}");
+                }
+
             }
         }
 
-        private void UndetectRoad(Collider other)
+        private void UndetectRoad(DetChild sender, Collider other)
         {
             if (!children.Contains(other)
                 && other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
-                detectedTimes[other]--;
-                if (detectedTimes[other] < 0)
+                childDetectedSegmTimes[sender][rs]--;
+                if (childDetectedSegmTimes[sender][rs] < 0)
                     throw new Exception($"should not be!");
 
-                if (detectedTimes[other] == 0)
+                if (childDetectedSegmTimes[sender][rs] == 0)
                 {
                     //logic here
+                    curSegm.BecomeGreen();
 
                     OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs { CurrentRoad = curSegm, Other = null });
-                    Debug.Log($"exit");
+                    //Debug.Log($"exit other {"null"}, times {detectedTimes[other]}");
                 }
 
             }

@@ -37,8 +37,6 @@ namespace Trains
             rb.gameObject.SetActive(true);
             sb.Configure(this);
 
-            rb.gameObject.SetActive(false);
-            sb.gameObject.SetActive(false);
 
             //Turn off this game object if tests are not required
 
@@ -57,7 +55,11 @@ namespace Trains
 
             //BuildTwoStationsCurvyRoadSendTrain();
 
-            BuildTwoStationsStraightRoadSendTrain();
+            //BuildTwoStationsStraightRoadSendTrain();
+
+
+            rb.gameObject.SetActive(false);
+            sb.gameObject.SetActive(false);
         }
 
         private void BuildTwoStationsStraightRoadSendTrain()

@@ -123,11 +123,12 @@ namespace Trains
 
             if (detected is null)
             {
-                segment.BecomeGreen();
+                //segment.BecomeGreen();
+                DetectedRoadByEnd = null;
             }
             else
             {
-                segment.BecomeRed();
+                //segment.BecomeRed();
 
                 if (detected.Owner == Owner)
                     DetectedRoadByEnd = e.Other;
@@ -246,7 +247,7 @@ namespace Trains
 
         public void PlaceSegment()
         {
-            segment.BecomeDefaultColor();
+            //segment.BecomeDefaultColor();
             segment.SetPointsAndOwner(Points, Owner);
             railContainer.AddCreateInstance(segment);
         }

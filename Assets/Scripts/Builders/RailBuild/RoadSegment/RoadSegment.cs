@@ -44,6 +44,7 @@ namespace Trains
             meshCollider = GetComponent<MeshCollider>();
             gameObject.layer = LayerMask.NameToLayer("Road");
             GetComponent<MeshFilter>().mesh = mesh;
+            name = ToString();
         }
 
         private void OnEnable()
@@ -64,6 +65,7 @@ namespace Trains
             CopyPointsByValue(from);
             CopyMeshValuesFrom(from.GetMesh());
             TrySetCollider(from.GetMesh());
+            BecomeDefaultColor();
             name = $"Road Segment {GetInstanceID()}";
             Start = from.Start;
             End = from.End;
