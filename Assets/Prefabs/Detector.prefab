@@ -46,7 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   curSegm: {fileID: 0}
-  detectedRoads: []
+  childDetectedSegmTimes:
+    _serializedList: []
 --- !u!1 &6789138218098478722
 GameObject:
   m_ObjectHideFlags: 0
@@ -95,6 +96,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a0f13780efb74c44ab24e9e3401379e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blue: {fileID: 2100000, guid: 0d4d26b63b5cef44c9e2ed1f0ff50cd7, type: 2}
+  red: {fileID: 2100000, guid: 2515a8727912b5f4f801376663962c2d, type: 2}
+  curSegm: {fileID: 0}
 --- !u!33 &9136526299657149126
 MeshFilter:
   m_ObjectHideFlags: 0
