@@ -9,13 +9,11 @@ namespace Trains
 {
     public class RoadDetectorEventArgs : EventArgs
     {
-        public RoadSegment CurrentRoad { get; set; }
         public RoadSegment Other { get; set; }
         public bool IsSentByMainDetChild { get; set; }
 
-        public RoadDetectorEventArgs(RoadSegment currentRoad, RoadSegment other, bool isSentByMainDetChild)
+        public RoadDetectorEventArgs(RoadSegment other, bool isSentByMainDetChild)
         {
-            CurrentRoad = currentRoad;
             Other = other;
             IsSentByMainDetChild = isSentByMainDetChild;
         }
@@ -38,16 +36,18 @@ namespace Trains
         public override string ToString() => $"Detector {GetInstanceID()}";
 
         private RailBuilder rb;
-        [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
+        //[SerializeField] 
+        private RoadSegment curSegm;  //should always be the rb's segment
 
         private float childWidth;
-        // < other collider detected, times it was detected by children(once by each child) >
-        [SerializeField] private List<DetChild> children = new();
+        //to display
+        //[SerializeField] 
+        private List<DetChild> children;
         private DetChild mainChild;
 
         private void Awake()
         {
-            //GetComponentsInChildren<DetChild>().ToList().ForEach(c => childDetectedSegmTimes.Add(c, new SerializedDictionary<RoadSegment, int>()));
+            children = new List<DetChild>();
             mainChild = GetComponentInChildren<DetChild>(true);
             mainChild.PaintBlue();
             childWidth = 2 * mainChild.GetComponent<CapsuleCollider>().radius * mainChild.transform.localScale.x;
@@ -64,7 +64,8 @@ namespace Trains
         {
             DetChild.OnRoadDetected += OnChildDetectedRoad;
 
-            children.Add(mainChild);
+            if (!children.Contains(mainChild))
+                children.Add(mainChild);
         }
 
         private void OnChildDetectedRoad(object sender, DetChildEventArgs e)
@@ -74,9 +75,9 @@ namespace Trains
             DetChild child = (DetChild)sender;
 
             if (e.IsEnter)
-                DetectRoad(child, e.CollidedWith.GetComponent<Collider>());
+                DetectRoad(child, e.CollidedWith);
             else
-                UndetectRoad(child, e.CollidedWith.GetComponent<Collider>());
+                UndetectRoad(child, e.CollidedWith);
         }
 
         private void OnDisable()
@@ -88,66 +89,82 @@ namespace Trains
 
         public void DestroyChildren()
         {
-            for (int i = children.Count - 1; i >= 0; i--)
+            for (int i = 0; i < children.Count; i++)
             {
-                if (i == 0) continue;
+                DetChild c = children[i];
+                if (c == mainChild) continue;
 
-                DetChild toRemove = children[i];
-                children.Remove(toRemove);
-                Destroy(toRemove.gameObject);
+                children.Remove(c);
+                Destroy(c.gameObject);
             }
-            children.Clear();
         }
 
         private void Update()
         {
             UpdateChildren();
+            UpdateColor();
         }
 
         //private void UpdateChildren()
         //{
         //    if (curSegm is null || (curSegm.Points?.Count) <= 1) return;
 
-        //    List<Vector3> pts = curSegm.Points;
-        //    Vector3 dir = (pts[^1] - pts[0]).normalized;
+        //    Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
         //    if (MyMath.Approx(dir, Vector3.zero)) return;
 
         //    transform.rotation = Quaternion.LookRotation(dir);
 
-        //    children = GetComponentsInChildren<Collider>().ToList();
+        //    //children = GetComponentsInChildren<Collider>().ToList();
         //    int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
 
-        //    List<Vector3> newList = new() { pts[^1] };
-        //    for (int i = pts.Count - 1; i >= 0; i--)
+        //    if (fittingAmnt > children.Count)
         //    {
-        //        if (Vector3.Distance(newList.Last(), pts[i]) > childWidth)
+        //        //if move fast children on top of each other
+        //        //add more chidren
+        //        var newAmnt = fittingAmnt - children.Count;
+        //        var newPos = children.Last().transform.position;
+        //        for (int i = 0; i < newAmnt; i++)
         //        {
-        //            newList.Add(pts[i]);
-        //            continue;
+        //            //some children with no colliders
+        //            var copy = Instantiate(mainChild, transform, false).Configure(curSegm);
+        //            copy.PaintRed();
+        //            newPos += childWidth * (-dir);
+        //            copy.transform.position = newPos;
+        //            children.Add(copy);
+        //            //check if OnTriggerEnter gets called
         //        }
         //    }
-
-        //    for (int i = 0; i < newList.Count - 1; i++)
+        //    else if (fittingAmnt < children.Count)
         //    {
-        //        if (i == 0) continue;
+        //        //remove children that dont fit
+        //        int amntToDestroy = Mathf.Abs(fittingAmnt - children.Count);
+        //        for (int i = 0; i < amntToDestroy; i++)
+        //        {
+        //            if (children.Count == 1)
+        //                return;
 
-        //        var copy = Instantiate(children[0], transform, false);
-        //        copy.name = $"DetChild {copy.GetInstanceID()}";
-        //        copy.transform.position = newList[i];
-        //        children.Add(copy);
+        //            DetChild last = children.Last();
+        //            children.Remove(last.GetComponent<DetChild>());
+        //            Destroy(last.gameObject);
+        //            //if there is collider in detectedTimes we should decrease times value
+        //        }
         //    }
         //}
 
         private void UpdateChildren()
         {
-            if (curSegm is null || (curSegm.Points?.Count) <= 1) return;
+            if (curSegm is null || curSegm.Points is null) return;
+            if (curSegm.Points?.Count < 1)
+            {
+                DestroyChildren();
+                return;
+            }
 
             Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
             if (MyMath.Approx(dir, Vector3.zero)) return;
 
             transform.rotation = Quaternion.LookRotation(dir);
 
-            //children = GetComponentsInChildren<Collider>().ToList();
             int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
 
             if (fittingAmnt > children.Count)
@@ -155,16 +172,12 @@ namespace Trains
                 //if move fast children on top of each other
                 //add more chidren
                 var newAmnt = fittingAmnt - children.Count;
-                var newPos = children.Last().transform.position;
                 for (int i = 0; i < newAmnt; i++)
                 {
                     //some children with no colliders
                     var copy = Instantiate(mainChild, transform, false).Configure(curSegm);
                     copy.PaintRed();
-                    newPos += childWidth * (-dir);
-                    copy.transform.position = newPos;
                     children.Add(copy);
-                    //check if OnTriggerEnter gets called
                 }
             }
             else if (fittingAmnt < children.Count)
@@ -173,17 +186,36 @@ namespace Trains
                 int amntToDestroy = Mathf.Abs(fittingAmnt - children.Count);
                 for (int i = 0; i < amntToDestroy; i++)
                 {
-                    if (children.Count == 1)
-                        return;
-
                     DetChild last = children.Last();
+
+                    if (last == mainChild) continue;
+
                     children.Remove(last.GetComponent<DetChild>());
                     Destroy(last.gameObject);
-                    //if there is collider in detectedTimes we should decrease times value
                 }
             }
-        }
 
+            //get list of fewer points
+            var pts = curSegm.Points;
+            int ptsPerChild = pts.Count / children.Count;
+            List<Vector3> newList = new();
+            for (int i = pts.Count - 1; i >= 0; i -= ptsPerChild)
+            {
+                newList.Add(pts[i]);
+            }
+
+            //set positions
+            for (int i = 1; i < children.Count; i++)
+            {
+                children[i].transform.position = newList[i - 1];
+            }
+
+            Debug.Assert(children.Count != 0, "children count is zero 1");
+
+            UnityEngine.Assertions.Assert.IsTrue(children.Count != 0, "children count is zero 2");
+
+            System.Diagnostics.Debug.Assert(children.Count != 0, "children count is zero 3");
+        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -197,63 +229,28 @@ namespace Trains
             UndetectStation(other);
         }
 
-        private void DetectRoad(DetChild sender, Collider other)
+        private void DetectRoad(DetChild sender, RoadSegment rs)
         {
-            if (!other.TryGetComponent<DetChild>(out _)
-                && other.TryGetComponent<RoadSegment>(out var rs)
-                && rs != curSegm)
-            {
-                if (children.Contains(sender))
-                {
-                    if (sender.DetectedTimes.Keys.Contains(rs))
-                    {
-                        sender.DetectedTimes[rs]++;
-                    }
-                    else
-                    {
-                        sender.DetectedTimes.Add(rs, 1);
-                    }
-                }
-                else
-                {
-                    children.Add(sender);
-                }
+            if (!children.Contains(sender))
+                children.Add(sender);
 
-                if (AtLeastOneTimesNotZero())
-                {
-                    curSegm.PaintRed();
-                }
+            if (AtLeastOneTimesNotZero())
+                curSegm.PaintRed();
 
-
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(curSegm, rs, sender == mainChild));
-                //Debug.Log($"enter other {rs}, times {detectedTimes[other]}");
-
-            }
+            if (sender == mainChild)
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(rs, sender == mainChild));
         }
 
-        private void UndetectRoad(DetChild sender, Collider other)
+        private void UndetectRoad(DetChild sender, RoadSegment rs)
         {
-            if (!other.TryGetComponent<DetChild>(out _)
-                && other.TryGetComponent<RoadSegment>(out var rs)
-                && rs != curSegm)
+            if (AreAllTimesZero())
             {
-                sender.DetectedTimes[rs]--;
-                if (sender.DetectedTimes[rs] < 0)
-                    throw new Exception($"should not be!");
-
-                if (sender.DetectedTimes[rs] == 0)
-                    sender.DetectedTimes.Remove(rs);
-
-                if (AreAllTimesZero())
-                {
-                    curSegm.PaintGreen();
-                    OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(curSegm, null, sender == mainChild));
-                }
-
-                //Debug.Log($"exit other {"null"}, times {detectedTimes[other]}");
+                curSegm.PaintGreen();
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: true));
+                return;
             }
 
-
+            OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
         }
 
         private void DetectStation(Collider other)
@@ -271,7 +268,15 @@ namespace Trains
             OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
         }
 
-        bool AreAllTimesZero() => children.All(c => c.DetectedTimes.Values.All(times => times == 0));
-        bool AtLeastOneTimesNotZero() => children.Any(c => c.DetectedTimes.Values.Any(times => times > 0));
+        private void UpdateColor()
+        {
+            if (AtLeastOneTimesNotZero())
+                curSegm.PaintRed();
+            else
+                curSegm.PaintGreen();
+        }
+
+        bool AreAllTimesZero() => !AtLeastOneTimesNotZero();
+        bool AtLeastOneTimesNotZero() => children.Any(c => c.Detected.Count > 0);
     }
 }

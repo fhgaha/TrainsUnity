@@ -206,24 +206,24 @@ namespace Trains
         }
 
         ///Curve + straight
-        public void CalculateCSPoints() => CalculateCSPoints(start.pos, start.heading, end.pos);
+        public void CalculateCurveWithStriaghtPoints() => CalculateCurveWithStriaghtPoints(start.pos, start.heading, end.pos);
 
-        public void CalculateCSPoints(Vector3 startPos, float startHeading, Vector3 endPos)
+        public void CalculateCurveWithStriaghtPoints(Vector3 startPos, float startHeading, Vector3 endPos)
         {
-            float endHeading = MyMath.CalculateCSPoints(Points, startPos, startHeading, endPos, driveDist, out tangent1, out _, out _);
+            float endHeading = MyMath.CalculateCurveWithStriaghtPoints(Points, startPos, startHeading, endPos, driveDist, out tangent1, out _, out _);
             //UpdateSegmentEndings(Points);
             tangent2 = Vector3.positiveInfinity;
             end = new HeadedPoint(endPos, endHeading);
             segment.UpdateMeshAndCollider(Points);
         }
 
-        public void CalculateCSPointsReversed() => CalculateCSPointsReversed(start.pos, end.pos, end.heading);
+        public void CalculateCurveWithStriaghtPointsReversed() => CalculateCurveWithStriaghtPointsPointsReversed(start.pos, end.pos, end.heading);
 
-        public void CalculateCSPointsReversed(Vector3 startPos, Vector3 endPos, float endHeading)
+        public void CalculateCurveWithStriaghtPointsPointsReversed(Vector3 startPos, Vector3 endPos, float endHeading)
         {
             List<Vector3> ptsReversed = new();
             float reversedEndHeading = MyMath.ClampToPlusMinus180DegreesRange(endHeading + 180);
-            float reversedStartHeading = MyMath.CalculateCSPoints(ptsReversed, endPos, reversedEndHeading, startPos, driveDist, out tangent1, out _, out _);
+            float reversedStartHeading = MyMath.CalculateCurveWithStriaghtPoints(ptsReversed, endPos, reversedEndHeading, startPos, driveDist, out tangent1, out _, out _);
             tangent2 = Vector3.positiveInfinity;
             ptsReversed.Reverse();
             UpdatePoints(ptsReversed);
@@ -240,13 +240,19 @@ namespace Trains
             OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).First();
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
+
+            bool startAndEndSamePos = MyMath.Approx(shortest.pathCoordinates[0], shortest.pathCoordinates[^1]);
+            if (startAndEndSamePos)
+            {
+                shortest.pathCoordinates.Clear();
+            }
+
             UpdatePoints(shortest.pathCoordinates);
             segment.UpdateMeshAndCollider(Points);
         }
 
         public void PlaceSegment()
         {
-            //segment.BecomeDefaultColor();
             segment.SetPointsAndOwner(Points, Owner);
             railContainer.AddCreateInstance(segment);
         }

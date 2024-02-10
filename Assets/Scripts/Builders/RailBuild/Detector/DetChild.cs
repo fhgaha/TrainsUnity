@@ -22,20 +22,27 @@ namespace Trains
     {
         public static event EventHandler<DetChildEventArgs> OnRoadDetected;
         public override string ToString() => $"DetChild {GetInstanceID()}";
-        public SerializedDictionary<RoadSegment, int> DetectedTimes => detected;
+
+        //public Dictionary<RoadSegment, int> DetectedTimes => detected;
+        ////to display
+        //[SerializeField] private Dictionary<RoadSegment, int> detected = new();
         //to display
-        [SerializeField] private SerializedDictionary<RoadSegment, int> detected = new();
+        //[SerializeField] 
+        private RoadSegment curSegm;
 
         [SerializeField] private Material blue;
         [SerializeField] private Material red;
 
-        //to display
-        [SerializeField] private RoadSegment curSegm;
-
         private MeshRenderer meshRend;
+
+        public List<RoadSegment> Detected => detected;
+        //to display
+        //[SerializeField] 
+        private List<RoadSegment> detected;
 
         private void Awake()
         {
+            detected = new List<RoadSegment>();
             name = ToString();
             meshRend = GetComponent<MeshRenderer>();
         }
@@ -52,11 +59,10 @@ namespace Trains
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
-                //Debug.Log($"{this} enter. Collided with {rs}, curSegm {curSegm.ToString()}");
-                if (detected.ContainsKey(rs))
-                    detected[rs]++;
+                if (Detected.Contains(rs))
+                    throw new Exception($"should not be");
                 else
-                    detected.Add(rs, 1);
+                    Detected.Add(rs);
 
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs(isEnter: true, collidedWith: rs));
             }
@@ -67,12 +73,10 @@ namespace Trains
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
-                if (!detected.ContainsKey(rs))
+                if (!Detected.Contains(rs))
                     throw new Exception($"Should not happen!");
 
-                detected[rs]--;
-                if (detected[rs] == 0)
-                    detected.Remove(rs);
+                Detected.Remove(rs);
 
                 //Debug.Log($"{this} exit. Collided with {rs}, curSegm {curSegm.ToString()}");
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs(isEnter: false, collidedWith: rs));

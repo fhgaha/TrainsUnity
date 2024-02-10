@@ -159,7 +159,8 @@ namespace Trains
         {
             //https://forum.unity.com/threads/when-assigning-mesh-collider-errors-about-doesnt-have-read-write-enabled.1248541/
 
-            if (pts.Count <= 0) return;
+            //this commented erases mesh if cant calculate. uncoment to diplay previously drawn mesh
+            //if (pts.Count <= 0) return;
 
             GenerateMesh(pts);
             Points = pts;

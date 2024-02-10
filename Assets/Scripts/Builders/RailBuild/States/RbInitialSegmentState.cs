@@ -88,7 +88,7 @@ namespace Trains
                 }
                 else
                 {
-                    rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
+                    rb.CalculateCurveWithStriaghtPoints(rb.start.pos, rb.start.heading, hitPoint);
                 }
             }
             else
@@ -96,12 +96,12 @@ namespace Trains
                 if (rb.DetectedStation != null)
                 {
                     rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateCSPointsReversed();
+                    rb.CalculateCurveWithStriaghtPointsReversed();
                 }
                 else if (rb.DetectedRoadByEnd != null)   //detected road is null why
                 {
                     rb.end = machine.GetSnappedEnd(rb.DetectedRoadByEnd.Points, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateCSPointsReversed();
+                    rb.CalculateCurveWithStriaghtPointsReversed();
                 }
                 else
                 {
@@ -113,6 +113,8 @@ namespace Trains
 
         private void HandleLmbPressed()
         {
+            if (rb.Points.Count == 0) return;
+
             rb.PlaceSegment();
 
             //register in route manager

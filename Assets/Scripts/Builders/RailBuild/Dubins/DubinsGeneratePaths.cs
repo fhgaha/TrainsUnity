@@ -339,71 +339,12 @@ namespace Trains
         {
             for (int i = 0; i < pathDataList.Count; i++)
             {
-                MyGetTotalPath(pathDataList[i]);
-                //GetTotalPath(pathDataList[i]);
+                GetTotalPath(pathDataList[i]);
             }
         }
 
-
         //Find the coordinates of the entire path from the 2 tangents and length of each segment
         void GetTotalPath(OneDubinsPath pathData)
-        {
-            //Store the waypoints of the final path here
-            List<Vector3> finalPath = new List<Vector3>();
-
-            //Start position of the car
-            Vector3 currentPos = startPos;
-            //Start heading of the car
-            float theta = startHeadingRad;
-
-            //We always have to add the first position manually = the position of the car
-            finalPath.Add(currentPos);
-
-            //How many line segments can we fit into this part of the path
-            int segments = 0;
-
-            //First
-            segments = Mathf.FloorToInt(pathData.length1 / DubinsMath.driveDistance);
-
-            DubinsMath.AddCoordinatesToPath(
-                ref currentPos,
-                ref theta,
-                finalPath,
-                segments,
-                true,
-                pathData.segment1TurningRight);
-
-            //Second
-            segments = Mathf.FloorToInt(pathData.length2 / DubinsMath.driveDistance);
-
-            DubinsMath.AddCoordinatesToPath(
-                ref currentPos,
-                ref theta,
-                finalPath,
-                segments,
-                pathData.segment2Turning,
-                pathData.segment2TurningRight);
-
-            //Third
-            segments = Mathf.FloorToInt(pathData.length3 / DubinsMath.driveDistance);
-
-            DubinsMath.AddCoordinatesToPath(
-                ref currentPos,
-                ref theta,
-                finalPath,
-                segments,
-                true,
-                pathData.segment3TurningRight);
-
-            //Add the final goal coordinate
-            finalPath.Add(new Vector3(goalPos.x, currentPos.y, goalPos.z));
-
-            //Save the final path in the path data
-            pathData.pathCoordinates = finalPath;
-        }
-
-
-        void MyGetTotalPath(OneDubinsPath pathData)
         {
             List<Vector3> finalPath = new();
             float thetaRad = startHeadingRad;
@@ -471,8 +412,6 @@ namespace Trains
             finalPath.AddRange(second);
             finalPath.AddRange(third);
 
-            pathData.pathCoordinates = finalPath;
-
             //assert smth
             if (finalPath.Count > 0)
             {
@@ -490,6 +429,14 @@ namespace Trains
                     Debug.Log(msg);
                 }
             }
+
+            //if (MyMath.Approx(finalPath[0], finalPath[^1]))
+            //{
+            //    pathData.pathCoordinates = null;
+            //    return;
+            //}
+
+            pathData.pathCoordinates = finalPath;
         }
     }
 }

@@ -69,13 +69,15 @@ namespace Trains
             }
             else
             {
-                rb.CalculateCSPoints(rb.start.pos, rb.start.heading, hitPoint);
+                rb.CalculateCurveWithStriaghtPoints(rb.start.pos, rb.start.heading, hitPoint);
             }
             mousePos = hitPoint;
         }
 
         private void HandleLmbPressed(RbStateMachine machine)
         {
+            if (rb.Points.Count == 0) return;
+
             rb.PlaceSegment();
 
             //start is always snapped
