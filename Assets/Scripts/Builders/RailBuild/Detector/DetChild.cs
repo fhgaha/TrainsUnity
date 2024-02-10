@@ -23,22 +23,16 @@ namespace Trains
         public static event EventHandler<DetChildEventArgs> OnRoadDetected;
         public override string ToString() => $"DetChild {GetInstanceID()}";
 
-        //public Dictionary<RoadSegment, int> DetectedTimes => detected;
-        ////to display
-        //[SerializeField] private Dictionary<RoadSegment, int> detected = new();
-        //to display
-        //[SerializeField] 
-        private RoadSegment curSegm;
-
+        [Header("to set")]
         [SerializeField] private Material blue;
         [SerializeField] private Material red;
+        
+        [Header("to display")]
+        [SerializeField] private RoadSegment curSegm;
 
         private MeshRenderer meshRend;
-
         public List<RoadSegment> Detected => detected;
-        //to display
-        //[SerializeField] 
-        private List<RoadSegment> detected;
+        private List<RoadSegment> detected;     //should not be serialized
 
         private void Awake()
         {

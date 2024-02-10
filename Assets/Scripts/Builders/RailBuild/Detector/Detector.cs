@@ -36,13 +36,10 @@ namespace Trains
         public override string ToString() => $"Detector {GetInstanceID()}";
 
         private RailBuilder rb;
-        //[SerializeField] 
-        private RoadSegment curSegm;  //should always be the rb's segment
+        [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
 
         private float childWidth;
-        //to display
-        //[SerializeField] 
-        private List<DetChild> children;
+        private List<DetChild> children;    //should not be serialized
         private DetChild mainChild;
 
         private void Awake()
