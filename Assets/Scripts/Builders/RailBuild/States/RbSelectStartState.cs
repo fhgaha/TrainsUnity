@@ -43,19 +43,19 @@ namespace Trains
 
         private void HandleLmbPresed(RbStateMachine machine, Vector3 hitPoint)
         {
-            if (rb.DetectedStation != null)
+            if (rb.DetectedByEndStation != null)
             {
-                rb.start.pos = machine.GetClosestPoint(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint);
+                rb.start.pos = machine.GetClosestPoint(new List<Vector3> { rb.DetectedByEndStation.Entry1, rb.DetectedByEndStation.Entry2 }, hitPoint);
                 rb.SnappedStart = rb.start.pos;
-                rb.SnappedStartRoad = rb.DetectedStation.Segment;
+                rb.SnappedStartRoad = rb.DetectedByEndStation.Segment;
                 rb.SnappedStartPoints = new List<Vector3> { rb.SnappedStartRoad.Start, rb.SnappedStartRoad.End };
             }
-            else if (rb.DetectedRoadByEnd != null)
+            else if (rb.DetectedByEndRoad != null)
             {
-                rb.start.pos = machine.GetClosestPoint(rb.DetectedRoadByEnd.Points, hitPoint);
+                rb.start.pos = machine.GetClosestPoint(rb.DetectedByEndRoad.Points, hitPoint);
                 rb.SnappedStart = rb.start.pos;
-                rb.SnappedStartRoad = rb.DetectedRoadByEnd;
-                rb.SnappedStartPoints = rb.DetectedRoadByEnd.Points.Select(p => p).ToList();
+                rb.SnappedStartRoad = rb.DetectedByEndRoad;
+                rb.SnappedStartPoints = rb.DetectedByEndRoad.Points.Select(p => p).ToList();
             }
             else
             {

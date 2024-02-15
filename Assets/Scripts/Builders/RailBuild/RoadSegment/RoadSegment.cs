@@ -170,6 +170,7 @@ namespace Trains
         public void GenerateMesh(List<Vector3> pts)
         {
             mesh.Clear();
+            if (pts.Count == 0) return;
 
             (List<Vector3> verts, List<Vector3> normals, List<Vector2> uvs, List<int> triIndeces) = GenerateMeshValues(pts);
 

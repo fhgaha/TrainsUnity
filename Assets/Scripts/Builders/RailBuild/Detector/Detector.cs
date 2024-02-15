@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -36,10 +37,23 @@ namespace Trains
         public override string ToString() => $"Detector {GetInstanceID()}";
 
         private RailBuilder rb;
+
+        public IPlayer Owner
+        {
+            get => owner;
+            set
+            {
+                OwnerName = value.ToString();
+                owner = value;
+            }
+        }
+        [SerializeField] public string OwnerName = "---";
+        private IPlayer owner;
+
         [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
 
         private float childWidth;
-        private List<DetChild> children;    //should not be serialized
+        [SerializeField] private List<DetChild> children;    //should not be serialized
         private DetChild mainChild;
 
         private void Awake()
@@ -50,36 +64,29 @@ namespace Trains
             childWidth = 2 * mainChild.GetComponent<CapsuleCollider>().radius * mainChild.transform.localScale.x;
         }
 
-        public void Configure(RailBuilder parent, RoadSegment curRS)
+        public void Configure(RailBuilder parent, RoadSegment curRS, IPlayer owner)
         {
             rb = parent;
             curSegm = curRS;
+            Owner = owner;
+
             mainChild.Configure(curSegm);
+
         }
 
         private void OnEnable()
         {
             DetChild.OnRoadDetected += OnChildDetectedRoad;
+            //DetChild.OnStationDetected += OnChildDetectedStation;
 
             if (!children.Contains(mainChild))
                 children.Add(mainChild);
         }
 
-        private void OnChildDetectedRoad(object sender, DetChildEventArgs e)
-        {
-            Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
-
-            DetChild child = (DetChild)sender;
-
-            if (e.IsEnter)
-                DetectRoad(child, e.CollidedWith);
-            else
-                UndetectRoad(child, e.CollidedWith);
-        }
-
         private void OnDisable()
         {
             DetChild.OnRoadDetected -= OnChildDetectedRoad;
+            //DetChild.OnStationDetected -= OnChildDetectedStation;
 
             DestroyChildren();
         }
@@ -98,81 +105,37 @@ namespace Trains
 
         private void Update()
         {
+            if (curSegm.Points.Count > 0)
+                UpdateRot((curSegm.Points[^1] - curSegm.Points[0]).normalized);
             UpdateChildren();
-            UpdateColor();
+            //UpdateColorSetGreen();
         }
 
-        //private void UpdateChildren()
-        //{
-        //    if (curSegm is null || (curSegm.Points?.Count) <= 1) return;
-
-        //    Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
-        //    if (MyMath.Approx(dir, Vector3.zero)) return;
-
-        //    transform.rotation = Quaternion.LookRotation(dir);
-
-        //    //children = GetComponentsInChildren<Collider>().ToList();
-        //    int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
-
-        //    if (fittingAmnt > children.Count)
-        //    {
-        //        //if move fast children on top of each other
-        //        //add more chidren
-        //        var newAmnt = fittingAmnt - children.Count;
-        //        var newPos = children.Last().transform.position;
-        //        for (int i = 0; i < newAmnt; i++)
-        //        {
-        //            //some children with no colliders
-        //            var copy = Instantiate(mainChild, transform, false).Configure(curSegm);
-        //            copy.PaintRed();
-        //            newPos += childWidth * (-dir);
-        //            copy.transform.position = newPos;
-        //            children.Add(copy);
-        //            //check if OnTriggerEnter gets called
-        //        }
-        //    }
-        //    else if (fittingAmnt < children.Count)
-        //    {
-        //        //remove children that dont fit
-        //        int amntToDestroy = Mathf.Abs(fittingAmnt - children.Count);
-        //        for (int i = 0; i < amntToDestroy; i++)
-        //        {
-        //            if (children.Count == 1)
-        //                return;
-
-        //            DetChild last = children.Last();
-        //            children.Remove(last.GetComponent<DetChild>());
-        //            Destroy(last.gameObject);
-        //            //if there is collider in detectedTimes we should decrease times value
-        //        }
-        //    }
-        //}
+        private void UpdateRot(Vector3 dir)
+        {
+            if (MyMath.Approx(dir, Vector3.zero))
+                transform.rotation = Quaternion.LookRotation(dir);
+        }
 
         private void UpdateChildren()
         {
-            if (curSegm is null || curSegm.Points is null) return;
-            if (curSegm.Points?.Count < 1)
+            if (curSegm == null || curSegm.Points == null || curSegm.Points.Count == 0)
             {
                 DestroyChildren();
                 return;
             }
 
-            Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
-            if (MyMath.Approx(dir, Vector3.zero)) return;
-
-            transform.rotation = Quaternion.LookRotation(dir);
+            Assert.IsTrue(curSegm.Points != null && curSegm.Points.Count > 0);
 
             int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
-
             if (fittingAmnt > children.Count)
             {
-                //if move fast children on top of each other
                 //add more chidren
                 var newAmnt = fittingAmnt - children.Count;
                 for (int i = 0; i < newAmnt; i++)
                 {
                     //some children with no colliders
-                    var copy = Instantiate(mainChild, transform, false).Configure(curSegm);
+                    DetChild copy = Instantiate(mainChild, transform, false).Configure(curSegm);
                     copy.PaintRed();
                     children.Add(copy);
                 }
@@ -204,76 +167,140 @@ namespace Trains
             //set positions
             for (int i = 1; i < children.Count; i++)
             {
-                children[i].transform.position = newList[i - 1];
+                children[i].transform.position = newList[i];
             }
-
-            Debug.Assert(children.Count != 0, "children count is zero 1");
-
-            UnityEngine.Assertions.Assert.IsTrue(children.Count != 0, "children count is zero 2");
-
-            System.Diagnostics.Debug.Assert(children.Count != 0, "children count is zero 3");
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnChildDetectedRoad(object sender, DetChildEventArgs<RoadSegment> e)
         {
-            //DetectRoad(other);
-            DetectStation(other);
-        }
+            //Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
-        private void OnTriggerExit(Collider other)
-        {
-            //UndetectRoad(other);
-            UndetectStation(other);
+            DetChild child = (DetChild)sender;
+
+            if (e.IsEnter)
+                DetectRoad(child, e.CollidedWith);
+            else
+                UndetectRoad(child, e.CollidedWith);
         }
 
         private void DetectRoad(DetChild sender, RoadSegment rs)
         {
-            if (!children.Contains(sender))
-                children.Add(sender);
-
-            if (AtLeastOneTimesNotZero())
-                curSegm.PaintRed();
-
-            if (sender == mainChild)
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(rs, sender == mainChild));
+            bool green = UpdateColorSetGreen();
+            if (rs.Owner == owner && green)
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: rs, isSentByMainDetChild: sender == mainChild));
         }
 
         private void UndetectRoad(DetChild sender, RoadSegment rs)
         {
-            if (AreAllTimesZero())
+            bool red = !UpdateColorSetGreen();
+            if (rs.Owner == owner && red)
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
+        }
+
+
+        private void OnChildDetectedStation(object sender, DetChildEventArgs<Station> e)
+        {
+            //Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
+
+            DetChild child = (DetChild)sender;
+
+            if (e.IsEnter)
+                DetectStation(child, e.CollidedWith);
+            else
+                UndetectStation(child, e.CollidedWith);
+        }
+
+
+        private void DetectStation(DetChild sender, Station st)
+        {
+            //Debug.Log($"{sender}   detected {st}");
+
+            if (UpdateColorSetGreen())
+                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = st });
+        }
+
+        void UndetectStation(DetChild sender, Station st)
+        {
+            //Debug.Log($"{sender} undetected {st}");
+
+            if (!UpdateColorSetGreen())
+                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
+        }
+
+        private bool UpdateColorSetGreen()
+        {
+            //rb.SnappedStartRoad == null 
+            RoadSegment mainChildDetRoad = mainChild.DetectedRoads.FirstOrDefault(r => r != null);
+            List<RoadSegment> roadsWithAnotherOwner = children.SelectMany(c => c.DetectedRoads.Where(r => r.Owner != owner)).ToList();
+            List<RoadSegment> RoadsWithSameOwner = children.SelectMany(c => c.DetectedRoads.Where(r => r.Owner == owner)).ToList();
+            bool AllRoadsAreDetectedByMain = RoadsWithSameOwner.All(rs => mainChild.DetectedRoads.Contains(rs));
+
+            if (
+                roadsWithAnotherOwner.Count == 0
+                &&
+                AllRoadsAreDetectedByMain
+                )
             {
                 curSegm.PaintGreen();
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: true));
-                return;
+                return true;
+            }
+            else
+            {
+                curSegm.PaintRed();
+                return false;
+            }
+        }
+
+        bool NoDetectedRoads_All() => !HaveDetectedRoads_All();
+        bool HaveDetectedRoads_All() => children.Any(c => c.DetectedRoads.Count > 0);
+
+        bool DetectedContains_All(RoadSegment rs) => children.Any(c => c.DetectedRoads.Contains(rs));
+
+        bool NoDetectedRoads_ExclMain() => !HaveDetectedRoads_ExclMain();
+        bool HaveDetectedRoads_ExclMain()
+        {
+            foreach (var c in children)
+            {
+                if (c == mainChild) continue;
+
+                if (c.DetectedRoads.Count > 0)
+                    return true;
+            }
+            return false;
+        }
+
+        bool OtherChildDetectedAnotherRoadThan(RoadSegment rs, out DetChild child)
+        {
+            foreach (DetChild c in children)
+            {
+                if (c == mainChild) continue;
+
+                if (c.DetectedRoads.Any(r => r != null && r != rs))
+                {
+                    child = c;
+                    return true;
+                }
             }
 
-            OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
+            child = null;
+            return false;
         }
 
-        private void DetectStation(Collider other)
+        bool ChildrenDetectedRoad(RoadSegment rs, out DetChild detectedBy)
         {
-            //should i have list for stations as well, like for the roads?
-            if (!other.CompareTag("Station")) return;
+            foreach (DetChild c in children)
+            {
+                if (c == mainChild) continue;
 
-            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = other.GetComponent<Station>() });
+                if (c.DetectedRoads.Contains(rs))
+                {
+                    detectedBy = c;
+                    return true;
+                }
+            }
+
+            detectedBy = null;
+            return false;
         }
-
-        void UndetectStation(Collider other)
-        {
-            if (!other.CompareTag("Station")) return;
-
-            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
-        }
-
-        private void UpdateColor()
-        {
-            if (AtLeastOneTimesNotZero())
-                curSegm.PaintRed();
-            else
-                curSegm.PaintGreen();
-        }
-
-        bool AreAllTimesZero() => !AtLeastOneTimesNotZero();
-        bool AtLeastOneTimesNotZero() => children.Any(c => c.Detected.Count > 0);
     }
 }

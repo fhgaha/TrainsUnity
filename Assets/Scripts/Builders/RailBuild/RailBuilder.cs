@@ -10,12 +10,12 @@ namespace Trains
     {
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
-        public RoadSegment DetectedRoadByEnd { get; set; }
-        public Station DetectedStation { get; set; }
+        public RoadSegment DetectedByEndRoad { get; set; }
+        public Station DetectedByEndStation { get; set; }
         public HeadedPoint start, end;
         public IPlayer Owner
         {
-            get { return owner; }
+            get => owner;
             private set
             {
                 ownerName = $"{value.GetType()}, id: {value.Id}";
@@ -27,12 +27,13 @@ namespace Trains
 
         public Vector3 tangent1, tangent2;
 
+        public RoadSegment Segment => segment;
+        [SerializeField] private RoadSegment segment;
         [SerializeField] private Vector3 snappedStartPos;   //to display in editor
         [SerializeField] private Camera cam;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private RailContainer railContainer;
-        [SerializeField] private RoadSegment segment;
-        public RoadSegment Segment => segment;
+        [SerializeField] private RbStateMachine stateMachine;
 
         #region snapped start info
         public Vector3 SnappedStart { get; set; }
@@ -48,7 +49,6 @@ namespace Trains
 
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
-        [SerializeField] private RbStateMachine stateMachine;
 
         public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
 
@@ -56,13 +56,14 @@ namespace Trains
         {
             Owner = owner;
             segment.Owner = Owner;
+            detector.Configure(this, segment, Owner);
+
             return this;
         }
 
         private void Awake()
         {
             detector = GetComponentInChildren<Detector>();
-            detector.Configure(this, segment);
 
             regHelp = GetComponent<RegisterHelper>();
             regHelp.Configure(segment, railContainer, this);
@@ -117,20 +118,21 @@ namespace Trains
 
         private void OnRoadDetected(object sender, RoadDetectorEventArgs e)
         {
+            print($"OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
             if (sender is not Detector d || d != detector) return;
 
             RoadSegment detected = e.Other;
 
-            if (detected is null)
+            if (detected == null)
             {
                 if (e.IsSentByMainDetChild)
-                    DetectedRoadByEnd = null;
+                    DetectedByEndRoad = null;
             }
             else
             {
                 if (detected.Owner == Owner)
                     if (e.IsSentByMainDetChild)
-                        DetectedRoadByEnd = e.Other;
+                        DetectedByEndRoad = e.Other;
             }
 
 
@@ -155,7 +157,7 @@ namespace Trains
 
         private void OnStationDetected(object sender, StationDetectorEventArgs e)
         {
-            DetectedStation = e.Station;
+            DetectedByEndStation = e.Station;
         }
 
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
@@ -237,18 +239,26 @@ namespace Trains
 
         public void CalculateDubinsPoints(Vector3 startPos, float startHeading, Vector3 endPos, float endHeading)
         {
-            OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).First();
+            OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).FirstOrDefault();
+            var pts = shortest.pathCoordinates;
+            int thresh = 3;
+
+            //if (IsShapeUgly())
+            //{
+            //    pts.Clear();
+            //}
+
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
-
-            bool startAndEndSamePos = MyMath.Approx(shortest.pathCoordinates[0], shortest.pathCoordinates[^1]);
-            if (startAndEndSamePos)
-            {
-                shortest.pathCoordinates.Clear();
-            }
-
-            UpdatePoints(shortest.pathCoordinates);
+            UpdatePoints(pts);
             segment.UpdateMeshAndCollider(Points);
+
+            bool IsShapeUgly()
+            {
+                float dst = Vector3.Distance(pts[0], pts[^1]);
+                return (shortest.pathType == PathType.LRL || shortest.pathType == PathType.RLR)
+                            && dst < thresh * DubinsMath.driveDistance;
+            }
         }
 
         public void PlaceSegment()

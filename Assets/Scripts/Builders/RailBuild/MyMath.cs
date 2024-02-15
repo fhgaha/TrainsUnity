@@ -104,8 +104,8 @@ namespace Trains
 
         //CS is Curve + Straght
         public static float CalculateCurveWithStriaghtPoints(
-        List<Vector3> resultPoints, Vector3 startPos, float headingDeg, Vector3 endPos, float driveDistance,
-        out Vector3 tangent, out Vector3 debug_t1, out Vector3 debug_t2)
+            List<Vector3> resultPoints, Vector3 startPos, float headingDeg, Vector3 endPos, float driveDistance,
+            out Vector3 tangent, out Vector3 debug_t1, out Vector3 debug_t2)
         {
             resultPoints.Clear();
             float endHeadingDeg = headingDeg;

@@ -20,9 +20,6 @@ namespace Trains
 
         public override void OnEnter(RbStateMachine machine)
         {
-            //Debug.Log($"{rb.Parent?.GetType()} entered state {this.GetType()}");
-            //rb = machine.Rb;
-            //regHelp = machine.RegHelp;
         }
 
         public override void OnExit(RbStateMachine machine)
@@ -48,8 +45,6 @@ namespace Trains
                 machine.SwitchStateTo(machine.SelectStartState);
                 return;
             }
-
-            return;
         }
 
         private void HandleMouseMovement(RbStateMachine machine, bool wasHit, Vector3 hitPoint)
@@ -57,14 +52,14 @@ namespace Trains
             if (!wasHit) return;
             if (mousePos == hitPoint) return;
 
-            if (rb.DetectedStation != null)
+            if (rb.DetectedByEndStation != null)
             {
-                rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedStation.Entry1, rb.DetectedStation.Entry2 }, hitPoint, rb.end.pos - rb.tangent1);
+                rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedByEndStation.Entry1, rb.DetectedByEndStation.Entry2 }, hitPoint, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }
-            else if (rb.DetectedRoadByEnd != null)
+            else if (rb.DetectedByEndRoad != null)
             {
-                rb.end = machine.GetSnappedEnd(rb.DetectedRoadByEnd.Points, hitPoint, rb.end.pos - rb.tangent1);
+                rb.end = machine.GetSnappedEnd(rb.DetectedByEndRoad.Points, hitPoint, rb.end.pos - rb.tangent1);
                 rb.CalculateDubinsPoints();
             }
             else
@@ -81,23 +76,23 @@ namespace Trains
             rb.PlaceSegment();
 
             //start is always snapped
-            if (rb.DetectedStation != null)
+            if (rb.DetectedByEndStation != null)
             {
                 //TODO
                 regHelp.RegisterC(rb.Segment);
             }
-            else if (rb.DetectedRoadByEnd != null)
+            else if (rb.DetectedByEndRoad != null)
             {
                 //snapped start, snapped end
                 //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
-                if (rb.DetectedRoadByEnd.IsPointSnappedOnEnding(rb.Segment.End))
+                if (rb.DetectedByEndRoad.IsPointSnappedOnEnding(rb.Segment.End))
                 {
                     regHelp.RegisterC(rb.Segment);
                 }
                 else
                 {
                     //ending to mid
-                    regHelp.RegisterIT(rb.DetectedRoadByEnd, rb.Segment, rb.Segment.End);
+                    regHelp.RegisterIT(rb.DetectedByEndRoad, rb.Segment, rb.Segment.End);
                 }
             }
             else

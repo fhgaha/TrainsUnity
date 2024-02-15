@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -415,26 +416,15 @@ namespace Trains
             //assert smth
             if (finalPath.Count > 0)
             {
-                if (finalPath[0] != startPos)
-                {
-                    string msg = "Dubins start pt and input start pt are not equal";
-                    //throw new System.Exception(msg);
-                    Debug.Log(msg);
-                }
+                //Assert.IsTrue(finalPath[0] == startPos, "Dubins start pt and input start pt are not equal");
+                //Assert.IsTrue(finalPath[^1] == goalPos, $"Dubins end pt and input goal pt are not equal. end: {finalPath[^1]}, goal: {goalPos}");
 
-                if (finalPath[^1] != goalPos)
-                {
-                    string msg = $"Dubins end pt and input goal pt are not equal. end: {finalPath[^1]}, goal: {goalPos}";
-                    //throw new System.Exception(msg);
-                    Debug.Log(msg);
-                }
+                //Debug.LogWarning("Dubins start pt and input start pt are not equal");
+                //Debug.LogWarning($"Dubins end pt and input goal pt are not equal. end: {finalPath[^1]}, goal: {goalPos}");
+
+                finalPath[0] = startPos;
+                finalPath[^1] = goalPos;
             }
-
-            //if (MyMath.Approx(finalPath[0], finalPath[^1]))
-            //{
-            //    pathData.pathCoordinates = null;
-            //    return;
-            //}
 
             pathData.pathCoordinates = finalPath;
         }

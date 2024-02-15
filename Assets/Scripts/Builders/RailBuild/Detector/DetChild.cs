@@ -3,15 +3,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
-    public class DetChildEventArgs : EventArgs
+    public class DetChildEventArgs<T> : EventArgs
     {
         public bool IsEnter;
-        public RoadSegment CollidedWith;
+        public T CollidedWith;
 
-        public DetChildEventArgs(bool isEnter, RoadSegment collidedWith)
+        public DetChildEventArgs(bool isEnter, T collidedWith)
         {
             IsEnter = isEnter;
             CollidedWith = collidedWith;
@@ -20,23 +21,28 @@ namespace Trains
 
     public class DetChild : MonoBehaviour
     {
-        public static event EventHandler<DetChildEventArgs> OnRoadDetected;
+        public static event EventHandler<DetChildEventArgs<RoadSegment>> OnRoadDetected;
+        public static event EventHandler<DetChildEventArgs<Station>> OnStationDetected;
         public override string ToString() => $"DetChild {GetInstanceID()}";
 
         [Header("to set")]
         [SerializeField] private Material blue;
         [SerializeField] private Material red;
-        
+
         [Header("to display")]
         [SerializeField] private RoadSegment curSegm;
 
         private MeshRenderer meshRend;
-        public List<RoadSegment> Detected => detected;
-        private List<RoadSegment> detected;     //should not be serialized
+        public List<RoadSegment> DetectedRoads => detectedRoads;
+        [SerializeField] private List<RoadSegment> detectedRoads;     //should not be serialized
+
+        public List<Station> DetectedStations => detectedStations;
+        [SerializeField] private List<Station> detectedStations;     //should not be serialized
+
 
         private void Awake()
         {
-            detected = new List<RoadSegment>();
+            detectedRoads = new List<RoadSegment>();
             name = ToString();
             meshRend = GetComponent<MeshRenderer>();
         }
@@ -50,32 +56,59 @@ namespace Trains
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent<RoadSegment>(out var rs)
-                && rs != curSegm)
-            {
-                if (Detected.Contains(rs))
-                    throw new Exception($"should not be");
-                else
-                    Detected.Add(rs);
-
-                OnRoadDetected?.Invoke(this, new DetChildEventArgs(isEnter: true, collidedWith: rs));
-            }
+            DetectRoad(other);
+            DetectStation(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
+            UndetectRoad(other);
+            UndetectStation(other);
+        }
+
+        private void DetectRoad(Collider other)
+        {
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && rs != curSegm)
             {
-                if (!Detected.Contains(rs))
-                    throw new Exception($"Should not happen!");
-
-                Detected.Remove(rs);
-
-                //Debug.Log($"{this} exit. Collided with {rs}, curSegm {curSegm.ToString()}");
-                OnRoadDetected?.Invoke(this, new DetChildEventArgs(isEnter: false, collidedWith: rs));
+                Assert.IsTrue(!detectedRoads.Contains(rs));
+                detectedRoads.Add(rs);
+                OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
             }
         }
+
+        private void UndetectRoad(Collider other)
+        {
+            if (other.TryGetComponent<RoadSegment>(out var rs)
+                && rs != curSegm)
+            {
+                Assert.IsTrue(detectedRoads.Contains(rs));
+                detectedRoads.Remove(rs);
+                OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: false, collidedWith: rs));
+            }
+        }
+
+
+        private void DetectStation(Collider other)
+        {
+            if (other.TryGetComponent<Station>(out var st))
+            {
+                Assert.IsTrue(!detectedStations.Contains(st));
+                detectedStations.Add(st);
+                OnStationDetected?.Invoke(this, new DetChildEventArgs<Station>(isEnter: true, collidedWith: st));
+            }
+        }
+
+        private void UndetectStation(Collider other)
+        {
+            if (other.TryGetComponent<Station>(out var st))
+            {
+                Assert.IsTrue(detectedStations.Contains(st));
+                detectedStations.Remove(st);
+                OnStationDetected?.Invoke(this, new DetChildEventArgs<Station>(isEnter: false, collidedWith: st));
+            }
+        }
+
 
         public void PaintBlue()
         {
