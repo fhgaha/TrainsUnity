@@ -36,8 +36,6 @@ namespace Trains
         public event EventHandler<StationDetectorEventArgs> OnStationDetected;
         public override string ToString() => $"Detector {GetInstanceID()}";
 
-        private RailBuilder rb;
-
         public IPlayer Owner
         {
             get => owner;
@@ -51,9 +49,12 @@ namespace Trains
         private IPlayer owner;
 
         [SerializeField] private RoadSegment curSegm;  //should always be the rb's segment
+        [SerializeField] private bool isColliding = false;
+        [SerializeField] private float thresh = 2;
+        [SerializeField] private RailBuilder rb;
 
-        private float childWidth;
         [SerializeField] private List<DetChild> children;    //should not be serialized
+        private float childWidth;
         private DetChild mainChild;
 
         private void Awake()
@@ -77,7 +78,6 @@ namespace Trains
         private void OnEnable()
         {
             DetChild.OnRoadDetected += OnChildDetectedRoad;
-            //DetChild.OnStationDetected += OnChildDetectedStation;
 
             if (!children.Contains(mainChild))
                 children.Add(mainChild);
@@ -86,7 +86,6 @@ namespace Trains
         private void OnDisable()
         {
             DetChild.OnRoadDetected -= OnChildDetectedRoad;
-            //DetChild.OnStationDetected -= OnChildDetectedStation;
 
             DestroyChildren();
         }
@@ -107,8 +106,9 @@ namespace Trains
         {
             if (curSegm.Points.Count > 0)
                 UpdateRot((curSegm.Points[^1] - curSegm.Points[0]).normalized);
+            
             UpdateChildren();
-            //UpdateColorSetGreen();
+            TryUndetectRoad();
         }
 
         private void UpdateRot(Vector3 dir)
@@ -185,16 +185,46 @@ namespace Trains
 
         private void DetectRoad(DetChild sender, RoadSegment rs)
         {
-            bool green = UpdateColorSetGreen();
+            bool green = TryPaintGreen();
             if (rs.Owner == owner && green)
+            {
+                isColliding = true;
                 OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: rs, isSentByMainDetChild: sender == mainChild));
+            }
         }
 
         private void UndetectRoad(DetChild sender, RoadSegment rs)
         {
-            bool red = !UpdateColorSetGreen();
-            if (rs.Owner == owner && red)
-                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
+            //if (children.Count >= 2)
+            //{
+            //    var dist = (mainChild.transform.position - children[1].transform.position).magnitude;
+            //    print($"childWidth {childWidth}, dist {dist}");
+            //    //this check should be in unptate
+            //    if (dist > childWidth)
+            //    {
+            //        //bool red = !UpdateColorSetGreen();
+            //        //if (rs.Owner == owner && red)
+            //        if (rs.Owner == owner )
+            //            OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
+
+            //    }
+            //}
+        }
+
+        private void TryUndetectRoad()
+        {
+            if (children.Count < 2) return;
+            if (!isColliding) return;
+
+            var dist = (mainChild.transform.position - children[1].transform.position).magnitude;
+            print($"childWidth {childWidth}, dist {dist}");
+
+            if (dist > (childWidth + thresh))
+            {
+                OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: true));
+                isColliding = false;
+                TryPaintGreen();
+            }
         }
 
 
@@ -215,7 +245,7 @@ namespace Trains
         {
             //Debug.Log($"{sender}   detected {st}");
 
-            if (UpdateColorSetGreen())
+            if (TryPaintGreen())
                 OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = st });
         }
 
@@ -223,11 +253,11 @@ namespace Trains
         {
             //Debug.Log($"{sender} undetected {st}");
 
-            if (!UpdateColorSetGreen())
+            if (!TryPaintGreen())
                 OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
         }
 
-        private bool UpdateColorSetGreen()
+        private bool TryPaintGreen()
         {
             //rb.SnappedStartRoad == null 
             RoadSegment mainChildDetRoad = mainChild.DetectedRoads.FirstOrDefault(r => r != null);
