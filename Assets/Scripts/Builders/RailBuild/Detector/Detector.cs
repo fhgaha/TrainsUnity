@@ -56,6 +56,9 @@ namespace Trains
         [SerializeField] private List<DetChild> children;    //should not be serialized
         private float childWidth;
         private DetChild mainChild;
+        private Camera cam;
+
+        private RoadSubDetector roadDet;
 
         private void Awake()
         {
@@ -63,15 +66,19 @@ namespace Trains
             mainChild = GetComponentInChildren<DetChild>(true);
             mainChild.PaintBlue();
             childWidth = 2 * mainChild.GetComponent<CapsuleCollider>().radius * mainChild.transform.localScale.x;
+            roadDet = GetComponentInChildren<RoadSubDetector>();
         }
 
-        public void Configure(RailBuilder parent, RoadSegment curRS, IPlayer owner)
+        public void Configure(RailBuilder parent, RoadSegment curRS, IPlayer owner, Camera cam)
         {
             rb = parent;
             curSegm = curRS;
             Owner = owner;
+            this.cam = cam;
 
             mainChild.Configure(curSegm);
+
+            roadDet.Configure(mainChild);
 
         }
 
@@ -104,15 +111,21 @@ namespace Trains
 
         private void Update()
         {
-            if (curSegm.Points.Count > 0)
-                UpdateRot((curSegm.Points[^1] - curSegm.Points[0]).normalized);
-            
+            bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
+            if (wasHit)
+                transform.position = hit.point;
+
+            UpdateRot();
             UpdateChildren();
+            TryPaintGreen();
             TryUndetectRoad();
         }
 
-        private void UpdateRot(Vector3 dir)
+        private void UpdateRot()
         {
+            if (curSegm.Points.Count < 2) return;
+
+            Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
             if (MyMath.Approx(dir, Vector3.zero))
                 transform.rotation = Quaternion.LookRotation(dir);
         }
@@ -155,7 +168,7 @@ namespace Trains
                 }
             }
 
-            //get list of fewer points
+            //get thinned out list of points
             var pts = curSegm.Points;
             int ptsPerChild = pts.Count / children.Count;
             List<Vector3> newList = new();
@@ -175,12 +188,8 @@ namespace Trains
         {
             //Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
-            DetChild child = (DetChild)sender;
-
             if (e.IsEnter)
-                DetectRoad(child, e.CollidedWith);
-            else
-                UndetectRoad(child, e.CollidedWith);
+                DetectRoad((DetChild)sender, e.CollidedWith);
         }
 
         private void DetectRoad(DetChild sender, RoadSegment rs)
@@ -191,24 +200,6 @@ namespace Trains
                 isColliding = true;
                 OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: rs, isSentByMainDetChild: sender == mainChild));
             }
-        }
-
-        private void UndetectRoad(DetChild sender, RoadSegment rs)
-        {
-            //if (children.Count >= 2)
-            //{
-            //    var dist = (mainChild.transform.position - children[1].transform.position).magnitude;
-            //    print($"childWidth {childWidth}, dist {dist}");
-            //    //this check should be in unptate
-            //    if (dist > childWidth)
-            //    {
-            //        //bool red = !UpdateColorSetGreen();
-            //        //if (rs.Owner == owner && red)
-            //        if (rs.Owner == owner )
-            //            OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: sender == mainChild));
-
-            //    }
-            //}
         }
 
         private void TryUndetectRoad()

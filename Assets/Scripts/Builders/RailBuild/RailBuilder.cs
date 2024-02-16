@@ -8,11 +8,7 @@ namespace Trains
 {
     public class RailBuilder : MonoBehaviour
     {
-        public List<Vector3> Points { get; private set; } = new();
-        public bool HasPoints => Points != null && Points.Count > 0;
-        public RoadSegment DetectedByEndRoad { get; set; }
-        public Station DetectedByEndStation { get; set; }
-        public HeadedPoint start, end;
+        public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
         public IPlayer Owner
         {
             get => owner;
@@ -25,38 +21,41 @@ namespace Trains
         [SerializeField] private string ownerName = "---";
         private IPlayer owner;
 
+        public List<Vector3> Points { get; private set; } = new();
+        public bool HasPoints => Points != null && Points.Count > 0;
+
+        //start
+        [field: SerializeField] public RoadSegment SnappedStartRoad { get; set; }
+        public Vector3 SnappedStart { get; set; }
+        public List<Vector3> SnappedStartPoints { get; set; } = new();
+        public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
+        
+
+        [field: SerializeField] public RoadSegment DetectedByEndRoad { get; set; }
+        public Station DetectedByEndStation { get; set; }
+        public HeadedPoint start, end;
         public Vector3 tangent1, tangent2;
 
         public RoadSegment Segment => segment;
         [SerializeField] private RoadSegment segment;
-        [SerializeField] private Vector3 snappedStartPos;   //to display in editor
         [SerializeField] private Camera cam;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private RailContainer railContainer;
         [SerializeField] private RbStateMachine stateMachine;
 
-        #region snapped start info
-        public Vector3 SnappedStart { get; set; }
-        public RoadSegment SnappedStartRoad { get; set; }
-        public List<Vector3> SnappedStartPoints { get; set; } = new();
-        public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
-        #endregion
-
         private RegisterHelper regHelp;
         private DubinsGeneratePaths dubinsPathGenerator = new();
         private Detector detector;
         private float driveDist = 1f;
-
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
-
-        public override string ToString() => $"{base.ToString()} {GetInstanceID()}";
+        
 
         public RailBuilder Configure(IPlayer owner)
         {
             Owner = owner;
             segment.Owner = Owner;
-            detector.Configure(this, segment, Owner);
+            detector.Configure(this, segment, Owner, cam);
 
             return this;
         }
@@ -94,9 +93,6 @@ namespace Trains
 
             //TODO main camera assigned! ai player should have its own camera
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
-            if (wasHit)
-                detector.transform.position = hit.point;
-
             stateMachine.UpdateState(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
             if (HasPoints)
@@ -105,9 +101,6 @@ namespace Trains
                 lineRenderer.positionCount = Points.Count;
                 lineRenderer.SetPositions(Points.ToArray());
             }
-
-            //debug
-            snappedStartPos = SnappedStart;
         }
 
         public void ResetCustom()
@@ -241,24 +234,10 @@ namespace Trains
         {
             OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).FirstOrDefault();
             var pts = shortest.pathCoordinates;
-            int thresh = 3;
-
-            //if (IsShapeUgly())
-            //{
-            //    pts.Clear();
-            //}
-
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
             UpdatePoints(pts);
             segment.UpdateMeshAndCollider(Points);
-
-            bool IsShapeUgly()
-            {
-                float dst = Vector3.Distance(pts[0], pts[^1]);
-                return (shortest.pathType == PathType.LRL || shortest.pathType == PathType.RLR)
-                            && dst < thresh * DubinsMath.driveDistance;
-            }
         }
 
         public void PlaceSegment()

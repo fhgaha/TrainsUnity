@@ -12,6 +12,13 @@
       },
       "url": "https://package.openupm.com"
     },
+    "com.gustavopsantos.reflex": {
+      "version": "https://github.com/gustavopsantos/reflex.git?path=/Assets/Reflex/#7.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "031329f286e1924b9c8095430334297c7ef2c8b2"
+    },
     "com.unity.ai.navigation": {
       "version": "1.1.4",
       "depth": 0,
