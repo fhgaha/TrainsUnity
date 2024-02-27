@@ -66,13 +66,24 @@ namespace Trains
             UndetectStation(other);
         }
 
+        private void OnTriggerStay(Collider other)
+        {
+            
+            //if (other.TryGetComponent<RoadSegment>(out var rs)
+            //    && rs != curSegm)
+            //{
+            //    isColliding = true;
+            //}
+        }
+
         private void DetectRoad(Collider other)
         {
             if (other.TryGetComponent<RoadSegment>(out var rs)
-                && rs != curSegm)
+                && curSegm != null && rs != curSegm)
             {
                 Assert.IsTrue(!detectedRoads.Contains(rs));
                 detectedRoads.Add(rs);
+                print($"DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
             }
         }
@@ -80,10 +91,11 @@ namespace Trains
         private void UndetectRoad(Collider other)
         {
             if (other.TryGetComponent<RoadSegment>(out var rs)
-                && rs != curSegm)
+                && curSegm != null && rs != curSegm)
             {
                 Assert.IsTrue(detectedRoads.Contains(rs));
                 detectedRoads.Remove(rs);
+                print($"DetChild.UndetectRoad  isEnter: {false}, stopped colliding with: {rs}");
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: false, collidedWith: rs));
             }
         }

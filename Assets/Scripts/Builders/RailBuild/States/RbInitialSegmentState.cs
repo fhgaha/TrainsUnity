@@ -76,12 +76,12 @@ namespace Trains
                 if (rb.DetectedByEndStation != null)
                 {
                     rb.end = machine.GetSnappedEnd(new List<Vector3> { rb.DetectedByEndStation.Entry1, rb.DetectedByEndStation.Entry2 }, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateDubinsPoints();
+                    rb.CalcDrawDubinsPoints();
                 }
                 else if (rb.DetectedByEndRoad != null)
                 {
                     rb.end = machine.GetSnappedEnd(rb.DetectedByEndRoad.Points, hitPoint, rb.end.pos - rb.start.pos);
-                    rb.CalculateDubinsPoints();
+                    rb.CalcDrawDubinsPoints();
                 }
                 else
                 {

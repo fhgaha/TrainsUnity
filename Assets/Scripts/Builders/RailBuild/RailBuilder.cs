@@ -111,9 +111,9 @@ namespace Trains
 
         private void OnRoadDetected(object sender, RoadDetectorEventArgs e)
         {
-            print($"OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
+            print($"Rb.OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
             if (sender is not Detector d || d != detector) return;
-
+            
             RoadSegment detected = e.Other;
 
             if (detected == null)
@@ -127,25 +127,6 @@ namespace Trains
                     if (e.IsSentByMainDetChild)
                         DetectedByEndRoad = e.Other;
             }
-
-
-            //recolor if collided with another road
-            //RoadSegment other = e.Other;
-
-            //if (other is null)
-            //{
-            //    segment.BecomeGreen();
-            //}
-            //else if (other.Owner == Owner)
-            //{
-            //    DetectedRoadByEnd = e.Other;
-            //}
-            //else
-            //{
-            //    Debug.Log($"This is not {Owner} segment! This is {other.Owner}'s segment!");
-
-            //    segment.BecomeRed();
-            //}
         }
 
         private void OnStationDetected(object sender, StationDetectorEventArgs e)
@@ -228,15 +209,31 @@ namespace Trains
             segment.UpdateMeshAndCollider(Points);
         }
 
-        public void CalculateDubinsPoints() => CalculateDubinsPoints(start.pos, start.heading, end.pos, end.heading);
+        public void CalcDrawDubinsPoints() => CalcDrawDubinsPoints(start.pos, start.heading, end.pos, end.heading);
 
-        public void CalculateDubinsPoints(Vector3 startPos, float startHeading, Vector3 endPos, float endHeading)
+        public void CalcDrawDubinsPoints(Vector3 startPos, float startHeading, Vector3 endPos, float endHeading)
         {
-            OneDubinsPath shortest = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading).FirstOrDefault();
+            var paths = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading);
+            var ordered = paths.OrderBy(p => p.totalLength);
+            OneDubinsPath shortest = ordered.FirstOrDefault();
+
+            //var shortest1 = ordered.FirstOrDefault();
+            //var shortest2 = ordered.Skip(1).FirstOrDefault();
+
+            //if (shortest1 != null && shortest2 != null)
+            //{
+            //    var tresh = 3f;
+            //    var diff = shortest1.totalLength - shortest2.totalLength;
+            //    if (diff * diff < tresh)
+            //    {
+            //        shortest = new[] { shortest1, shortest2 }.Where(s => s.segment1TurningRight).First();
+            //    }
+            //}
+
             var pts = shortest.pathCoordinates;
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
-            UpdatePoints(pts);
+            Points = pts;
             segment.UpdateMeshAndCollider(Points);
         }
 
