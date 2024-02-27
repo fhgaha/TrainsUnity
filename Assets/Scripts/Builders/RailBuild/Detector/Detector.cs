@@ -58,15 +58,12 @@ namespace Trains
         private DetChild mainChild;
         private Camera cam;
 
-        private RoadSubDetector roadDet;
-
         private void Awake()
         {
             children = new List<DetChild>();
             mainChild = GetComponentInChildren<DetChild>(true);
             mainChild.PaintBlue();
             childWidth = 2 * mainChild.GetComponent<CapsuleCollider>().radius * mainChild.transform.localScale.x;
-            roadDet = GetComponentInChildren<RoadSubDetector>();
         }
 
         public void Configure(RailBuilder parent, RoadSegment curRS, IPlayer owner, Camera cam)
@@ -77,7 +74,6 @@ namespace Trains
             this.cam = cam;
 
             mainChild.Configure(curSegm);
-            roadDet.Configure(mainChild);
         }
 
         private void OnEnable()
@@ -265,10 +261,11 @@ namespace Trains
 
         private bool TryPaintGreen()
         {
-            List<RoadSegment> childrenDetectedRoads = children.Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).ToList();
+            List<RoadSegment> childrenDetectedRds = children.Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).ToList();
+            List<RoadSegment> otherOwnerRds = children.SelectMany(c => c.DetectedRoads.Where(cr => cr.Owner != Owner)).ToList();
 
-            if (childrenDetectedRoads.Count > 0
-                && childrenDetectedRoads.Any(r => !mainChild.DetectedRoads.Contains(r))
+            if (otherOwnerRds.Count > 0
+                || childrenDetectedRds.Count > 0 && childrenDetectedRds.Any(r => !mainChild.DetectedRoads.Contains(r))
                 )
             {
                 curSegm.PaintRed();

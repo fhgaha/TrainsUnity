@@ -35,7 +35,7 @@ namespace Trains
             Global.Instance.MainPlayer = this;
 
             state = PlayerState.None;
-            rb.Configure(this);
+            rb.Configure(this, cam);
             rb.gameObject.SetActive(false);
             sb.Configure(this);
         }

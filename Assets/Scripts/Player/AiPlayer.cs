@@ -33,33 +33,33 @@ namespace Trains
 
         private void Start()
         {
-            rb.Configure(this);
+            rb.Configure(this, cam);
             rb.gameObject.SetActive(true);
             sb.Configure(this);
 
 
             //Turn off this game object if tests are not required
 
-            //railBuilder.Build_I();
-            //railBuilder.Build_I_II();
-            //railBuilder.Build_I_fromLeftTo_I_fromRight_sameZ();
-            //railBuilder.Build_T_fromLooseEndToConnection();
-            //railBuilder.Build_T_fromConnectionToLooseEnd();
-            //railBuilder.Build_H();
-            //railBuilder.Build_C();
-            //railBuilder.Build_IT();
+            //railGen.Build_I();
+            //railGen.Build_I_II();
+            //railGen.Build_I_fromLeftTo_I_fromRight_sameZ();
+            //railGen.Build_T_fromLooseEndToConnection();
+            //railGen.Build_T_fromConnectionToLooseEnd();
+            //railGen.Build_H();
+            //railGen.Build_C();
+            //railGen.Build_IT();
 
-            //railBuilder.BuildAndDestroyAllOnce();
-            //railBuilder.BuildAndDestroyAllSeveralTimes();
+            //railGen.BuildAndDestroyAllOnce();
+            //railGen.BuildAndDestroyAllSeveralTimes();
 
 
             //BuildTwoStationsCurvyRoadSendTrain();
 
             //BuildTwoStationsStraightRoadSendTrain();
 
-
-            rb.gameObject.SetActive(false);
-            sb.gameObject.SetActive(false);
+            //to prevent collisions with ai detector
+            //rb.gameObject.SetActive(false);
+            //sb.gameObject.SetActive(false);
         }
 
         private void BuildTwoStationsStraightRoadSendTrain()

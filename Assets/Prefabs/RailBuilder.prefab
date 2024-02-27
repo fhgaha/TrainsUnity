@@ -184,20 +184,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ad005d1f965a44c8ba019c778027ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ownerName: ---
+  <SnappedStartRoad>k__BackingField: {fileID: 0}
+  <DetectedByEndRoad>k__BackingField: {fileID: 0}
   start:
     pos: {x: 0, y: 0, z: 0}
     heading: 0
   end:
     pos: {x: 0, y: 0, z: 0}
     heading: 0
-  ownerName: ---
   tangent1: {x: 0, y: 0, z: 0}
   tangent2: {x: 0, y: 0, z: 0}
-  snappedStartPos: {x: 0, y: 0, z: 0}
+  segment: {fileID: 2414487025323016816}
   cam: {fileID: 0}
   lineRenderer: {fileID: 2414487025770757207}
   railContainer: {fileID: 0}
-  segment: {fileID: 2414487025323016816}
   stateMachine:
     curStateName: 
 --- !u!114 &7195964927098027399
@@ -265,7 +266,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1325245855294274595, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
+    - {fileID: 1853395693594206685, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}

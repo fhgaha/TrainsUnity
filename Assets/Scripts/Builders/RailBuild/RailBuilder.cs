@@ -49,12 +49,11 @@ namespace Trains
         private float driveDist = 1f;
         private GameObject visual1, visual2, visual3, visual4;    //use like this: DebugVisual(ref visual1, Color.blue, pos);
 
-        
-
-        public RailBuilder Configure(IPlayer owner)
+        public RailBuilder Configure(IPlayer owner, Camera camera)
         {
             Owner = owner;
             segment.Owner = Owner;
+            cam = camera;
             detector.Configure(this, segment, Owner, cam);
 
             return this;
@@ -68,7 +67,6 @@ namespace Trains
             regHelp.Configure(segment, railContainer, this);
 
             stateMachine = new RbStateMachine(this, regHelp);
-
             segment.PaintGreen();
         }
 
