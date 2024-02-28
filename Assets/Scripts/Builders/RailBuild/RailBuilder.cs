@@ -235,10 +235,11 @@ namespace Trains
             segment.UpdateMeshAndCollider(Points);
         }
 
-        public void PlaceSegment()
+        public RoadSegment PlaceSegment()
         {
             segment.SetPointsAndOwner(Points, Owner);
-            railContainer.AddCreateInstance(segment);
+            RoadSegment copy = railContainer.AddCreateInstance(segment);
+            return copy;
         }
 
         private void DebugVisual(ref GameObject go, Color color, Vector3 pos)
@@ -273,6 +274,12 @@ namespace Trains
             SnappedStartPoints.Clear();
         }
 
-
+        public void SnapStart(Vector3 newStartPos, RoadSegment snappedStartRoad, List<Vector3> snappedStartPoints)
+        {
+            start.pos = newStartPos;
+            SnappedStart = start.pos;
+            SnappedStartRoad = snappedStartRoad;
+            SnappedStartPoints = snappedStartPoints;
+        }
     }
 }

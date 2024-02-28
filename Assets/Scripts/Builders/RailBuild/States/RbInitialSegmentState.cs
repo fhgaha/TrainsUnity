@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -45,7 +46,7 @@ namespace Trains
             // On LMB release, save drawn segment to a rail container
             if (lmbPressed)
             {
-                HandleLmbPressed();
+                HandleLmbPressed(hitPoint);
                 machine.SwitchStateTo(machine.NoninitialSegmentState);
                 return;
             }
@@ -68,9 +69,9 @@ namespace Trains
             if (rb.IsStartSnapped)
             {
                 rb.start.heading = machine.GetSnappedStartHeading(
-                    rb.SnappedStartPoints,
-                    rb.SnappedStart,
-                    hitPoint - rb.SnappedStart
+                    pts: rb.SnappedStartPoints,
+                    snapped: rb.SnappedStart,
+                    dir: hitPoint - rb.SnappedStart
                 );
 
                 if (rb.DetectedByEndStation != null)
@@ -108,11 +109,11 @@ namespace Trains
             mousePos = hitPoint;
         }
 
-        private void HandleLmbPressed()
+        private void HandleLmbPressed(Vector3 hitPoint)
         {
             if (rb.Points.Count == 0) return;
 
-            rb.PlaceSegment();
+            RoadSegment copy = rb.PlaceSegment();
 
             //register in route manager
             if (rb.IsStartSnapped)
@@ -122,7 +123,6 @@ namespace Trains
                     RoadSegment startRoad = rb.SnappedStartRoad;
                     Vector3 start = rb.Segment.Start;
 
-                    //if (start == startRoad.Start || start == startRoad.End)
                     if (startRoad.IsPointSnappedOnEnding(start))
                     {
                         regHelp.RegisterC(rb.Segment);
@@ -157,12 +157,18 @@ namespace Trains
                 else
                 {
                     HandleUnsnappedStartUnsnappedEnd();
+
+                    rb.SnapStart(
+                        newStartPos: copy.Points[^1],
+                        snappedStartRoad: copy,
+                        snappedStartPoints: copy.Points.Select(p => p).ToList()
+                    );
                 }
             }
 
-            rb.start = rb.end;
+            //rb.start = rb.end;
             rb.end = HeadedPoint.Empty;
-            rb.UnsnapStart();
+            //rb.UnsnapStart();
         }
 
         private void HandleSnappedStartSnappedEnd()

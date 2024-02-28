@@ -82,7 +82,7 @@ namespace Trains
                 && curSegm != null && rs != curSegm)
             {
                 print($"{gameObject.name}: DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
-                Assert.IsTrue(!detectedRoads.Contains(rs));
+                Assert.IsTrue(!detectedRoads.Contains(rs), $"{this}");
                 detectedRoads.Add(rs);
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
             }

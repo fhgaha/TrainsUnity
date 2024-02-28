@@ -15,11 +15,12 @@ namespace Trains
         public SerializedDictionary<int, RoadSegment> segments = new();
         public RoadSegment LastAdded => segments.Values.LastOrDefault();
 
-        public void AddCreateInstance(RoadSegment original)
+        public RoadSegment AddCreateInstance(RoadSegment original)
         {
             RoadSegment copy = Instantiate(original, transform);
             copy.DestroyRigBodyCopyAndPlace(original);
             segments.Add(copy.GetInstanceID(), copy);
+            return copy;
         }
 
         public void AddDontCreateInstance(RoadSegment segm)

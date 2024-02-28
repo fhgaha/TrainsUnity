@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -34,7 +35,7 @@ namespace Trains
             //on lmb save drawn segment to a rail container
             if (lmbPressed)
             {
-                HandleLmbPressed(machine);
+                HandleLmbPressed(machine, hitPoint);
                 return;
             }
 
@@ -69,22 +70,20 @@ namespace Trains
             mousePos = hitPoint;
         }
 
-        private void HandleLmbPressed(RbStateMachine machine)
+        private void HandleLmbPressed(RbStateMachine machine, Vector3 hitPoint)
         {
             if (rb.Points.Count == 0) return;
 
-            rb.PlaceSegment();
+            RoadSegment copy = rb.PlaceSegment();
 
             //start is always snapped
             if (rb.DetectedByEndStation != null)
             {
-                //TODO
                 regHelp.RegisterC(rb.Segment);
             }
             else if (rb.DetectedByEndRoad != null)
             {
                 //snapped start, snapped end
-                //if (rb.Segment.End == rb.DetectedRoad.Start || rb.Segment.End == rb.DetectedRoad.End)
                 if (rb.DetectedByEndRoad.IsPointSnappedOnEnding(rb.Segment.End))
                 {
                     regHelp.RegisterC(rb.Segment);
@@ -98,13 +97,18 @@ namespace Trains
             else
             {
                 regHelp.RegisterII(rb.Segment.End, rb.Segment.Start);
-            }
 
-            //Debug.DrawRay(rb.start.pos, 20 * Vector3.up, Color.green, float.PositiveInfinity);
-            //Debug.DrawRay(rb.end.pos, 20 * Vector3.up, Color.red, float.PositiveInfinity);
+                rb.SnapStart(
+                    newStartPos: rb.end.pos,
+                    snappedStartRoad: copy,
+                    snappedStartPoints: copy.Points.Select(p => p).ToList()
+                );
+            }
 
             rb.start = rb.end;
             rb.end = HeadedPoint.Empty;
         }
+
+
     }
 }

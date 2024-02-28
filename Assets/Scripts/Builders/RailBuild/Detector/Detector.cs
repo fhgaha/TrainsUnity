@@ -57,6 +57,7 @@ namespace Trains
         private float childWidth;
         private DetChild mainChild;
         private Camera cam;
+        private RoadSegment startSnappedRd;
 
         private void Awake()
         {
@@ -135,7 +136,7 @@ namespace Trains
 
             Assert.IsTrue(curSegm.Points != null && curSegm.Points.Count > 0);
 
-            int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth) ;
+            int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);// - amntToSkip;
             if (fittingAmnt < 0) return;
             else if (fittingAmnt > children.Count)
             {
@@ -168,9 +169,10 @@ namespace Trains
 
             //get new chlidren positions from thinned out list of points
             var pts = curSegm.Points;
-            int ptsPerChild = pts.Count / (children.Count - 1);
+            int ptsPerChild = pts.Count / children.Count;
             List<Vector3> newPos = new();
-            for (int i = 0; i < pts.Count; i += ptsPerChild)
+            //skip forst cause its close to zero
+            for (int i = 1; i < pts.Count; i += ptsPerChild)
             {
                 newPos.Add(pts[i]);
             }
@@ -256,7 +258,8 @@ namespace Trains
         private bool TryPaintGreen()
         {
             //check colliding with roads
-            List<RoadSegment> childrenDetectedRds = children.Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).ToList();
+            List<RoadSegment> childrenDetectedRds = children
+                .Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).Where(r => r != rb.SnappedStartRoad).ToList();
             List<RoadSegment> otherOwnerRds = children.SelectMany(c => c.DetectedRoads.Where(cr => cr.Owner != Owner)).ToList();
 
             if (otherOwnerRds.Count > 0
