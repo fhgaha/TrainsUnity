@@ -43,6 +43,7 @@ namespace Trains
         private void Awake()
         {
             detectedRoads = new List<RoadSegment>();
+            detectedStations = new List<Station>();
             name = ToString();
             meshRend = GetComponent<MeshRenderer>();
         }
@@ -50,7 +51,6 @@ namespace Trains
         public DetChild Configure(RoadSegment rs)
         {
             curSegm = rs;
-            name = ToString();
             return this;
         }
 
@@ -68,7 +68,7 @@ namespace Trains
 
         private void OnTriggerStay(Collider other)
         {
-            
+
             //if (other.TryGetComponent<RoadSegment>(out var rs)
             //    && rs != curSegm)
             //{
@@ -81,9 +81,9 @@ namespace Trains
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && curSegm != null && rs != curSegm)
             {
+                print($"{gameObject.name}: DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
                 Assert.IsTrue(!detectedRoads.Contains(rs));
                 detectedRoads.Add(rs);
-                print($"DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
             }
         }
@@ -99,7 +99,6 @@ namespace Trains
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: false, collidedWith: rs));
             }
         }
-
 
         private void DetectStation(Collider other)
         {

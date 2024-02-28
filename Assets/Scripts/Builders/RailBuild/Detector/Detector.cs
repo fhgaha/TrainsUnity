@@ -74,19 +74,19 @@ namespace Trains
             this.cam = cam;
 
             mainChild.Configure(curSegm);
+            mainChild.name = "MainChld";
         }
 
         private void OnEnable()
         {
             DetChild.OnRoadDetected += OnChildDetectedRoad;
-
-            if (!children.Contains(mainChild))
-                children.Add(mainChild);
+            DetChild.OnStationDetected += OnChildDetectedStation;
         }
 
         private void OnDisable()
         {
             DetChild.OnRoadDetected -= OnChildDetectedRoad;
+            DetChild.OnStationDetected -= OnChildDetectedStation;
 
             DestroyChildren();
         }
@@ -109,29 +109,20 @@ namespace Trains
             if (wasHit)
                 transform.position = hit.point;
 
-            UpdateRot();
             UpdateChildren();
             TryPaintGreen();
             TryUndetectRoad();
+            TryUndetectStation();
 
             if (mainChild.DetectedRoads.Count > 0)
             {
-                var r = mainChild.DetectedRoads.First();
+                RoadSegment r = mainChild.DetectedRoads.First();
                 OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: r, isSentByMainDetChild: true));
             }
             else
             {
                 OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: null, isSentByMainDetChild: true));
             }
-        }
-
-        private void UpdateRot()
-        {
-            if (curSegm.Points.Count < 2) return;
-
-            Vector3 dir = (curSegm.Points[^1] - curSegm.Points[0]).normalized;
-            if (MyMath.Approx(dir, Vector3.zero))
-                transform.rotation = Quaternion.LookRotation(dir);
         }
 
         private void UpdateChildren()
@@ -144,8 +135,9 @@ namespace Trains
 
             Assert.IsTrue(curSegm.Points != null && curSegm.Points.Count > 0);
 
-            int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth);
-            if (fittingAmnt > children.Count)
+            int fittingAmnt = (int)(curSegm.GetApproxLength() / childWidth) ;
+            if (fittingAmnt < 0) return;
+            else if (fittingAmnt > children.Count)
             {
                 //add more chidren
                 var newAmnt = fittingAmnt - children.Count;
@@ -172,27 +164,22 @@ namespace Trains
                 }
             }
 
-            //get thinned out list of points
+            if (children.Count == 0) return;
+
+            //get new chlidren positions from thinned out list of points
             var pts = curSegm.Points;
-            int ptsPerChild = pts.Count / children.Count;
-            List<Vector3> newList = new();
-            for (int i = pts.Count - 1; i >= 0; i -= ptsPerChild)
+            int ptsPerChild = pts.Count / (children.Count - 1);
+            List<Vector3> newPos = new();
+            for (int i = 0; i < pts.Count; i += ptsPerChild)
             {
-                newList.Add(pts[i]);
+                newPos.Add(pts[i]);
             }
 
             //set positions
-            for (int i = 1; i < children.Count; i++)
+            for (int i = 0; i < children.Count; i++)
             {
-                children[i].transform.position = newList[i];
+                children[i].transform.position = newPos[i];
             }
-        }
-
-        //should i run dijkstra here, then arrange children to result, check if they are colliding and only then pass it all to rb
-        //for drawing mesh and registering the road in graph?
-        private void UpdateChildren_Dijk()
-        {
-
         }
 
         private void OnChildDetectedRoad(object sender, DetChildEventArgs<RoadSegment> e)
@@ -206,7 +193,9 @@ namespace Trains
         private void DetectRoad(DetChild sender, RoadSegment rs)
         {
             bool green = TryPaintGreen();
-            if (rs.Owner == owner && green)
+            if (rs.Owner == owner
+                //&& green
+                )
             {
                 isColliding = true;
                 //OnRoadDetected?.Invoke(this, new RoadDetectorEventArgs(other: rs, isSentByMainDetChild: sender == mainChild));
@@ -232,7 +221,7 @@ namespace Trains
 
         private void OnChildDetectedStation(object sender, DetChildEventArgs<Station> e)
         {
-            //Debug.Log($"{sender}, enter {e.IsEnter}, {e.CollidedWith}");
+            Debug.Log($"OnChildDetectedStation: {sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
             DetChild child = (DetChild)sender;
 
@@ -247,20 +236,26 @@ namespace Trains
         {
             //Debug.Log($"{sender}   detected {st}");
 
-            if (TryPaintGreen())
-                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = st });
+            TryPaintGreen();
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = st });
         }
 
         void UndetectStation(DetChild sender, Station st)
         {
             //Debug.Log($"{sender} undetected {st}");
 
-            if (!TryPaintGreen())
-                OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
+            TryPaintGreen();
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
+        }
+
+        void TryUndetectStation()
+        {
+
         }
 
         private bool TryPaintGreen()
         {
+            //check colliding with roads
             List<RoadSegment> childrenDetectedRds = children.Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).ToList();
             List<RoadSegment> otherOwnerRds = children.SelectMany(c => c.DetectedRoads.Where(cr => cr.Owner != Owner)).ToList();
 
@@ -272,60 +267,19 @@ namespace Trains
                 return false;
             }
 
+            //check colliding with station
+            List<Station> childrenDetectedStants = children.SelectMany(c => c.DetectedStations).ToList();
+            List<Station> otherChildrenStants = children.Where(c => c != mainChild).SelectMany(c => c.DetectedStations).ToList();
+
+            if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Owner != Owner))
+            {
+                curSegm.PaintRed();
+                return false;
+            }
+
+
             curSegm.PaintGreen();
             return true;
-        }
-
-        bool NoDetectedRoads_All() => !HaveDetectedRoads_All();
-        bool HaveDetectedRoads_All() => children.Any(c => c.DetectedRoads.Count > 0);
-
-        bool DetectedContains_All(RoadSegment rs) => children.Any(c => c.DetectedRoads.Contains(rs));
-
-        bool NoDetectedRoads_ExclMain() => !HaveDetectedRoads_ExclMain();
-        bool HaveDetectedRoads_ExclMain()
-        {
-            foreach (var c in children)
-            {
-                if (c == mainChild) continue;
-
-                if (c.DetectedRoads.Count > 0)
-                    return true;
-            }
-            return false;
-        }
-
-        bool OtherChildDetectedAnotherRoadThan(RoadSegment rs, out DetChild child)
-        {
-            foreach (DetChild c in children)
-            {
-                if (c == mainChild) continue;
-
-                if (c.DetectedRoads.Any(r => r != null && r != rs))
-                {
-                    child = c;
-                    return true;
-                }
-            }
-
-            child = null;
-            return false;
-        }
-
-        bool ChildrenDetectedRoad(RoadSegment rs, out DetChild detectedBy)
-        {
-            foreach (DetChild c in children)
-            {
-                if (c == mainChild) continue;
-
-                if (c.DetectedRoads.Contains(rs))
-                {
-                    detectedBy = c;
-                    return true;
-                }
-            }
-
-            detectedBy = null;
-            return false;
         }
     }
 }

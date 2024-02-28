@@ -109,7 +109,7 @@ namespace Trains
 
         private void OnRoadDetected(object sender, RoadDetectorEventArgs e)
         {
-            print($"Rb.OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
+            //print($"Rb.OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
             if (sender is not Detector d || d != detector) return;
             
             RoadSegment detected = e.Other;
