@@ -141,6 +141,13 @@ namespace Trains
                 {
                     //Debug.Log("HandleSnappedStartUnsnappedEnd();");
                     HandleSnappedStartUnsnappedEnd();
+
+                    rb.SnapStart(
+                        newStartPos: copy.Points[^1],
+                        snappedStartRoad: copy,
+                        snappedStartPoints: copy.Points.Select(p => p).ToList()
+                    );
+                    //rb.SnappedStartRoad = copy;
                 }
             }
             else
@@ -163,10 +170,11 @@ namespace Trains
                         snappedStartRoad: copy,
                         snappedStartPoints: copy.Points.Select(p => p).ToList()
                     );
+                    //rb.SnappedStartRoad = copy;
                 }
             }
 
-            //rb.start = rb.end;
+            rb.start = rb.end;
             rb.end = HeadedPoint.Empty;
             //rb.UnsnapStart();
         }

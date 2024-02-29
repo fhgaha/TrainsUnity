@@ -81,7 +81,7 @@ namespace Trains
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && curSegm != null && rs != curSegm)
             {
-                print($"{gameObject.name}: DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
+                //print($"{gameObject.name}: DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
                 Assert.IsTrue(!detectedRoads.Contains(rs), $"{this}");
                 detectedRoads.Add(rs);
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
@@ -95,7 +95,7 @@ namespace Trains
             {
                 Assert.IsTrue(detectedRoads.Contains(rs));
                 detectedRoads.Remove(rs);
-                print($"DetChild.UndetectRoad  isEnter: {false}, stopped colliding with: {rs}");
+                //print($"DetChild.UndetectRoad  isEnter: {false}, stopped colliding with: {rs}");
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: false, collidedWith: rs));
             }
         }

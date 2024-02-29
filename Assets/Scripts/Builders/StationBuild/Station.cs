@@ -34,6 +34,7 @@ namespace Trains
         {
             Segment = GetComponentInChildren<RoadSegment>();
             Segment.name = $"Station's {Segment}";
+            Segment.Owner = owner;
             visual = GetComponentInChildren<StationVisual>().Configure(this);
             GetComponentInChildren<StationRotator>().Configure(this);
             GetComponentInChildren<MeshCollider>().sharedMesh = Segment.GetMesh();
@@ -55,15 +56,17 @@ namespace Trains
 
             List<Vector3> segmentPts = new();
             segmentPts.AddRange(originalPoints);
+            Segment.Owner = owner;
             Segment.UpdateMeshAndCollider(segmentPts);
         }
 
         public void CopyInfoFrom(Station original)
         {
-            this.Owner = original.Owner;
-            this.Segment.CopyPointsByValue(original.Segment);
-            this.Segment.Start = original.Segment.Start;
-            this.Segment.End = original.Segment.End;
+            Owner = original.Owner;
+            Segment.Owner = original.Owner;
+            Segment.CopyPointsByValue(original.Segment);
+            Segment.Start = original.Segment.Start;
+            Segment.End = original.Segment.End;
         }
 
         public void UpdatePos(Vector3 newPos)

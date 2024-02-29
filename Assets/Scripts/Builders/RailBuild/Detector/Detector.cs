@@ -23,6 +23,11 @@ namespace Trains
     public class StationDetectorEventArgs : EventArgs
     {
         public Station Station { get; set; }
+
+        public StationDetectorEventArgs(Station station)
+        {
+            Station = station;
+        }
     }
 
 
@@ -113,7 +118,6 @@ namespace Trains
             UpdateChildren();
             TryPaintGreen();
             TryUndetectRoad();
-            TryUndetectStation();
 
             if (mainChild.DetectedRoads.Count > 0)
             {
@@ -186,7 +190,7 @@ namespace Trains
 
         private void OnChildDetectedRoad(object sender, DetChildEventArgs<RoadSegment> e)
         {
-            print($"Detector.OnChildDetectedRoad {sender}, enter {e.IsEnter}, {e.CollidedWith}");
+            //print($"Detector.OnChildDetectedRoad {sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
             if (e.IsEnter)
                 DetectRoad((DetChild)sender, e.CollidedWith);
@@ -223,9 +227,10 @@ namespace Trains
 
         private void OnChildDetectedStation(object sender, DetChildEventArgs<Station> e)
         {
-            Debug.Log($"OnChildDetectedStation: {sender}, enter {e.IsEnter}, {e.CollidedWith}");
+            //Debug.Log($"OnChildDetectedStation: {sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
             DetChild child = (DetChild)sender;
+            if (child != mainChild) return;
 
             if (e.IsEnter)
                 DetectStation(child, e.CollidedWith);
@@ -236,27 +241,33 @@ namespace Trains
 
         private void DetectStation(DetChild sender, Station st)
         {
-            //Debug.Log($"{sender}   detected {st}");
+            Debug.Log($"Detector.DetectStation: {sender}   detected {st}");
 
             TryPaintGreen();
-            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = st });
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: st));
         }
 
         void UndetectStation(DetChild sender, Station st)
         {
-            //Debug.Log($"{sender} undetected {st}");
+            Debug.Log($"Detector.UndetectStation: {sender} undetected {st}");
 
             TryPaintGreen();
-            OnStationDetected?.Invoke(this, new StationDetectorEventArgs { Station = null });
-        }
-
-        void TryUndetectStation()
-        {
-
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: null));
         }
 
         private bool TryPaintGreen()
         {
+            //check colliding with station
+            List<Station> childrenDetectedStants = children.SelectMany(c => c.DetectedStations).ToList();
+            List<Station> otherChildrenStants = children.Where(c => c != mainChild).SelectMany(c => c.DetectedStations).ToList();
+
+            if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Owner != Owner))
+            {
+                curSegm.PaintRed();
+                return false;
+            }
+
+
             //check colliding with roads
             List<RoadSegment> childrenDetectedRds = children
                 .Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).Where(r => r != rb.SnappedStartRoad).ToList();
@@ -269,17 +280,6 @@ namespace Trains
                 curSegm.PaintRed();
                 return false;
             }
-
-            //check colliding with station
-            List<Station> childrenDetectedStants = children.SelectMany(c => c.DetectedStations).ToList();
-            List<Station> otherChildrenStants = children.Where(c => c != mainChild).SelectMany(c => c.DetectedStations).ToList();
-
-            if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Owner != Owner))
-            {
-                curSegm.PaintRed();
-                return false;
-            }
-
 
             curSegm.PaintGreen();
             return true;

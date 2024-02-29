@@ -48,7 +48,8 @@ namespace Trains
                 rb.SnapStart(
                     newStartPos: machine.GetClosestPoint(new List<Vector3> { rb.DetectedByEndStation.Entry1, rb.DetectedByEndStation.Entry2 }, hitPoint),
                     snappedStartRoad: rb.DetectedByEndStation.Segment,
-                    snappedStartPoints: new List<Vector3> { rb.SnappedStartRoad.Start, rb.SnappedStartRoad.End }
+                    //snappedStartPoints: new List<Vector3> { rb.SnappedStartRoad.Start, rb.SnappedStartRoad.End }
+                    snappedStartPoints: new List<Vector3> { rb.DetectedByEndStation.Segment.Start, rb.DetectedByEndStation.Segment.End }
                 );
             }
             else if (rb.DetectedByEndRoad != null)

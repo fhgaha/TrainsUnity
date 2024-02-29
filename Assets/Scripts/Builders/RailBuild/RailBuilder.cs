@@ -29,10 +29,9 @@ namespace Trains
         public Vector3 SnappedStart { get; set; }
         public List<Vector3> SnappedStartPoints { get; set; } = new();
         public bool IsStartSnapped => SnappedStart != Vector3.zero && SnappedStartRoad != null;
-        
 
         [field: SerializeField] public RoadSegment DetectedByEndRoad { get; set; }
-        public Station DetectedByEndStation { get; set; }
+        [field: SerializeField] public Station DetectedByEndStation { get; set; }
         public HeadedPoint start, end;
         public Vector3 tangent1, tangent2;
 
@@ -129,6 +128,7 @@ namespace Trains
 
         private void OnStationDetected(object sender, StationDetectorEventArgs e)
         {
+            //print($"Rb.OnStationDetected: {e.Station}");
             DetectedByEndStation = e.Station;
         }
 
@@ -214,20 +214,6 @@ namespace Trains
             var paths = dubinsPathGenerator.GetAllDubinsPaths_UseDegrees(startPos, startHeading, endPos, endHeading);
             var ordered = paths.OrderBy(p => p.totalLength);
             OneDubinsPath shortest = ordered.FirstOrDefault();
-
-            //var shortest1 = ordered.FirstOrDefault();
-            //var shortest2 = ordered.Skip(1).FirstOrDefault();
-
-            //if (shortest1 != null && shortest2 != null)
-            //{
-            //    var tresh = 3f;
-            //    var diff = shortest1.totalLength - shortest2.totalLength;
-            //    if (diff * diff < tresh)
-            //    {
-            //        shortest = new[] { shortest1, shortest2 }.Where(s => s.segment1TurningRight).First();
-            //    }
-            //}
-
             var pts = shortest.pathCoordinates;
             tangent1 = shortest.tangent1;
             tangent2 = shortest.tangent2;
