@@ -24,7 +24,7 @@ namespace Trains
         [SerializeField] private Camera cam;
 
         private RailGenerator railGen;
-        
+
         private void Awake()
         {
             Id = GetInstanceID();
@@ -49,12 +49,12 @@ namespace Trains
             //railGen.Build_C();
             //railGen.Build_IT();
 
+            //StartCoroutine(railGen.BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine());
+
             //railGen.BuildAndDestroyAllOnce();
             //railGen.BuildAndDestroyAllSeveralTimes();
 
-
-            //BuildTwoStationsCurvyRoadSendTrain();
-
+            BuildTwoStationsCurvyRoadSendTrain();
             //BuildTwoStationsStraightRoadSendTrain();
 
             //to prevent collisions with ai detector

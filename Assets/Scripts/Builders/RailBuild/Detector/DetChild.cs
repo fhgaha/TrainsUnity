@@ -54,6 +54,18 @@ namespace Trains
             return this;
         }
 
+        private void Update()
+        {
+            //without this some connection doesnt work for some reason
+            detectedRoads.RemoveAll(c => c == null);
+        }
+
+        private void OnDisable()
+        {
+            detectedRoads.Clear();
+            detectedStations.Clear();
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             DetectRoad(other);
@@ -66,23 +78,13 @@ namespace Trains
             UndetectStation(other);
         }
 
-        private void OnTriggerStay(Collider other)
-        {
-
-            //if (other.TryGetComponent<RoadSegment>(out var rs)
-            //    && rs != curSegm)
-            //{
-            //    isColliding = true;
-            //}
-        }
-
         private void DetectRoad(Collider other)
         {
             if (other.TryGetComponent<RoadSegment>(out var rs)
                 && curSegm != null && rs != curSegm)
             {
                 //print($"{gameObject.name}: DetChild.DetectRoad isEnter: {true}, started colliding with: {rs}");
-                Assert.IsTrue(!detectedRoads.Contains(rs), $"{this}");
+                Assert.IsTrue(!detectedRoads.Contains(rs), $"DetChild.DetectRoad: {this} detectedRoad contains {rs}");
                 detectedRoads.Add(rs);
                 OnRoadDetected?.Invoke(this, new DetChildEventArgs<RoadSegment>(isEnter: true, collidedWith: rs));
             }
@@ -104,7 +106,7 @@ namespace Trains
         {
             if (other.TryGetComponent<Station>(out var st))
             {
-                Assert.IsTrue(!detectedStations.Contains(st));
+                Assert.IsTrue(!detectedStations.Contains(st), $"DetChild.DetectStation: {this} detectedStats already contains {st}");
                 detectedStations.Add(st);
                 OnStationDetected?.Invoke(this, new DetChildEventArgs<Station>(isEnter: true, collidedWith: st));
             }

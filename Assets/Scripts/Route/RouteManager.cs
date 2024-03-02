@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -344,10 +345,7 @@ namespace Trains
 
         public void RegisterNode(Node n)
         {
-            if (graph.AllNodes.Contains(n))
-            {
-                throw new Exception($"Attempting to register node {n} that already registered. Operation terminated.");
-            }
+            Assert.IsTrue(!graph.AllNodes.Contains(n), $"Attempting to register node {n} that already registered. Operation terminated.");
             graph.AllNodes.Add(n);
         }
 

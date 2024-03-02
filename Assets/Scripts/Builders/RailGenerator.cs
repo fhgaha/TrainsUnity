@@ -102,6 +102,8 @@ namespace Trains
 
         public void Build_T_fromConnectionToLooseEnd()
         {
+            //rb.StartCoroutine(BuildAndDestroyOnce_T_fromConnectionToLooseEnd_Coroutine());
+
             rb.StartCoroutine(Build());
             IEnumerator Build()
             {
@@ -184,10 +186,10 @@ namespace Trains
 
         public IEnumerator BuildAndDestroyOnce_T_fromLooseEndToConnection_Coroutine()
         {
-            Vector3 lineLeft = new Vector3(-20, 0, 5);
-            Vector3 lineRight = new Vector3(20, 0, 5);
-            Vector3 looseEnd = new Vector3(-5, 0, -20);
-            Vector3 connection = new Vector3(10, 0, 5);
+            Vector3 lineLeft = new(-20, 0, 5);
+            Vector3 lineRight = new(20, 0, 5);
+            Vector3 looseEnd = new(-5, 0, -20);
+            Vector3 connection = new(10, 0, 5);
 
             var line = (start: lineLeft, end: lineRight);
             var looseEndToMid = (start: looseEnd, end: connection);
@@ -202,10 +204,10 @@ namespace Trains
 
         public IEnumerator BuildAndDestroyOnce_T_fromConnectionToLooseEnd_Coroutine()
         {
-            Vector3 lineLeft = new Vector3(-20, 0, 5);
-            Vector3 lineRight = new Vector3(20, 0, 5);
-            Vector3 looseEnd = new Vector3(-5, 0, -20);
-            Vector3 connection = new Vector3(10, 0, 5);
+            Vector3 lineLeft = new(-20, 0, 5);
+            Vector3 lineRight = new(20, 0, 5);
+            Vector3 looseEnd = new(-5, 0, -20);
+            Vector3 connection = new(10, 0, 5);
 
             var line = (start: lineLeft, end: lineRight);
             var connectionToLooseEnd = (start: connection, end: looseEnd);

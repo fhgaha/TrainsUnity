@@ -187,6 +187,7 @@ MonoBehaviour:
   ownerName: ---
   <SnappedStartRoad>k__BackingField: {fileID: 0}
   <DetectedByEndRoad>k__BackingField: {fileID: 0}
+  <DetectedByEndStation>k__BackingField: {fileID: 0}
   start:
     pos: {x: 0, y: 0, z: 0}
     heading: 0
@@ -224,34 +225,6 @@ PrefabInstance:
     - target: {fileID: 1018106981760184733, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
       propertyPath: m_Name
       value: Detector
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 17.73
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1018106981760184802, guid: ddd544460acbdd44588ba85c39e7e153, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

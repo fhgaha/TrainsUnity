@@ -104,16 +104,22 @@ namespace Trains
                 DetChild c = children[i];
                 if (c == mainChild) continue;
 
-                children.Remove(c);
                 Destroy(c.gameObject);
             }
+            children.Clear();
         }
+
+        public void SetPos(Vector3 point) => mainChild.transform.position = point;
+        public Vector3 GetPos() => mainChild.transform.position;
 
         private void Update()
         {
-            bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
-            if (wasHit)
-                transform.position = hit.point;
+            if (Owner is not AiPlayer)
+            {
+                bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
+                if (wasHit)
+                    SetPos(hit.point);
+            }
 
             UpdateChildren();
             TryPaintGreen();
@@ -238,10 +244,9 @@ namespace Trains
                 UndetectStation(child, e.CollidedWith);
         }
 
-
         private void DetectStation(DetChild sender, Station st)
         {
-            Debug.Log($"Detector.DetectStation: {sender}   detected {st}");
+            //Debug.Log($"Detector.DetectStation: {sender}   detected {st}");
 
             TryPaintGreen();
             OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: st));
@@ -249,7 +254,7 @@ namespace Trains
 
         void UndetectStation(DetChild sender, Station st)
         {
-            Debug.Log($"Detector.UndetectStation: {sender} undetected {st}");
+            //Debug.Log($"Detector.UndetectStation: {sender} undetected {st}");
 
             TryPaintGreen();
             OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: null));

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -110,19 +111,25 @@ namespace Trains
         {
             //print($"Rb.OnRoadDetected {sender}, {e.Other}, sent by main chld: {e.IsSentByMainDetChild}");
             if (sender is not Detector d || d != detector) return;
-            
+
             RoadSegment detected = e.Other;
 
             if (detected == null)
             {
                 if (e.IsSentByMainDetChild)
+                {
+                    //print($"RailBuilder undetected road DetectedByEndRoad = null");
                     DetectedByEndRoad = null;
+                }
             }
             else
             {
                 if (detected.Owner == Owner)
                     if (e.IsSentByMainDetChild)
-                        DetectedByEndRoad = e.Other;
+                    {
+                        //print($"RailBuilder detected road: DetectedByEndRoad = {detected}");
+                        DetectedByEndRoad = detected;
+                    }
             }
         }
 
@@ -132,31 +139,67 @@ namespace Trains
             DetectedByEndStation = e.Station;
         }
 
+
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
+            yield return new WaitForFixedUpdate();
+
             //selecting start state
             //move det, set up detected road if any
-            detector.transform.position = start;
+            yield return MoveRtn(detector, start);
+            //detector.SetPos(start);
+            yield return new WaitUntil(() => detector.GetPos() == start);
+            //yield return new WaitForSeconds(0.1f);
             yield return new WaitForFixedUpdate();
+            
+            stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: false, rmbPressed: false);
+            yield return new WaitForFixedUpdate();
+            //yield return new WaitForSeconds(0.1f);
 
             //switch to drawing initial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
-
-            //move det, set up detected road if any
-            detector.transform.position = goal;
+            yield return new WaitUntil(() => stateMachine.CurrentState is RbInitialSegmentState);
+            //yield return new WaitForSeconds(0.1f);
             yield return new WaitForFixedUpdate();
 
-            yield return new WaitWhile(() => detector.gameObject.transform.position == start);
+            //move det, set up detected road if any
+            yield return MoveRtn(detector, goal);
+            //detector.SetPos(goal);
+            yield return new WaitUntil(() => detector.GetPos() == goal);
+            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
 
             //switch to drawing noninitial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbNoninitialSegmentState);
-            if (detector.gameObject.transform.position != goal || detector.gameObject.transform.position == start)
-                throw new Exception($"Detector pos: {detector.transform.position}, should be {goal}");
+            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
 
+            Assert.IsTrue(detector.GetPos() == goal, $"Detector pos: {detector.GetPos()}, should be {goal}");
+            
             //switch to select start state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
+            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
+
+            //detector.SetPos(far);
+            //yield return MoveRtn(detector, far);
+            //yield return new WaitUntil(() => detector.GetPos() == far);
+            //yield return new WaitForSeconds(0.5f);
+        }
+
+        IEnumerator MoveRtn(Detector det, Vector3 to)
+        {
+            Vector3 cur = det.GetPos();
+            float speed = 100f;
+            while (cur != to)
+            {
+                cur = Vector3.MoveTowards(cur, to, speed * Time.deltaTime);
+                det.SetPos(cur);
+                //stateMachine.UpdateState(wasHit: true, hitPoint: cur, lmbPressed: false, rmbPressed: false);
+                yield return null;
+            }
         }
 
         public void RemoveRoad(Vector3 start, Vector3 end)
