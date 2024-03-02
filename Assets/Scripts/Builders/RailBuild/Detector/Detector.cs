@@ -278,7 +278,8 @@ namespace Trains
                 .Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).Where(r => r != rb.SnappedStartRoad).ToList();
             List<RoadSegment> otherOwnerRds = children.SelectMany(c => c.DetectedRoads.Where(cr => cr.Owner != Owner)).ToList();
 
-            if (otherOwnerRds.Count > 0
+            if (mainChild.DetectedRoads.Any(r => r.Owner != Owner)
+                || otherOwnerRds.Count > 0
                 || childrenDetectedRds.Count > 0 && childrenDetectedRds.Any(r => !mainChild.DetectedRoads.Contains(r))
                 )
             {

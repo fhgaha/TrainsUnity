@@ -41,6 +41,8 @@ namespace Trains
                 yield return BuildAndDestroyOnce_H_Coroutine();
                 yield return BuildAndDestroyOnce_C_Coroutine();
                 yield return BuildAndDestroyOnce_IT_Coroutine();
+
+                Debug.Log("BuildAndDestroyAllOnce finished");
             }
         }
 
@@ -57,6 +59,8 @@ namespace Trains
                 yield return BuildAndDestroySeveralTimes_H_Coroutine();
                 yield return BuildAndDestroySeveralTimes_C_Coroutine();
                 yield return BuildAndDestroySeveralTimes_IT_Coroutine();
+
+                Debug.Log("BuildAndDestroyAllSeveralTimes finished");
             }
         }
 

@@ -143,56 +143,50 @@ namespace Trains
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
             yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
 
             //selecting start state
             //move det, set up detected road if any
             yield return MoveRtn(detector, start);
-            //detector.SetPos(start);
             yield return new WaitUntil(() => detector.GetPos() == start);
-            //yield return new WaitForSeconds(0.1f);
             yield return new WaitForFixedUpdate();
-            
+            yield return new WaitForFixedUpdate();
+
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: false, rmbPressed: false);
             yield return new WaitForFixedUpdate();
-            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
 
             //switch to drawing initial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbInitialSegmentState);
-            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate(); 
             yield return new WaitForFixedUpdate();
+            Assert.IsTrue(detector.GetPos() == start, $"Detector pos: {detector.GetPos()}, should be {start}");
 
             //move det, set up detected road if any
             yield return MoveRtn(detector, goal);
-            //detector.SetPos(goal);
             yield return new WaitUntil(() => detector.GetPos() == goal);
-            //yield return new WaitForSeconds(0.1f);
+            yield return new WaitForFixedUpdate();
             yield return new WaitForFixedUpdate();
 
             //switch to drawing noninitial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbNoninitialSegmentState);
-            //yield return new WaitForSeconds(0.1f);
             yield return new WaitForFixedUpdate();
-
+            yield return new WaitForFixedUpdate();
             Assert.IsTrue(detector.GetPos() == goal, $"Detector pos: {detector.GetPos()}, should be {goal}");
             
             //switch to select start state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
-            //yield return new WaitForSeconds(0.1f);
             yield return new WaitForFixedUpdate();
-
-            //detector.SetPos(far);
-            //yield return MoveRtn(detector, far);
-            //yield return new WaitUntil(() => detector.GetPos() == far);
-            //yield return new WaitForSeconds(0.5f);
+            yield return new WaitForFixedUpdate();
         }
 
         IEnumerator MoveRtn(Detector det, Vector3 to)
         {
             Vector3 cur = det.GetPos();
-            float speed = 100f;
+            float speed = 500f;
             while (cur != to)
             {
                 cur = Vector3.MoveTowards(cur, to, speed * Time.deltaTime);
