@@ -269,6 +269,7 @@ namespace Trains
             if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Owner != Owner))
             {
                 curSegm.PaintRed();
+                children.ForEach(c => c.PaintRed());
                 return false;
             }
 
@@ -278,16 +279,20 @@ namespace Trains
                 .Where(c => c != mainChild).SelectMany(c => c.DetectedRoads).Where(r => r != rb.SnappedStartRoad).ToList();
             List<RoadSegment> otherOwnerRds = children.SelectMany(c => c.DetectedRoads.Where(cr => cr.Owner != Owner)).ToList();
 
-            if (mainChild.DetectedRoads.Any(r => r.Owner != Owner)
+            bool mainOther = mainChild.DetectedRoads.Any(r => r.Owner != Owner);
+            bool chldrnNotAll = childrenDetectedRds.Any(r => !mainChild.DetectedRoads.Contains(r));
+            if (mainOther
                 || otherOwnerRds.Count > 0
-                || childrenDetectedRds.Count > 0 && childrenDetectedRds.Any(r => !mainChild.DetectedRoads.Contains(r))
+                || childrenDetectedRds.Count > 0 && chldrnNotAll
                 )
             {
                 curSegm.PaintRed();
+                children.ForEach(c => c.PaintRed());
                 return false;
             }
 
             curSegm.PaintGreen();
+            children.ForEach(c => c.PaintGreen());
             return true;
         }
     }

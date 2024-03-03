@@ -64,7 +64,7 @@ namespace Trains
         private void HandleMouseMovement(bool wasHit, Vector3 hitPoint)
         {
             if (!wasHit) return;
-            if (mousePos == hitPoint) return;
+            //if (mousePos == hitPoint) return;
 
             if (rb.IsStartSnapped)
             {
@@ -112,6 +112,7 @@ namespace Trains
         private void HandleLmbPressed(Vector3 hitPoint)
         {
             if (rb.Points.Count == 0) return;
+            if (!rb.AllowedToBuild) return;
 
             RoadSegment copy = rb.PlaceSegment();
 

@@ -19,24 +19,18 @@ namespace Trains
         {
             RoadSegment copy = Instantiate(original, transform);
             copy.DestroyRigBodyCopyAndPlace(original);
-            segments.Add(copy.GetInstanceID(), copy);
+            //segments.Add(copy.GetInstanceID(), copy);
+            AddSegment(copy);
             return copy;
         }
 
         public void AddDontCreateInstance(RoadSegment segm)
         {
-            segments.Add(segm.GetInstanceID(), segm);
+            //segments.Add(segm.GetInstanceID(), segm);
+            AddSegment(segm);
         }
 
         public RoadSegment Get(int index) => segments[index];
-
-        //Removes the value with the specified key
-        public void RemoveAt(int index)
-        {
-            RoadSegment toRemove = segments[index];
-            segments.Remove(index);
-            Destroy(toRemove.gameObject);
-        }
 
         public void RemoveSegm(Vector3 start, Vector3 end)
         {
@@ -45,6 +39,14 @@ namespace Trains
                 pair.Value.Start == end && pair.Value.End == start
             ).Key;
             RemoveAt(index);
+        }
+
+        public void RemoveAt(int index)
+        {
+            RoadSegment toRemove = segments[index];
+            segments.Remove(index);
+            //print($"Segment removed: key {index}, val {toRemove}");
+            Destroy(toRemove.gameObject);
         }
 
         public void Remove(RoadSegment toRemove)
@@ -80,6 +82,13 @@ namespace Trains
             }
 
             return finalPath;
+        }
+
+        private void AddSegment(RoadSegment segm)
+        {
+            int key = segm.GetInstanceID();
+            segments.Add(key, segm);
+            //print($"Segment added: key {key}, val {segm}");
         }
     }
 }

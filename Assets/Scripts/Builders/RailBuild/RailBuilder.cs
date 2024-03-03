@@ -24,6 +24,7 @@ namespace Trains
 
         public List<Vector3> Points { get; private set; } = new();
         public bool HasPoints => Points != null && Points.Count > 0;
+        public bool AllowedToBuild => segment.IsGreen;
 
         //start
         [field: SerializeField] public RoadSegment SnappedStartRoad { get; set; }
@@ -88,8 +89,7 @@ namespace Trains
         private void Update()
         {
             if (Owner is not HumanPlayer) return;
-
-            //TODO main camera assigned! ai player should have its own camera
+            
             bool wasHit = Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 1000f, LayerMask.GetMask("Ground"));
             stateMachine.UpdateState(wasHit, hit.point, Input.GetKeyUp(KeyCode.Mouse0), Input.GetKeyUp(KeyCode.Mouse1));
 
@@ -139,52 +139,46 @@ namespace Trains
             DetectedByEndStation = e.Station;
         }
 
-
         public IEnumerator BuildRoad_Routine(Vector3 start, Vector3 goal)
         {
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
 
             //selecting start state
             //move det, set up detected road if any
             yield return MoveRtn(detector, start);
             yield return new WaitUntil(() => detector.GetPos() == start);
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
 
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: false, rmbPressed: false);
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
 
             //switch to drawing initial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: start, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbInitialSegmentState);
-            yield return new WaitForFixedUpdate(); 
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
             Assert.IsTrue(detector.GetPos() == start, $"Detector pos: {detector.GetPos()}, should be {start}");
 
             //move det, set up detected road if any
             yield return MoveRtn(detector, goal);
             yield return new WaitUntil(() => detector.GetPos() == goal);
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
 
             //switch to drawing noninitial segment state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: true, rmbPressed: false);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbNoninitialSegmentState);
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            yield return Wait();
             Assert.IsTrue(detector.GetPos() == goal, $"Detector pos: {detector.GetPos()}, should be {goal}");
-            
+
             //switch to select start state
             stateMachine.UpdateState(wasHit: true, hitPoint: goal, lmbPressed: false, rmbPressed: true);
             yield return new WaitUntil(() => stateMachine.CurrentState is RbSelectStartState);
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForFixedUpdate();
+            //yield return new WaitForSeconds(4);
         }
 
         IEnumerator MoveRtn(Detector det, Vector3 to)
         {
+            //det.SetPos(to);
+
             Vector3 cur = det.GetPos();
             float speed = 500f;
             while (cur != to)
@@ -194,6 +188,18 @@ namespace Trains
                 //stateMachine.UpdateState(wasHit: true, hitPoint: cur, lmbPressed: false, rmbPressed: false);
                 yield return null;
             }
+            //var shift = to + new Vector3(0, 0, 3f);
+            //det.SetPos(shift);
+            //stateMachine.UpdateState(wasHit: true, hitPoint: shift, lmbPressed: false, rmbPressed: true);
+            det.SetPos(to);
+            //stateMachine.UpdateState(wasHit: true, hitPoint: to, lmbPressed: false, rmbPressed: true);
+        }
+
+        IEnumerator Wait()
+        {
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+            yield return null;
         }
 
         public void RemoveRoad(Vector3 start, Vector3 end)
@@ -304,5 +310,7 @@ namespace Trains
             SnappedStartRoad = snappedStartRoad;
             SnappedStartPoints = snappedStartPoints;
         }
+
+        
     }
 }

@@ -51,7 +51,7 @@ namespace Trains
         private void HandleMouseMovement(RbStateMachine machine, bool wasHit, Vector3 hitPoint)
         {
             if (!wasHit) return;
-            if (mousePos == hitPoint) return;
+            //if (mousePos == hitPoint) return;
 
             if (rb.DetectedByEndStation != null)
             {
@@ -73,6 +73,7 @@ namespace Trains
         private void HandleLmbPressed(RbStateMachine machine, Vector3 hitPoint)
         {
             if (rb.Points.Count == 0) return;
+            if (!rb.AllowedToBuild) return;
 
             RoadSegment copy = rb.PlaceSegment();
 

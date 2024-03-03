@@ -27,6 +27,7 @@ namespace Trains
 
         [Header("to set")]
         [SerializeField] private Material blue;
+        [SerializeField] private Material green;
         [SerializeField] private Material red;
 
         [Header("to display")]
@@ -127,6 +128,12 @@ namespace Trains
         {
             if (meshRend.material != blue)
                 meshRend.material = blue;
+        }
+
+        public void PaintGreen()
+        {
+            if (meshRend.material != green)
+                meshRend.material = green;
         }
 
         public void PaintRed()

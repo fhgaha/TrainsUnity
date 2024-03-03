@@ -254,9 +254,21 @@ namespace Trains
         public void PaintGreen()
         {
             if (!IsGreen)
+            {
                 meshRenderer.material = allowedMaterial;
+
+                //StartCoroutine(Rtn());
+            }
+
+            //IEnumerator Rtn()
+            //{
+            //    yield return new WaitUntil(() => meshRenderer.material.name == allowedMaterial.name);
+            //    //print($"meshRenderer.material == allowedMaterial: {meshRenderer.material.name == allowedMaterial.name}");
+            //    print($"meshRenderer.material.name: {meshRenderer.material.name},  allowedMaterial.name: {allowedMaterial.name}");
+            //}
         }
-        public bool IsGreen => meshRenderer.material == allowedMaterial;
+
+        public bool IsGreen => meshRenderer.material.color == allowedMaterial.color;
 
         public void PaintRed()
         {
@@ -264,15 +276,15 @@ namespace Trains
                 meshRenderer.material = forbiddenMaterial;
         }
 
-        public bool IsRed => meshRenderer.material == forbiddenMaterial;
+        public bool IsRed => meshRenderer.material.color == forbiddenMaterial.color;
 
         public void PaintDefaultColor()
         {
             if (!IsDefaultColor)
-                meshRenderer.material = defaultMaterial;
+                meshRenderer.material.color = defaultMaterial.color;
         }
 
-        public bool IsDefaultColor => meshRenderer.material == defaultMaterial;
+        public bool IsDefaultColor => meshRenderer.material.color == defaultMaterial.color;
 
     }
 }

@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blue: {fileID: 2100000, guid: 0d4d26b63b5cef44c9e2ed1f0ff50cd7, type: 2}
+  green: {fileID: 2100000, guid: 353e771d52ef8ec4fb9b15c91e52dfad, type: 2}
   red: {fileID: 2100000, guid: 2515a8727912b5f4f801376663962c2d, type: 2}
   curSegm: {fileID: 0}
   detectedRoads: []

@@ -46,19 +46,19 @@ namespace Trains
             }
         }
 
-        public void BuildAndDestroyAllSeveralTimes()
+        public void BuildAndDestroyAllSeveralTimes(int times)
         {
             rb.StartCoroutine(BuildAndDestroy());
             IEnumerator BuildAndDestroy()
             {
-                yield return BuildAndDestroySeveralTimes_I_Coroutine();
-                yield return BuildAndDestroySeveralTimes_I_II_Coroutine();
-                yield return BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ_Coroutine();
-                yield return BuildAndDestroySeveralTimes_T_fromLooseEndToConnection_Coroutine();
-                yield return BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine();
-                yield return BuildAndDestroySeveralTimes_H_Coroutine();
-                yield return BuildAndDestroySeveralTimes_C_Coroutine();
-                yield return BuildAndDestroySeveralTimes_IT_Coroutine();
+                yield return BuildAndDestroySeveralTimes_I_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_I_II_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_T_fromLooseEndToConnection_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_H_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_C_Coroutine(times);
+                yield return BuildAndDestroySeveralTimes_IT_Coroutine(times);
 
                 Debug.Log("BuildAndDestroyAllSeveralTimes finished");
             }
@@ -295,16 +295,18 @@ namespace Trains
         #endregion
 
         #region build and destroy multiple times
-        public IEnumerator BuildAndDestroySeveralTimes_I_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_I_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_I started");
 
             var segm = (start: new Vector3(0, 0, 0), end: new Vector3(30, 0, 30));
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(segm);
+                yield return null;
                 UnbuildSegm(segm);
+                yield return null;
 
                 Debug.Log($"--Cycle {i + 1} finished");
             }
@@ -312,7 +314,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_I finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_I_II_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_I_II_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_I_II started");
 
@@ -323,7 +325,7 @@ namespace Trains
             var firstSegm = (start: a, end: b);
             var secondSegm = (start: b, end: c);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(firstSegm);
                 yield return BuildSegm(secondSegm);
@@ -337,14 +339,14 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_I_II finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ started");
 
             var fromLeft = (start: new Vector3(-20, 0, 5), end: new Vector3(5, 0, 5));
             var fromRight = (start: new Vector3(50, 0, 5), end: new Vector3(5, 0, 5));
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(fromLeft);
                 yield return BuildSegm(fromRight);
@@ -358,7 +360,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_I_fromLeftTo_I_fromRight_sameZ finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_T_fromLooseEndToConnection_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_T_fromLooseEndToConnection_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_T_fromLooseEndToConnection start");
 
@@ -370,7 +372,7 @@ namespace Trains
             var line = (start: lineLeft, end: lineRight);
             var looseEndToMid = (start: looseEnd, end: connection);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(line);
                 yield return BuildSegm(looseEndToMid);
@@ -385,7 +387,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_T_fromLooseEndToConnection finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd started");
 
@@ -397,7 +399,7 @@ namespace Trains
             var line = (start: lineLeft, end: lineRight);
             var connectionToLooseEnd = (start: connection, end: looseEnd);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(line);
                 yield return BuildSegm(connectionToLooseEnd);
@@ -412,7 +414,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_H_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_H_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_H started");
 
@@ -427,7 +429,7 @@ namespace Trains
             var botSegm = (start: botLeft, end: botRight);
             var midSegm = (start: botMid, end: topMid);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(topSegm);
                 yield return BuildSegm(botSegm);
@@ -445,7 +447,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_H finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_C_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_C_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_C started");
 
@@ -459,7 +461,7 @@ namespace Trains
             var leftSegm = (start: botLeft, end: topLeft);
             var rightSegm = (start: botRight, end: topRight);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(topSegm);
                 yield return BuildSegm(botSegm);
@@ -477,7 +479,7 @@ namespace Trains
             Debug.Log("----BuildAndDestroySeveralTimes_C finished");
         }
 
-        public IEnumerator BuildAndDestroySeveralTimes_IT_Coroutine()
+        public IEnumerator BuildAndDestroySeveralTimes_IT_Coroutine(int times)
         {
             Debug.Log("----BuildAndDestroySeveralTimes_IT started");
 
@@ -491,7 +493,7 @@ namespace Trains
             var botSegm = (start: botLeft, end: botRight);
             var midSegm = (start: topLeft, end: botMid);
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < times; i++)
             {
                 yield return BuildSegm(topSegm);
                 yield return BuildSegm(botSegm);
