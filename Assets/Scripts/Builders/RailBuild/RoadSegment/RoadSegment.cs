@@ -254,37 +254,26 @@ namespace Trains
         public void PaintGreen()
         {
             if (!IsGreen)
-            {
-                meshRenderer.material = allowedMaterial;
-
-                //StartCoroutine(Rtn());
-            }
-
-            //IEnumerator Rtn()
-            //{
-            //    yield return new WaitUntil(() => meshRenderer.material.name == allowedMaterial.name);
-            //    //print($"meshRenderer.material == allowedMaterial: {meshRenderer.material.name == allowedMaterial.name}");
-            //    print($"meshRenderer.material.name: {meshRenderer.material.name},  allowedMaterial.name: {allowedMaterial.name}");
-            //}
+                meshRenderer.sharedMaterial = allowedMaterial;
         }
 
-        public bool IsGreen => meshRenderer.material.color == allowedMaterial.color;
+        public bool IsGreen => meshRenderer.sharedMaterial == allowedMaterial;
 
         public void PaintRed()
         {
             if (!IsRed)
-                meshRenderer.material = forbiddenMaterial;
+                meshRenderer.sharedMaterial = forbiddenMaterial;
         }
 
-        public bool IsRed => meshRenderer.material.color == forbiddenMaterial.color;
+        public bool IsRed => meshRenderer.sharedMaterial == forbiddenMaterial;
 
         public void PaintDefaultColor()
         {
             if (!IsDefaultColor)
-                meshRenderer.material.color = defaultMaterial.color;
+                meshRenderer.sharedMaterial = defaultMaterial;
         }
 
-        public bool IsDefaultColor => meshRenderer.material.color == defaultMaterial.color;
+        public bool IsDefaultColor => meshRenderer.sharedMaterial == defaultMaterial;
 
     }
 }
