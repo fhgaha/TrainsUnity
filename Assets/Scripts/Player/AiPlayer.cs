@@ -52,9 +52,9 @@ namespace Trains
             //StartCoroutine(railGen.BuildAndDestroySeveralTimes_T_fromConnectionToLooseEnd_Coroutine());
 
             //railGen.BuildAndDestroyAllOnce();
-            railGen.BuildAndDestroyAllSeveralTimes(10);
+            //railGen.BuildAndDestroyAllSeveralTimes(10);
 
-            //BuildTwoStationsCurvyRoadSendTrain();
+            BuildTwoStationsCurvyRoadSendTrain();
             //BuildTwoStationsStraightRoadSendTrain();
 
             //to prevent collisions with ai detector
