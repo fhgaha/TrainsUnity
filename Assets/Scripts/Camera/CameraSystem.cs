@@ -27,6 +27,7 @@ namespace Trains
         [SerializeField] private float zoomStep = 3;
         [SerializeField] private float followOffsetMin = 30;
         [SerializeField] private float followOffsetMax = 200;
+        [SerializeField] private AnimationCurve curve;
 
         private CinemachineTransposer camTransp;
         private bool dragPanActive = false;
@@ -38,13 +39,13 @@ namespace Trains
         {
             camTransp = cam.GetCinemachineComponent<CinemachineTransposer>();
             followOffset = camTransp.m_FollowOffset;
-            //followOffset = cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
         }
 
         void Update()
         {
             Move();
             Rotate();
+            Zoom();
         }
 
         void Move()
@@ -61,8 +62,6 @@ namespace Trains
 
             Vector3 moveDir = transform.forward * inputDir.z + transform.right * inputDir.x;
             transform.position += moveSpeed * Time.deltaTime * moveDir;
-
-            Zoom();
         }
 
         void Rotate()
@@ -95,6 +94,7 @@ namespace Trains
             if (dragPanActive)
             {
                 Vector2 mouseMoveDelta = (Vector2)Input.mousePosition - lastMousePos;
+                mouseMoveDelta *= -1;
                 inputDir.x = mouseMoveDelta.x;
                 inputDir.z = mouseMoveDelta.y;
                 inputDir *= dragPanSpeed;
@@ -104,14 +104,10 @@ namespace Trains
 
         void Zoom()
         {
-            float followOffsetMinY = 30;
-            float followOffsetMaxY = 200;
-
             if (Input.mouseScrollDelta.y > 0) followOffset.y -= zoomStep;
             if (Input.mouseScrollDelta.y < 0) followOffset.y += zoomStep;
 
-            followOffset.y = Mathf.Clamp(followOffset.y, followOffsetMinY, followOffsetMaxY);
-
+            followOffset.y = Mathf.Clamp(followOffset.y, followOffsetMin, followOffsetMax);
             Vector3 res = Vector3.Lerp(camTransp.m_FollowOffset, followOffset, zoomSpeed * Time.deltaTime);
             camTransp.m_FollowOffset = res;
         }

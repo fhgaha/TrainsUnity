@@ -28,7 +28,8 @@ namespace Trains
             while (passedSeconds < timeSeconds)
             {
                 float yVal = curve.Evaluate(passedSeconds / timeSeconds) * maxDist;
-                tmpGui.transform.position = startPos + yVal * Vector3.up;
+                //tmpGui.transform.position = startPos + yVal * Vector3.up;
+                tmpGui.transform.position = GetScreenPos() + yVal * Vector3.up;
                 passedSeconds += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }

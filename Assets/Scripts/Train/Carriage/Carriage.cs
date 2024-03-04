@@ -41,9 +41,9 @@ namespace Trains
             Gizmos.DrawLine(SupportBack.position, SupportBack.position + Vector3.up * 5);
         }
 
-        public void PlayProfitAnim(string text)
-        {
-            profitText.PlayAnim(text);
-        }
+        [ContextMenu("PlayProfitAnimTest")]
+        public void PlayProfitAnimTest() => profitText.PlayAnim("This is test text");
+
+        public void PlayProfitAnim(string text) => profitText.PlayAnim(text);
     }
 }
