@@ -16,7 +16,7 @@ namespace Trains
 
         [Header("Rotation")]
         [SerializeField] private float rotSpeed = 200;
-        [SerializeField] private float rotStep = 1;
+        //[SerializeField] private float rotStep = 1;
 
         [Header("Edge Scroll")]
         [SerializeField] private bool edgeScrollEnabled = false;
@@ -66,10 +66,11 @@ namespace Trains
 
         void Rotate()
         {
-            float rotDir = 0;
-            if (Input.GetKey(KeyCode.Q)) rotDir += rotStep;
-            if (Input.GetKey(KeyCode.E)) rotDir -= rotStep;
-            transform.eulerAngles += new Vector3(0, rotSpeed * rotDir * Time.deltaTime, 0);
+            if (Input.GetMouseButton(1))
+            {
+                float xRotation = Input.GetAxis("Mouse X") * rotSpeed;
+                transform.Rotate(Vector3.up, xRotation);
+            }
         }
 
         void EdgeScroll()
@@ -84,12 +85,12 @@ namespace Trains
 
         void DragPan()
         {
-            if (Input.GetKeyDown(KeyCode.Mouse1))
+            if (Input.GetKeyDown(KeyCode.Mouse2))
             {
                 dragPanActive = true;
                 lastMousePos = Input.mousePosition;
             }
-            if (Input.GetKeyUp(KeyCode.Mouse1)) dragPanActive = false;
+            if (Input.GetKeyUp(KeyCode.Mouse2)) dragPanActive = false;
 
             if (dragPanActive)
             {
