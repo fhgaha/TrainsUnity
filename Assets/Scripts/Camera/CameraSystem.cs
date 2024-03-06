@@ -26,7 +26,7 @@ namespace Trains
         [SerializeField] private float zoomSpeed = 10;
         [SerializeField] private float zoomStep = 3;
         [SerializeField] private float followOffsetMin = 30;
-        [SerializeField] private float followOffsetMax = 200;
+        [SerializeField] private float followOffsetMax = 600;
         [SerializeField] private AnimationCurve curve;
 
         private CinemachineTransposer camTransp;
@@ -104,6 +104,7 @@ namespace Trains
 
         void Zoom()
         {
+            zoomStep = followOffset.y / 10;
             if (Input.mouseScrollDelta.y > 0) followOffset.y -= zoomStep;
             if (Input.mouseScrollDelta.y < 0) followOffset.y += zoomStep;
 

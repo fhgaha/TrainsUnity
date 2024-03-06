@@ -1199,7 +1199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 110, z: -48.5}
+  m_FollowOffset: {x: 0, y: 125.3174, z: -44.9}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -1896,8 +1896,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 884639973}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5461523, y: 0.00000001496344, z: -0.000000009755824, w: 0.83768594}
-  m_LocalPosition: {x: 0, y: 110, z: -48.5}
+  m_LocalRotation: {x: 0.5756326, y: -0.000000056067236, z: 0.00000003946899, w: 0.8177085}
+  m_LocalPosition: {x: 0, y: 125.3174, z: -44.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2190,7 +2190,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 1024, y: 1, z: 640}
+  m_LocalScale: {x: 4096, y: 1, z: 2048}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1386655957}
@@ -2734,7 +2734,7 @@ GameObject:
   - component: {fileID: 1353705425}
   - component: {fileID: 1353705424}
   m_Layer: 0
-  m_Name: Virtual Camera
+  m_Name: VirtualCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2787,8 +2787,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1353705423}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5461523, y: 0.00000001496344, z: -0.000000009755824, w: 0.83768594}
-  m_LocalPosition: {x: 0, y: 110, z: -48.5}
+  m_LocalRotation: {x: 0.5756326, y: -0.000000056067236, z: 0.00000003946899, w: 0.8177085}
+  m_LocalPosition: {x: 0, y: 125.3174, z: -44.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4114,7 +4114,7 @@ GameObject:
   - component: {fileID: 1867344306}
   - component: {fileID: 1867344307}
   m_Layer: 0
-  m_Name: CameraSystem
+  m_Name: VirtCamTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4148,13 +4148,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 1353705424}
-  edgeScrollEnabled: 0
   moveSpeed: 100
   moveStep: 1
+  dragPanSpeed: 0.12
   rotSpeed: 200
   rotStep: 1
+  edgeScrollEnabled: 0
   edgeScrollSize: 20
-  dragPanSpeed: 0.12
+  zoomSpeed: 200
+  zoomStep: 3
+  followOffsetMin: 30
+  followOffsetMax: 600
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &1941755034 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2414487025984448695, guid: e6b9ca3ae21005d41b25b1c11fe89b09, type: 3}
