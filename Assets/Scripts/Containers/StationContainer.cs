@@ -16,7 +16,7 @@ namespace Trains
         public Station Add(Station original)
         {
             Station copy = Instantiate(original, transform);
-            Destroy(copy.GetComponent<StationRotator>());
+            Destroy(copy.GetComponent<StationMovement>());
             copy.name = $"Station {copy.GetInstanceID()}";
             copy.SetUpRoadSegment(copy.Owner);
             copy.CopyInfoFrom(original);

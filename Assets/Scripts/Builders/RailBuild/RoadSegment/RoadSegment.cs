@@ -94,6 +94,15 @@ namespace Trains
             Owner = owner;
         }
 
+        public void UpdatePoints(Quaternion rot, List<Vector3> pts)
+        {
+            for (int i = 0; i < Points.Count; i++)
+                Points[i] = rot * pts[i] + transform.position;
+
+            Start = Points[0];
+            End = Points[^1];
+        }
+
         public void PlaceFromStationBuilder()
         {
             IsBlueprint = false;

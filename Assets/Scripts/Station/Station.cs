@@ -8,12 +8,12 @@ namespace Trains
     public class Station : MonoBehaviour
     {
         [field: SerializeField] public bool IsBlueprint { get; set; } = true;
-        [field: SerializeField] public Cargo Cargo { get; set; } = new();
-        [field: SerializeField] public Cargo Demand { get; set; } = Cargo.Empty;
 
         public RoadSegment Segment;
         public Vector3 Entry1 => Segment.Start;
         public Vector3 Entry2 => Segment.End;
+        public Cargo Cargo { get => cargoHandler.Cargo; set => cargoHandler.Cargo = value; }
+
         public IPlayer Owner
         {
             get => owner;
@@ -29,14 +29,18 @@ namespace Trains
 
         [SerializeField] private List<Vector3> originalPoints;
         private StationVisual visual;
+        private StationMovement mover;
+        private StationCargoHandler cargoHandler;
 
         private void Awake()
         {
+            mover = GetComponent<StationMovement>();
+            cargoHandler = GetComponent<StationCargoHandler>();
+            visual = GetComponentInChildren<StationVisual>().Configure(this);
             Segment = GetComponentInChildren<RoadSegment>();
             Segment.name = $"Station's {Segment}";
             Segment.Owner = owner;
-            visual = GetComponentInChildren<StationVisual>().Configure(this);
-            GetComponentInChildren<StationRotator>().Configure(this);
+            mover.Configure(this);
             GetComponentInChildren<MeshCollider>().sharedMesh = Segment.GetMesh();
         }
 
@@ -50,7 +54,7 @@ namespace Trains
             Owner = owner;
 
             originalPoints = new();
-            Vector3 p1 = new() { x = 0, y = 0, z =  20 };
+            Vector3 p1 = new() { x = 0, y = 0, z = 20 };
             Vector3 p2 = new() { x = 0, y = 0, z = -20 };
             MyMath.CalculateStraightLine(originalPoints, p1, p2, Global.Instance.DriveDistance);
 
@@ -69,61 +73,18 @@ namespace Trains
             Segment.End = original.Segment.End;
         }
 
-        public void UpdatePos(Vector3 newPos)
-        {
-            transform.position = newPos;
-            UpdatePos();
-        }
-
-        public void UpdatePos()
-        {
-            for (int i = 0; i < Segment.Points.Count; i++)
-            {
-                Segment.Points[i] = transform.rotation * originalPoints[i] + Segment.transform.position;
-            }
-            Segment.Start = Segment.Points[0];
-            Segment.End = Segment.Points[^1];
-        }
-
-        public void UpdateRotation(float yAngle) => transform.rotation = Quaternion.Euler(0, yAngle, 0);
-
+        public void UpdatePos(Vector3 newPos) => mover.UpdatePos(newPos, Segment, originalPoints);
+        public void UpdateSegmPoints() => Segment.UpdatePoints(transform.rotation, originalPoints);
+        public void UpdateRotation(float yAngle) => mover.UpdateRotation(yAngle);
         public void BecomeDefaultColor() => visual.BecomeDefaultColor();
-
         public void ResetVisual() => visual.ResetColor();
-
-        //public void UnloadCargo(Train train)
-        //{
-        //    Cargo.Add(train.Data.Cargo);
-        //    train.Data.Cargo.Erase();
-        //}
-
-        public void LoadCargoTo(Carriage car)
-        {
-            Dictionary<CargoType, int> maxAmnts = CarCargo.MaxAmnts;
-
-            //is station to needs that cargo?
-            //load not more than max amnt
-        }
-
-        public void UnloadCargoFrom(Carriage car)
-        {
-            Cargo.Add(car.Cargo);
-            car.Cargo.Erase();
-        }
+        public void LoadCargoTo(Carriage car) => cargoHandler.LoadCargoTo(car);
+        public void UnloadCargoFrom(Carriage car) => cargoHandler.UnloadCargoFrom(car);
 
         private void OnTriggerEnter(Collider other)
         {
             visual.HandleStatoinEnter(other);
             visual.HandleRoadEnter(other);
-            HandleTrainEnter(other);
-        }
-
-        private void HandleTrainEnter(Collider collider)
-        {
-            if (collider.TryGetComponent(out LocomotiveMove locMove))
-            {
-                //Debug.Log($"{this}: {locMove + "haha"}"); 
-            }
         }
 
         private void OnTriggerExit(Collider other)
@@ -131,7 +92,6 @@ namespace Trains
             visual.HandleStationExit(other);
             visual.HandleRoadExit(other);
         }
-
 
     }
 }

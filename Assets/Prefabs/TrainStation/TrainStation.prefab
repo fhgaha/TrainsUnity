@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 6832418880548881365}
   - component: {fileID: 4333282176779828300}
   - component: {fileID: 73846595378565815}
-  - component: {fileID: 7676467304431621852}
+  - component: {fileID: 3238845912859924969}
+  - component: {fileID: 7577349709666991192}
   m_Layer: 10
   m_Name: TrainStation
   m_TagString: Station
@@ -71,6 +72,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <IsBlueprint>k__BackingField: 1
+  Segment: {fileID: 0}
+  OwnerName: ---
+  originalPoints: []
+--- !u!114 &3238845912859924969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4105857913286547009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae551efa8a2fe4e4083feb63f7b3fad5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 80
+--- !u!114 &7577349709666991192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4105857913286547009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51f97ba67fbd748419e68cefc3df7818, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   <Cargo>k__BackingField:
     Amnts:
       _serializedList:
@@ -89,22 +118,6 @@ MonoBehaviour:
         Value: 0
       - Key: 2
         Value: 0
-  Segment: {fileID: 0}
-  OwnerName: ---
-  originalPoints: []
---- !u!114 &7676467304431621852
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4105857913286547009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4eeb8bae4f392c64487065bdb2194d87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationSpeed: 80
 --- !u!1 &4795344077111895679
 GameObject:
   m_ObjectHideFlags: 0
