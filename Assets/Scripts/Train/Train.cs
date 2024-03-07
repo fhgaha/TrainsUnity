@@ -41,6 +41,13 @@ namespace Trains
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
 
+        private TrainCargoHandler cargoHandler;
+
+        private void Awake()
+        {
+            cargoHandler = gameObject.GetOrAddComponent<TrainCargoHandler>().Confgure(this);
+        }
+
         public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes, IPlayer owner)
         {
             Route = route;
@@ -94,23 +101,23 @@ namespace Trains
                 {
                     curSpeed = 0;
 
-                    //decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
-                    //Data.Route.StationTo.UnloadCargo(this);
-                    //string carText = $"+{(int)worth / 2}$";
+                    //unload
+                    yield return cargoHandler.Unload_Rtn(cars, unloadTime);
 
-                    StartCoroutine(CarsPlayDelayedAnims_Coroutine(0.4f));
-                    IEnumerator CarsPlayDelayedAnims_Coroutine(float delay)
-                    {
-                        foreach (var car in cars)
-                        {
-                            decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
-                            Route.StationTo.UnloadCargoFrom(car);
-                            car.PlayProfitAnim($"+{(int)worth}$");
-                            yield return new WaitForSeconds(delay);
-                        }
-                    }
 
-                    yield return new WaitForSeconds(unloadTime);
+                    //yield return CarsPlayDelayedAnims_Crtn(0.4f);
+                    //IEnumerator CarsPlayDelayedAnims_Crtn(float delay)
+                    //{
+                    //    foreach (var car in cars)
+                    //    {
+                    //        decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
+                    //        Route.StationTo.UnloadCargoFrom(car);
+                    //        car.PlayProfitAnim($"+{(int)worth}$");
+                    //        yield return new WaitForSeconds(delay);
+                    //    }
+                    //}
+
+                    //yield return new WaitForSeconds(unloadTime);
 
                     if (!LoopThroughStations)
                     {
@@ -124,13 +131,14 @@ namespace Trains
                     FlipTrain();
                     //do this once to set cars into in-between positions
                     MoveToCurPt();
-                    yield return new WaitForSeconds(loadTime);
+
+                    //load
+                    yield return cargoHandler.Load_Rtn(loadTime);
+                    
                 }
-                else
-                {
-                    MoveToCurPt();
-                    yield return new WaitForEndOfFrame();
-                }
+
+                MoveToCurPt();
+                yield return new WaitForEndOfFrame();
 
                 if (!keepMoving) yield return new WaitUntil(() => keepMoving);
             }

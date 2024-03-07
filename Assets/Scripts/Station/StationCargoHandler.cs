@@ -23,6 +23,7 @@ namespace Trains
             car.Cargo.Erase();
         }
 
+        //this is triggered on train creation on scene start
         private void OnTriggerEnter(Collider other)
         {
             HandleTrainEnter(other);
@@ -32,7 +33,9 @@ namespace Trains
         {
             if (collider.TryGetComponent(out LocomotiveMove locMove))
             {
-                //Debug.Log($"{this}: {locMove + "haha"}"); 
+                //unload and load train
+
+
             }
         }
 
