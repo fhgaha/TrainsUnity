@@ -11,5 +11,11 @@ namespace Trains
         public static decimal MailPrice => 5;
         public static decimal Wood => 6;
 
+        public static Dictionary<CargoType, decimal> AsDict = new()
+        {
+            [CargoType.Passengers] = PassengerPrice,
+            [CargoType.Mail] = MailPrice,
+            [CargoType.Wood] = Wood
+        };
     }
 }

@@ -30,6 +30,7 @@ namespace Trains
         [SerializeField] private List<Vector3> originalPoints;
         private StationVisual visual;
         private StationMovement mover;
+        public StationCargoHandler CargoHandler => cargoHandler;
         private StationCargoHandler cargoHandler;
 
         private void Awake()

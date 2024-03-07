@@ -46,10 +46,10 @@ namespace Trains
             foreach (var car in cars)
             {
                 train.Route.StationTo.LoadCargoTo(car);
-                yield return new WaitForSeconds(0.4f);
+                //yield return new WaitForSeconds(0.4f);
             }
 
-            //yield return new WaitForSeconds(loadTime);
+            yield return new WaitForSeconds(loadTime);
         }
 
     }

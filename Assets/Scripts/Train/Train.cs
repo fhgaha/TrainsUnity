@@ -56,8 +56,16 @@ namespace Trains
             CurPath = route.PathForward;
             Owner = owner;
 
-            int carsAmnt = cargoes.Count;
 
+
+            var cargoesNew = Route.GetCargoToLoad(4);
+            int carsAmnt = cargoes.Count;
+            CreateLocoAndCars(locoPrefab, carriagePrefab, cargoes, carsAmnt);
+            StartCoroutine(Move_Routine());
+        }
+
+        private void CreateLocoAndCars(GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes, int carsAmnt)
+        {
             //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
             for (int i = 0; i < carsAmnt; i++)
@@ -76,8 +84,6 @@ namespace Trains
             }
             cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
             loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
-
-            StartCoroutine(Move_Routine());
         }
 
         public IEnumerator Move_Routine()
@@ -89,7 +95,7 @@ namespace Trains
 
             //do this once to set cars into in-between positions
             MoveToCurPt();
-            cargoHandler.Load_Rtn(cars);
+            yield return cargoHandler.Load_Rtn(cars);
 
             while (keepMoving)
             {

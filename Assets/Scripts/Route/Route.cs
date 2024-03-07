@@ -17,7 +17,7 @@ namespace Trains
         public List<Vector3> PathForward { get; set; }
         public List<Vector3> PathBack { get; set; }     //not reversing PathForward cause oath back can be different? or it cant?
         public float Length => RoadSegment.GetApproxLength(PathForward);
-        
+
         public Route() { }
 
         public Route(List<Station> stations, List<Vector3> pathTo, List<Vector3> pathBack)
@@ -46,6 +46,28 @@ namespace Trains
             PathBack = tempPath;
 
             return reversed;
+        }
+
+        //https://wiki.openttd.org/en/Manual/Game%20Mechanics/Cargo%20income
+        public List<(CargoType, decimal)> GetCargoToLoad(int amnt)
+        {
+            //(supply - demand) * Length * Prices.PassengerPrice
+
+            List<(CargoType ct, decimal profit)> differences = new();
+
+            var demandAmnts = StationTo.CargoHandler.Demand.Amnts;
+            var supplyAmnts = StationFrom.Cargo.Amnts;
+
+            foreach (CargoType ct in Enum.GetValues(typeof(CargoType)))
+            {
+                decimal diff = (demandAmnts[ct] - supplyAmnts[ct]) * Prices.PassengerPrice;
+                differences.Add((ct, diff));
+            }
+
+            differences = differences.OrderByDescending(p => p.profit).Take(amnt).ToList();
+            return differences;
+
+            //should retrun list of CarCargo to build cars
         }
     }
 }

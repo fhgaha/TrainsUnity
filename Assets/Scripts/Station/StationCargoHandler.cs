@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -7,7 +9,7 @@ namespace Trains
     public class StationCargoHandler : MonoBehaviour
     {
         [field: SerializeField] public Cargo Cargo { get; set; } = new();
-        [field: SerializeField] public Cargo Demand { get; set; } = Cargo.Empty;
+        [field: SerializeField] public Cargo Demand { get; set; } = new();
 
         public void LoadCargoTo(Carriage car)
         {
