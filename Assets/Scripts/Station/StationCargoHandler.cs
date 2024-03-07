@@ -8,8 +8,13 @@ namespace Trains
 {
     public class StationCargoHandler : MonoBehaviour
     {
-        [field: SerializeField] public Cargo Cargo { get; set; } = new();
+        [field: SerializeField] public Cargo Supply { get; set; } = new();
         [field: SerializeField] public Cargo Demand { get; set; } = new();
+
+        private void Awake()
+        {
+            Global.OnTick_3 += Tick;
+        }
 
         public void LoadCargoTo(Carriage car)
         {
@@ -17,11 +22,14 @@ namespace Trains
 
             //is station to needs that cargo?
             //load not more than max amnt
+
+            //    Cargo.Add(train.Data.Cargo);
+            //    train.Data.Cargo.Erase();
         }
 
         public void UnloadCargoFrom(Carriage car)
         {
-            Cargo.Add(car.Cargo);
+            Supply.Add(car.Cargo);
             car.Cargo.Erase();
         }
 
@@ -41,10 +49,14 @@ namespace Trains
             }
         }
 
-        //public void UnloadCargo(Train train)
-        //{
-        //    Cargo.Add(train.Data.Cargo);
-        //    train.Data.Cargo.Erase();
-        //}
+        private void Tick(object sender, EventArgs e)
+        {
+            CalcDemand();
+        }
+
+        private void CalcDemand()
+        {
+            
+        }
     }
 }

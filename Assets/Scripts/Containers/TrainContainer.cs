@@ -27,14 +27,7 @@ namespace Trains
 
             Train trainComp = trainObj.GetComponent<Train>();
 
-            List<CarCargo> cargoes = new()
-            {
-                new CarCargo { CargoType = CargoType.Passengers, Amnt = 5 },
-                new CarCargo { CargoType = CargoType.Mail, Amnt = 8 },
-                new CarCargo { CargoType = CargoType.Mail, Amnt = 8 },
-            };
-
-            trainComp.Configure(route, locoPrefab, carriagePrefab, cargoes, owner);
+            trainComp.Configure(route, locoPrefab, carriagePrefab, owner);
         }
 
     }

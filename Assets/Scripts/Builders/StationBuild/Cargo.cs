@@ -1,6 +1,7 @@
 ﻿using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -18,20 +19,34 @@ namespace Trains
             }
         }
 
-        [SerializedDictionary ("Cargo Type", "Amnt")] 
-        public SerializedDictionary<CargoType, int> Amnts  = new()
+        public static List<(CargoType, int)> GetAmntDiffDescending(StationCargoHandler from, StationCargoHandler to)
         {
-            [CargoType.Passengers] = 5,
-            [CargoType.Mail] = 6,
-            [CargoType.Wood] = 7
-        };
+            List<(CargoType ct, int profit)> differences = new();
 
-        public Dictionary<CargoType, int> MaxAmnts = new()
-        {
-            [CargoType.Passengers] = 15,
-            [CargoType.Mail] = 20,
-            [CargoType.Wood] = 50
-        };
+            var supplyAmnts = from.Supply.Amnts;
+            var demandAmnts = to.Demand.Amnts;
+
+            foreach (CargoType ct in Enum.GetValues(typeof(CargoType)))
+            {
+                int diff = demandAmnts[ct] - supplyAmnts[ct];
+                differences.Add((ct, diff));
+            }
+
+            differences = differences.OrderByDescending(p => p.profit).ToList();
+            return differences;
+        }
+
+        [SerializedDictionary("Cargo Type", "Amnt")]
+        public SerializedDictionary<CargoType, int> Amnts = new();
+
+        //public Dictionary<CargoType, int> MaxAmnts = new()
+        //{
+        //    [CargoType.Passengers] = 15,
+        //    [CargoType.Mail] = 20,
+        //    [CargoType.Wood] = 50
+        //};
+
+
 
         public void Add(CarCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
 
@@ -39,7 +54,7 @@ namespace Trains
         {
             Amnts[CargoType.Passengers] = 0;
             Amnts[CargoType.Mail] = 0;
-            Amnts[CargoType.Wood] = 0;
+            Amnts[CargoType.Logs] = 0;
         }
 
         public Cargo With(CargoType cargoType, int amnt)

@@ -12,7 +12,7 @@ namespace Trains
         public RoadSegment Segment;
         public Vector3 Entry1 => Segment.Start;
         public Vector3 Entry2 => Segment.End;
-        public Cargo Cargo { get => cargoHandler.Cargo; set => cargoHandler.Cargo = value; }
+        //public Cargo Cargo { get => cargoHandler.Cargo; set => cargoHandler.Cargo = value; }
 
         public IPlayer Owner
         {
@@ -26,12 +26,14 @@ namespace Trains
         public string OwnerName = "---";
         private IPlayer owner;
         public override string ToString() => $"Station \"{name}\", id: {GetInstanceID()}, entry1: {Entry1}, entry2: {Entry2}";
+        
+        public StationCargoHandler CargoHandler => cargoHandler;
+        private StationCargoHandler cargoHandler;
 
         [SerializeField] private List<Vector3> originalPoints;
         private StationVisual visual;
         private StationMovement mover;
-        public StationCargoHandler CargoHandler => cargoHandler;
-        private StationCargoHandler cargoHandler;
+
 
         private void Awake()
         {

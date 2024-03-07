@@ -48,26 +48,48 @@ namespace Trains
             return reversed;
         }
 
-        //https://wiki.openttd.org/en/Manual/Game%20Mechanics/Cargo%20income
-        public List<(CargoType, decimal)> GetCargoToLoad(int amnt)
+        public List<CarCargo> GetCargoToLoad(int amnt)
         {
-            //(supply - demand) * Length * Prices.PassengerPrice
+            List<CarCargo> res = new();
+            List<(CargoType ct, int amnt)> demands = StationTo.CargoHandler.Demand.Amnts
+                .Select(p => (p.Key, p.Value))
+                .OrderByDescending(p => p.Value).ToList();
 
-            List<(CargoType ct, decimal profit)> differences = new();
-
-            var demandAmnts = StationTo.CargoHandler.Demand.Amnts;
-            var supplyAmnts = StationFrom.Cargo.Amnts;
-
-            foreach (CargoType ct in Enum.GetValues(typeof(CargoType)))
+            if (demands.All(p => p.amnt == 0))
             {
-                decimal diff = (demandAmnts[ct] - supplyAmnts[ct]) * Prices.PassengerPrice;
-                differences.Add((ct, diff));
+                for (int i = 0; i < amnt; i++)
+                    res.Add(CarCargo.Empty);
+
+                return res;
             }
 
-            differences = differences.OrderByDescending(p => p.profit).Take(amnt).ToList();
-            return differences;
+            for (int i = 0; i < amnt; i++)
+            {
+                if (demands.Count == 0)
+                {
+                    res.Add(CarCargo.Empty);
+                    continue;
+                }
 
-            //should retrun list of CarCargo to build cars
+                //15
+                (CargoType ct, int amnt) demand = demands.First();
+                int maxAmnt = CarCargo.MaxAmnts[demand.ct];
+                //10
+                int supply = StationFrom.CargoHandler.Supply.Amnts[demand.ct];
+                //10
+                int loadAmnt = supply == maxAmnt ? maxAmnt : supply % maxAmnt;
+                res.Add(new CarCargo { CargoType = demand.ct, Amnt = loadAmnt });
+                StationFrom.CargoHandler.Supply.Amnts[demand.ct] -= loadAmnt;
+
+                if (StationFrom.CargoHandler.Supply.Amnts[demand.ct] <= 0)
+                    demands.RemoveAt(0);
+            }
+
+            return res;
         }
+
+
+        //https://wiki.openttd.org/en/Manual/Game%20Mechanics/Cargo%20income
+
     }
 }

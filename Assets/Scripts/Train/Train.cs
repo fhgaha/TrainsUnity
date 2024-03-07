@@ -48,7 +48,7 @@ namespace Trains
             cargoHandler = gameObject.GetOrAddComponent<TrainCargoHandler>().Confgure(this);
         }
 
-        public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes, IPlayer owner)
+        public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
         {
             Route = route;
             pathFwd = route.PathForward;
@@ -56,19 +56,16 @@ namespace Trains
             CurPath = route.PathForward;
             Owner = owner;
 
-
-
-            var cargoesNew = Route.GetCargoToLoad(4);
-            int carsAmnt = cargoes.Count;
-            CreateLocoAndCars(locoPrefab, carriagePrefab, cargoes, carsAmnt);
+            var cargoes = Route.GetCargoToLoad(3);
+            CreateLocoAndCars(locoPrefab, carriagePrefab, cargoes);
             StartCoroutine(Move_Routine());
         }
 
-        private void CreateLocoAndCars(GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes, int carsAmnt)
+        private void CreateLocoAndCars(GameObject locoPrefab, GameObject carriagePrefab, List<CarCargo> cargoes)
         {
             //instantiate train objs
             loco = Instantiate(locoPrefab, transform).GetComponent<LocomotiveMove>();
-            for (int i = 0; i < carsAmnt; i++)
+            for (int i = 0; i < cargoes.Count; i++)
                 cars.Add(Instantiate(carriagePrefab, transform).GetComponent<Carriage>());
 
             //set pos' and rots
@@ -83,6 +80,8 @@ namespace Trains
                 cars[i].Cargo = cargoes[i];
             }
             cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
+            cars[0].Cargo = cargoes[0];
+
             loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
         }
 

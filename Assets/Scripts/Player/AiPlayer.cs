@@ -71,9 +71,19 @@ namespace Trains
                 sb.gameObject.SetActive(true);
 
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-                from.Cargo = Cargo.Empty.With(CargoType.Passengers, 10);
+                from.CargoHandler.Supply = Cargo.Empty
+                    .With(CargoType.Passengers, 10)
+                    .With(CargoType.Mail, 2)
+                    .With(CargoType.Logs, 3);
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
-                to.Cargo = Cargo.Empty.With(CargoType.Mail, 15);
+                to.CargoHandler.Supply = Cargo.Empty
+                    .With(CargoType.Passengers, 15)
+                    .With(CargoType.Mail, 4)
+                    .With(CargoType.Logs, 7);
+                to.CargoHandler.Demand = Cargo.Empty
+                    .With(CargoType.Passengers, 15)
+                    .With(CargoType.Mail, 4)
+                    .With(CargoType.Logs, 7);
 
                 yield return railGen.Build_Routine(
                     from.Entry1,

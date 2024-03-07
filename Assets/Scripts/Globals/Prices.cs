@@ -15,7 +15,7 @@ namespace Trains
         {
             [CargoType.Passengers] = PassengerPrice,
             [CargoType.Mail] = MailPrice,
-            [CargoType.Wood] = Wood
+            [CargoType.Logs] = Wood
         };
     }
 }
