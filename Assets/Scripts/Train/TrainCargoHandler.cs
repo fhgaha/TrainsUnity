@@ -7,6 +7,7 @@ namespace Trains
     public class TrainCargoHandler : MonoBehaviour
     {
         Train train;
+        float unloadTime = 3, loadTime = 3;
 
         public TrainCargoHandler Confgure(Train train)
         {
@@ -14,7 +15,7 @@ namespace Trains
             return this;
         }
 
-        public IEnumerator Unload_Rtn(List<Carriage> cars, float unloadTime)
+        public IEnumerator Unload_Rtn(List<Carriage> cars)
         {
             //decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
             //Data.Route.StationTo.UnloadCargo(this);
@@ -35,9 +36,20 @@ namespace Trains
             yield return new WaitForSeconds(unloadTime);
         }
 
-        public IEnumerator Load_Rtn(float loadTime)
+        public IEnumerator Load_Rtn(List<Carriage> cars)
         {
-            yield return new WaitForSeconds(loadTime);
+            //get most profitable goods
+
+
+
+            //load each car
+            foreach (var car in cars)
+            {
+                train.Route.StationTo.LoadCargoTo(car);
+                yield return new WaitForSeconds(0.4f);
+            }
+
+            //yield return new WaitForSeconds(loadTime);
         }
 
     }

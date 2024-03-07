@@ -77,10 +77,10 @@ namespace Trains
             cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
             loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
 
-            StartCoroutine(Move_Routine(4, 3));
+            StartCoroutine(Move_Routine());
         }
 
-        public IEnumerator Move_Routine(float unloadTime, float loadTime)
+        public IEnumerator Move_Routine()
         {
             if (isCoroutineRunning) yield break;
             isCoroutineRunning = true;
@@ -89,7 +89,7 @@ namespace Trains
 
             //do this once to set cars into in-between positions
             MoveToCurPt();
-            yield return new WaitForSeconds(loadTime);
+            cargoHandler.Load_Rtn(cars);
 
             while (keepMoving)
             {
@@ -101,23 +101,7 @@ namespace Trains
                 {
                     curSpeed = 0;
 
-                    //unload
-                    yield return cargoHandler.Unload_Rtn(cars, unloadTime);
-
-
-                    //yield return CarsPlayDelayedAnims_Crtn(0.4f);
-                    //IEnumerator CarsPlayDelayedAnims_Crtn(float delay)
-                    //{
-                    //    foreach (var car in cars)
-                    //    {
-                    //        decimal worth = Owner.AddProfitForDeliveredCargo(car.Cargo);
-                    //        Route.StationTo.UnloadCargoFrom(car);
-                    //        car.PlayProfitAnim($"+{(int)worth}$");
-                    //        yield return new WaitForSeconds(delay);
-                    //    }
-                    //}
-
-                    //yield return new WaitForSeconds(unloadTime);
+                    yield return cargoHandler.Unload_Rtn(cars);
 
                     if (!LoopThroughStations)
                     {
@@ -126,14 +110,14 @@ namespace Trains
                         yield return new WaitUntil(() => LoopThroughStations);
                     }
 
+                    //reverse train and load
                     curTargetIdx = LengthIndeces + 1;
                     UpdateRoute();
                     FlipTrain();
                     //do this once to set cars into in-between positions
                     MoveToCurPt();
 
-                    //load
-                    yield return cargoHandler.Load_Rtn(loadTime);
+                    yield return cargoHandler.Load_Rtn(cars);
                     
                 }
 
