@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,8 @@ namespace Trains
 {
     public class TrainCargoHandler : MonoBehaviour
     {
+        [SerializeField] bool debug = true;
+
         Train train;
         float unloadTime = 3, loadTime = 3;
 
@@ -18,10 +21,6 @@ namespace Trains
 
         public IEnumerator Unload_Rtn(List<Carriage> cars)
         {
-            //decimal worth = Owner.AddProfitForDeliveredCargo(Data.Cargo);
-            //Data.Route.StationTo.UnloadCargo(this);
-            //string carText = $"+{(int)worth / 2}$";
-
             yield return CarsPlayDelayedAnims_Crtn(0.4f);
             IEnumerator CarsPlayDelayedAnims_Crtn(float delay)
             {
@@ -39,19 +38,21 @@ namespace Trains
 
         public IEnumerator Load_Rtn(List<Carriage> cars)
         {
-            List<CarCargo> onlyCargoTypesSet = train.Route.GetCargoToLoad_NoSubtraction(cars.Count);
-            yield return Load_Rtn(cars, onlyCargoTypesSet);
-        }
+            List<CarCargo> cargoTypesOnly = train.Route.GetCargoTypesToLoad(cars.Count);
 
-        public IEnumerator Load_Rtn(List<Carriage> cars, List<CarCargo> cargos)
-        {
-            //load each car
-            for (int i = 0; i < cargos.Count; i++)
+            yield return CarsPlayDelayedAnims_Crtn(0.4f);
+            IEnumerator CarsPlayDelayedAnims_Crtn(float delay)
             {
-                CarCargo c = cargos[i];
-                train.Route.StationFrom.CargoHandler.LoadCargoTo(c);
-                cars[i].Cargo = c;
-                //yield return new WaitForSeconds(0.4f);
+                for (int i = 0; i < cargoTypesOnly.Count; i++)
+                {
+                    CarCargo c = cargoTypesOnly[i];
+                    train.Route.StationFrom.CargoHandler.LoadCargoTo(c);
+                    cars[i].Cargo = c;
+                    if (debug)
+                        cars[i].PlayProfitAnim($"Loaded {cars[i].Cargo.CargoType}, amnt {cars[i].Cargo.Amnt}$");
+
+                    yield return new WaitForSeconds(delay);
+                }
             }
 
             yield return new WaitForSeconds(loadTime);

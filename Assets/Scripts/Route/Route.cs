@@ -49,57 +49,53 @@ namespace Trains
             return reversed;
         }
 
-        public List<CarCargo> GetCargoToLoad(int amnt)
-        {
-            List<CarCargo> res = new();
-            List<(CargoType ct, int amnt)> demands = StationTo.CargoHandler.Demand.Amnts
-                .Select(p => (p.Key, p.Value))
-                .OrderByDescending(p => p.Value).ToList();
-
-            if (demands.All(p => p.amnt == 0))
-            {
-                for (int i = 0; i < amnt; i++)
-                    res.Add(CarCargo.Empty);
-
-                return res;
-            }
-
-            for (int i = 0; i < amnt; i++)
-            {
-                if (demands.Count == 0)
-                {
-                    res.Add(CarCargo.Empty);
-                    continue;
-                }
-
-                //use demand of StationTo cause we want to send only goods that can be accepted by StationTo
-                //15
-                (CargoType ct, int amnt) demand = demands.First();
-                int maxAmnt = CarCargo.MaxAmnts[demand.ct];
-                //10
-                int supply = StationFrom.CargoHandler.Supply.Amnts[demand.ct];
-                //10
-                int loadAmnt = supply == maxAmnt ? maxAmnt : supply % maxAmnt;
-                res.Add(new CarCargo { CargoType = demand.ct, Amnt = loadAmnt });
-                StationFrom.CargoHandler.Supply.Amnts[demand.ct] -= loadAmnt;
-
-                if (StationFrom.CargoHandler.Supply.Amnts[demand.ct] <= 0)
-                    demands.RemoveAt(0);
-            }
-
-            return res;
-        }
-
-        public List<CarCargo> GetCargoToLoad_NoSubtraction(int amnt)
+        //https://wiki.openttd.org/en/Manual/Game%20Mechanics/Cargo%20income
+        public List<CarCargo> GetCargoTypesToLoad(int amnt)
         {
             //get CarCargo list with cargoTypes set based on demand and amnts empty
             List<CarCargo> res = new();
             List<Tuple<CargoType, int, decimal>> demand = StationTo.CargoHandler.Demand.Amnts
                 .Select(p => Tuple.Create(p.Key, p.Value, Prices.AsDict[p.Key]))
-                .OrderByDescending(p => p.Item2 * p.Item3)
+                //.OrderByDescending(p => p.Item2 * p.Item3)
+                .OrderByDescending(p => PriceOfAmnt(p))
                 .ToList();
 
-            //all vals zero
+            //Dictionary<CargoType, int> supply = StationFrom.CargoHandler.Supply.Amnts.ToDictionary(p => p.Key, p => p.Value);
+            Dictionary<CargoType, int> supply = new(StationFrom.CargoHandler.Supply.Amnts);     //copy
+
+            for (int i = 0; i < amnt; i++)
+            {
+                if (demand.Count == 0) break;
+                (CargoType desType, int desAmnt, decimal price) = demand[0];
+                int supAmnt = supply[desType];
+                if (supAmnt == 0)
+                {
+                    demand.RemoveAt(0);
+                    i--;
+                    continue;
+                }
+                int maxAmnt = CarCargo.MaxAmnts[desType];
+                int toLoad = supAmnt % maxAmnt;
+                if (supAmnt != 0 && toLoad == 0) toLoad = maxAmnt;
+                CarCargo r = new() { CargoType = desType, Amnt = 0 };
+                res.Add(r);
+                demand[0] = Tuple.Create(desType, desAmnt - toLoad, price);
+                supply[desType] -= toLoad;
+            }
+
+            return res;
+        }
+
+        public List<CargoType> GetCargoTypesToLoad_TypeList(int amnt)
+        {
+            //get CarCargo list with cargoTypes set based on demand and amnts empty
+            List<CargoType> res = new();
+            List<Tuple<CargoType, int, decimal>> demand = StationTo.CargoHandler.Demand.Amnts
+                .Select(p => Tuple.Create(p.Key, p.Value, Prices.AsDict[p.Key]))
+                //.OrderByDescending(p => p.Item2 * p.Item3)
+                .OrderByDescending(p => PriceOfAmnt(p))
+                .ToList();
+
             Dictionary<CargoType, int> supply = StationFrom.CargoHandler.Supply.Amnts.ToDictionary(p => p.Key, p => p.Value);
 
             for (int i = 0; i < amnt; i++)
@@ -111,20 +107,26 @@ namespace Trains
                     demand.RemoveAt(0);
                     continue;
                 }
+                res.Add(desType);
                 int maxAmnt = CarCargo.MaxAmnts[desType];
                 int supAmnt = supply[desType];
-                int toLoad = supAmnt % maxAmnt;
-                if (toLoad == 0) toLoad = maxAmnt;
-                CarCargo r = new() { CargoType = desType, Amnt = 0 };
-                res.Add(r);
-                demand[0] = Tuple.Create(desType, desAmnt - toLoad, price);
+                int toLoadAmnt = supAmnt % maxAmnt;
+                if (toLoadAmnt == 0) toLoadAmnt = maxAmnt;
+                demand[0] = Tuple.Create(desType, desAmnt - toLoadAmnt, price);
             }
 
             return res;
         }
 
-
-        //https://wiki.openttd.org/en/Manual/Game%20Mechanics/Cargo%20income
-
+        private int PriceOfAmnt(Tuple<CargoType, int, decimal> t)
+        {
+            (CargoType ct, int amnt, decimal price) = t;
+            int maxAmnt = CarCargo.MaxAmnts[ct];
+            if (amnt == 0)
+                return 0;
+            if (amnt % maxAmnt == 0)
+                return maxAmnt * (int)price;
+            return amnt % maxAmnt * (int)price;
+        }
     }
 }
