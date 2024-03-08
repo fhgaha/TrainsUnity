@@ -56,7 +56,12 @@ namespace Trains
             CurPath = route.PathForward;
             Owner = owner;
 
-            var cargoes = Route.GetCargoToLoad(3);
+            //this thing already sustracts from StationFrom, it should happen only on load
+            //List<CarCargo> cargoes = Route.GetCargoToLoad(3);
+
+            //mock
+            var cargoes = new List<CarCargo> { new CarCargo(), new CarCargo(), new CarCargo() };
+
             CreateLocoAndCars(locoPrefab, carriagePrefab, cargoes);
             StartCoroutine(Move_Routine());
         }
@@ -77,10 +82,10 @@ namespace Trains
             {
                 cars[i].Configure(cars[i - 1].Back, pathFwd[lenIdcs], startRot);
                 lenIdcs += cars[0].LengthIndeces;
-                cars[i].Cargo = cargoes[i];
+                //cars[i].Cargo = cargoes[i];
             }
             cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
-            cars[0].Cargo = cargoes[0];
+            //cars[0].Cargo = cargoes[0];
 
             loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
         }
@@ -94,6 +99,8 @@ namespace Trains
 
             //do this once to set cars into in-between positions
             MoveToCurPt();
+            //probably should decide before this how many cars should train have. when should i decide what to load?
+            //List<CarCargo> onlyCargoTypesSet = Route.GetCargoToLoad_NoSubtraction(cars.Count);
             yield return cargoHandler.Load_Rtn(cars);
 
             while (keepMoving)
@@ -123,7 +130,7 @@ namespace Trains
                     MoveToCurPt();
 
                     yield return cargoHandler.Load_Rtn(cars);
-                    
+
                 }
 
                 MoveToCurPt();

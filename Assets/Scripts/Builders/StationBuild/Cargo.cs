@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -49,6 +50,13 @@ namespace Trains
 
 
         public void Add(CarCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
+
+        public int SubtractFullCarAmnt(CargoType ct)
+        {
+            int toSubstract = Mathf.Clamp(Amnts[ct], 0, CarCargo.MaxAmnts[ct]);
+            Amnts[ct] -= toSubstract;
+            return toSubstract;
+        }
 
         public void Erase()
         {

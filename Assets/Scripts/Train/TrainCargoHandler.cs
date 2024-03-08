@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
@@ -38,19 +39,22 @@ namespace Trains
 
         public IEnumerator Load_Rtn(List<Carriage> cars)
         {
-            //get most profitable goods
+            List<CarCargo> onlyCargoTypesSet = train.Route.GetCargoToLoad_NoSubtraction(cars.Count);
+            yield return Load_Rtn(cars, onlyCargoTypesSet);
+        }
 
-
-
+        public IEnumerator Load_Rtn(List<Carriage> cars, List<CarCargo> cargos)
+        {
             //load each car
-            foreach (var car in cars)
+            for (int i = 0; i < cargos.Count; i++)
             {
-                train.Route.StationTo.LoadCargoTo(car);
+                CarCargo c = cargos[i];
+                train.Route.StationFrom.CargoHandler.LoadCargoTo(c);
+                cars[i].Cargo = c;
                 //yield return new WaitForSeconds(0.4f);
             }
 
             yield return new WaitForSeconds(loadTime);
         }
-
     }
 }

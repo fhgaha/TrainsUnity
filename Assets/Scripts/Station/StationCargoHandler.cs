@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -16,15 +17,13 @@ namespace Trains
             Global.OnTick_3 += Tick;
         }
 
-        public void LoadCargoTo(Carriage car)
+        public void LoadCargoTo(CarCargo carCargo)
         {
-            Dictionary<CargoType, int> maxAmnts = CarCargo.MaxAmnts;
+            //Assert.IsTrue(carCargo != null, $"car cargo should not be null");
 
-            //is station to needs that cargo?
-            //load not more than max amnt
-
-            //    Cargo.Add(train.Data.Cargo);
-            //    train.Data.Cargo.Erase();
+            CargoType ct = carCargo.CargoType;
+            int subtrackted = Supply.SubtractFullCarAmnt(ct);
+            carCargo.Amnt += subtrackted;
         }
 
         public void UnloadCargoFrom(Carriage car)

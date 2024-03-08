@@ -1,3 +1,4 @@
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -71,6 +72,7 @@ namespace Trains
                     continue;
                 }
 
+                //use demand of StationTo cause we want to send only goods that can be accepted by StationTo
                 //15
                 (CargoType ct, int amnt) demand = demands.First();
                 int maxAmnt = CarCargo.MaxAmnts[demand.ct];
@@ -83,6 +85,39 @@ namespace Trains
 
                 if (StationFrom.CargoHandler.Supply.Amnts[demand.ct] <= 0)
                     demands.RemoveAt(0);
+            }
+
+            return res;
+        }
+
+        public List<CarCargo> GetCargoToLoad_NoSubtraction(int amnt)
+        {
+            //get CarCargo list with cargoTypes set based on demand and amnts empty
+            List<CarCargo> res = new();
+            List<Tuple<CargoType, int, decimal>> demand = StationTo.CargoHandler.Demand.Amnts
+                .Select(p => Tuple.Create(p.Key, p.Value, Prices.AsDict[p.Key]))
+                .OrderByDescending(p => p.Item2 * p.Item3)
+                .ToList();
+
+            //all vals zero
+            Dictionary<CargoType, int> supply = StationFrom.CargoHandler.Supply.Amnts.ToDictionary(p => p.Key, p => p.Value);
+
+            for (int i = 0; i < amnt; i++)
+            {
+                if (demand.Count == 0) break;
+                (CargoType desType, int desAmnt, decimal price) = demand[0];
+                if (desAmnt == 0)
+                {
+                    demand.RemoveAt(0);
+                    continue;
+                }
+                int maxAmnt = CarCargo.MaxAmnts[desType];
+                int supAmnt = supply[desType];
+                int toLoad = supAmnt % maxAmnt;
+                if (toLoad == 0) toLoad = maxAmnt;
+                CarCargo r = new() { CargoType = desType, Amnt = 0 };
+                res.Add(r);
+                demand[0] = Tuple.Create(desType, desAmnt - toLoad, price);
             }
 
             return res;

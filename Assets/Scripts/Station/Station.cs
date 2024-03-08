@@ -81,7 +81,6 @@ namespace Trains
         public void UpdateRotation(float yAngle) => mover.UpdateRotation(yAngle);
         public void BecomeDefaultColor() => visual.BecomeDefaultColor();
         public void ResetVisual() => visual.ResetColor();
-        public void LoadCargoTo(Carriage car) => cargoHandler.LoadCargoTo(car);
         public void UnloadCargoFrom(Carriage car) => cargoHandler.UnloadCargoFrom(car);
 
         private void OnTriggerEnter(Collider other)
