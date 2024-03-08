@@ -20,23 +20,6 @@ namespace Trains
             }
         }
 
-        public static List<(CargoType, int)> GetAmntDiffDescending(StationCargoHandler from, StationCargoHandler to)
-        {
-            List<(CargoType ct, int profit)> differences = new();
-
-            var supplyAmnts = from.Supply.Amnts;
-            var demandAmnts = to.Demand.Amnts;
-
-            foreach (CargoType ct in Enum.GetValues(typeof(CargoType)))
-            {
-                int diff = demandAmnts[ct] - supplyAmnts[ct];
-                differences.Add((ct, diff));
-            }
-
-            differences = differences.OrderByDescending(p => p.profit).ToList();
-            return differences;
-        }
-
         [SerializedDictionary("Cargo Type", "Amnt")]
         public SerializedDictionary<CargoType, int> Amnts = new();
 
@@ -46,8 +29,6 @@ namespace Trains
         //    [CargoType.Mail] = 20,
         //    [CargoType.Wood] = 50
         //};
-
-
 
         public void Add(CarCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
 

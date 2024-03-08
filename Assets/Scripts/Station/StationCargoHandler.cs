@@ -11,10 +11,17 @@ namespace Trains
     {
         [field: SerializeField] public Cargo Supply { get; set; } = new();
         [field: SerializeField] public Cargo Demand { get; set; } = new();
+        private int average = 15;
+        private int avgStep = 1;
 
-        private void Awake()
+        private void OnEnable()
         {
             Global.OnTick_3 += Tick;
+        }
+
+        private void OnDisable()
+        {
+            Global.OnTick_3 -= Tick;
         }
 
         public void LoadCargoTo(CarCargo carCargo)
@@ -55,7 +62,37 @@ namespace Trains
 
         private void CalcDemand()
         {
-            
+            //print($"{this}: Tick 3");
+
+            //demand
+            for (int i = 0; i < Demand.Amnts.Count; i++)
+            {
+                (CargoType ct, int amnt) = Demand.Amnts.ElementAt(i);
+                if (amnt < average)
+                    Demand.Amnts[ct] += avgStep;
+            }
+
+            //supply
+            for (int i = 0; i < Supply.Amnts.Count; i++)
+            {
+                (CargoType ct, int amnt) = Supply.Amnts.ElementAt(i);
+                switch (ct)
+                {
+                    case CargoType.Passengers:
+                        if (amnt < average)
+                            Supply.Amnts[ct] += avgStep;
+                        break;
+                    case CargoType.Mail:
+                        if (amnt < average)
+                            Supply.Amnts[ct] += avgStep;
+                        break;
+                    case CargoType.Logs:
+                        if (amnt > 0)
+                            Supply.Amnts[ct] -= avgStep;
+                        break;
+                }
+            }
+
         }
     }
 }
