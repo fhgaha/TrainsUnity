@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Trains
 {
@@ -15,6 +16,7 @@ namespace Trains
         private MeshRenderer meshRend;
         private List<Station> stationsEntered = new();
         private List<RoadSegment> segmentsEntered = new();
+        private List<Building> buildingsEntered = new();
 
         public StationVisual Configure(Station station)
         {
@@ -53,19 +55,6 @@ namespace Trains
             }
         }
 
-        public void HandleRoadEnter(Collider collider)
-        {
-            RoadSegment other = collider.GetComponent<RoadSegment>();
-            if (other is null) return;
-
-            if (station.IsBlueprint)
-            {
-                //Debug.Log($"{this}: HandleRoadEnter: {other}");
-                segmentsEntered.Add(other);
-                BecomeRed();
-            }
-        }
-
         public void HandleStationExit(Collider collider)
         {
             Station other = collider.GetComponent<Station>();
@@ -83,6 +72,19 @@ namespace Trains
             }
         }
 
+        public void HandleRoadEnter(Collider collider)
+        {
+            RoadSegment other = collider.GetComponent<RoadSegment>();
+            if (other is null) return;
+
+            if (station.IsBlueprint)
+            {
+                //Debug.Log($"{this}: HandleRoadEnter: {other}");
+                segmentsEntered.Add(other);
+                BecomeRed();
+            }
+        }
+
         public void HandleRoadExit(Collider collider)
         {
             RoadSegment other = collider.GetComponent<RoadSegment>();
@@ -96,6 +98,30 @@ namespace Trains
                 segmentsEntered.Remove(other);
 
                 if (segmentsEntered.Count == 0)
+                    BecomeGreen();
+            }
+        }
+
+        public void HandleBuildingEnter(Collider collider)
+        {
+            if (!collider.TryGetComponent(out Building other)) return;
+
+            if (station.IsBlueprint && !other.IsBlueprint)
+            {
+                buildingsEntered.Add(other);
+                BecomeRed();
+            }
+        }
+
+        public void HandleBuildingExit(Collider collider)
+        {
+            if (!collider.TryGetComponent(out Building other)) return;
+
+            if (station.IsBlueprint && !other.IsBlueprint)
+            {
+                Assert.IsTrue(buildingsEntered.Contains(other), $"Building {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
+                buildingsEntered.Remove(other);
+                if (buildingsEntered.Count == 0)
                     BecomeGreen();
             }
         }

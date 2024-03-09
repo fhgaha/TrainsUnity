@@ -9,8 +9,35 @@ namespace Trains
     //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class Train : MonoBehaviour
     {
-        //google Steering Behavior Arrival
+        //[Serializable]
+        //abstract class SpeedDataBase
+        //{
+        //    public float slowSpeed = 20;
+        //    public float maxSpeed = 50;
+        //    public float speedStep = 0.1f;
+        //    public float curSpeed = 0;
+        //}
 
+        //[Serializable]
+        //class SpeedDatax1 : SpeedDataBase
+        //{
+        //    [SerializeField] public new float slowSpeed = 20;
+        //    [SerializeField] public new float maxSpeed = 50;
+        //    [SerializeField] public new float speedStep = 0.1f;
+        //    [SerializeField] public new float curSpeed = 0;
+        //}
+
+        //[Serializable]
+        //class SpeedDatax5 : SpeedDataBase
+        //{
+        //    [SerializeField] public new float slowSpeed = 20 * 5;
+        //    [SerializeField] public new float maxSpeed = 50 * 5;
+        //    [SerializeField] public new float speedStep = 0.1f * 5;
+        //    [SerializeField] public new float curSpeed = 0 * 5;
+        //}
+
+        //google Steering Behavior Arrival
+        [field: SerializeField] private bool debug = true;
         [field: SerializeField] public Route Route { get; private set; }
         [field: SerializeField] public bool LoopThroughStations { get; private set; } = true;
         public IPlayer Owner { get; private set; }
@@ -25,27 +52,29 @@ namespace Trains
         }
         public string CurPathAsString;
         public int LengthIndeces => loco.LengthIndeces + cars.Sum(c => c.LengthIndeces);
-
         [SerializeField] private bool keepMoving = true;
-        [SerializeField] private float slowSpeed = 20;
-        [SerializeField] private float maxSpeed = 50;
-        [SerializeField] private float speedStep = 0.1f;
-        [SerializeField] private float curSpeed = 0;
-        //[SerializeField] private float rotSpeed = 10;
 
+        [SerializeField] private SpeedData speed = new();
+        private SpeedData speedx1 = new() { slowSpeed = 20, maxSpeed = 50, speedStep = 0.1f, curSpeed = 0 };
+        private SpeedData speedx5 = new() { slowSpeed = 20 * 5, maxSpeed = 50 * 5, speedStep = 0.1f * 5, curSpeed = 0 * 5 };
+        private SpeedData speedx10 = new() { slowSpeed = 20 * 10, maxSpeed = 50 * 10, speedStep = 0.1f * 10, curSpeed = 0 * 10 };
+
+        private TrainCargoHandler cargoHandler;
         private LocomotiveMove loco;
         private List<Carriage> cars = new();
         private List<Vector3> curPath, pathFwd, pathBack;
         private bool isCoroutineRunning = false;
-
         private int curTargetIdx;
         private int slowDownDistIndeces = 30;    //assumed distance train will cover wile slowing from max to min speed
-
-        private TrainCargoHandler cargoHandler;
 
         private void Awake()
         {
             cargoHandler = gameObject.GetOrAddComponent<TrainCargoHandler>().Confgure(this);
+        }
+
+        private void Update()
+        {
+            speed = debug ? speedx10 : speedx1;
         }
 
         public void Configure(Route route, GameObject locoPrefab, GameObject carriagePrefab, IPlayer owner)
@@ -99,8 +128,6 @@ namespace Trains
 
             //do this once to set cars into in-between positions
             MoveToCurPt();
-            //probably should decide before this how many cars should train have. when should i decide what to load?
-            //List<CarCargo> onlyCargoTypesSet = Route.GetCargoToLoad_NoSubtraction(cars.Count);
             yield return cargoHandler.Load_Rtn(cars);
 
             while (keepMoving)
@@ -111,7 +138,7 @@ namespace Trains
 
                 if (ReachedEnd())
                 {
-                    curSpeed = 0;
+                    speed.curSpeed = 0;
 
                     yield return cargoHandler.Unload_Rtn(cars);
 
@@ -188,24 +215,24 @@ namespace Trains
             dot = Math.Min(dot, minCarDot);
 
             float t = Mathf.InverseLerp(0.96f, 1f, dot);
-            float reqSpeed = Mathf.Lerp(slowSpeed, maxSpeed, t);
+            float reqSpeed = Mathf.Lerp(speed.slowSpeed, speed.maxSpeed, t);
 
             var remainingIdcs = curPath.Count - curTargetIdx;
             if (remainingIdcs < 30)
             {
                 t = Mathf.InverseLerp(30, 0, remainingIdcs);
-                curSpeed = Mathf.Lerp(slowSpeed, 0, t);
+                speed.curSpeed = Mathf.Lerp(speed.slowSpeed, 0, t);
             }
             else
             {
-                if (curSpeed < reqSpeed) curSpeed += speedStep;
+                if (speed.curSpeed < reqSpeed) speed.curSpeed += speed.speedStep;
                 else
-                if (curSpeed > reqSpeed) curSpeed -= speedStep;
+                if (speed.curSpeed > reqSpeed) speed.curSpeed -= speed.speedStep;
             }
 
             loco.transform.SetPositionAndRotation(
-                position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], curSpeed * Time.deltaTime),
-                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(nextLocoDir), curSpeed * Time.deltaTime)
+                position: Vector3.MoveTowards(loco.transform.position, curPath[curTargetIdx], speed.curSpeed * Time.deltaTime),
+                rotation: Quaternion.Lerp(loco.transform.rotation, Quaternion.LookRotation(nextLocoDir), speed.curSpeed * Time.deltaTime)
             );
 
             SetCarriagesPosRot();
@@ -235,7 +262,7 @@ namespace Trains
                 }
 
                 //rot is calculated based on backPos
-                cars[i].UpdateManually(backPos, curSpeed);
+                cars[i].UpdateManually(backPos, speed.curSpeed);
             }
         }
 

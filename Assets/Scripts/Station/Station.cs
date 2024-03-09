@@ -87,12 +87,14 @@ namespace Trains
         {
             visual.HandleStatoinEnter(other);
             visual.HandleRoadEnter(other);
+            visual.HandleBuildingEnter(other);
         }
 
         private void OnTriggerExit(Collider other)
         {
             visual.HandleStationExit(other);
             visual.HandleRoadExit(other);
+            visual.HandleBuildingExit(other);
         }
 
     }

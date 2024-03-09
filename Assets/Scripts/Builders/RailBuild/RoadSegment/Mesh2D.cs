@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace Trains
 	[CreateAssetMenu]
 	public class Mesh2D : ScriptableObject
 	{
-		[System.Serializable]
+		[Serializable]
 		public class Vertex
 		{
 			public Vector2 point;
