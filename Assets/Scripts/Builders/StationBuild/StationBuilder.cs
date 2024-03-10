@@ -86,8 +86,12 @@ namespace Trains
             RouteManager.Instance.RegisterI(inst.Entry1, inst.Entry2, inst.Segment.GetApproxLength(), Owner);
             inst.StCollider.Collider.isTrigger = false;
             inst.IsBlueprint = false;
+            inst.TurnOffProfitBuildingDetector();
             Destroy(inst.StCollider.Collider.GetComponent<Rigidbody>());
             Destroy(inst.ProfitBuildingDetector.GetComponent<Rigidbody>());
+
+            inst.ProfitBuildingDetector.Detected.AddRange(station.ProfitBuildingDetector.Detected);
+            station.ProfitBuildingDetector.Detected.Clear();
 
             inst.Segment.PlaceFromStationBuilder();
 

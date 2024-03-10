@@ -12,7 +12,6 @@ namespace Trains
         public RoadSegment Segment;
         public Vector3 Entry1 => Segment.Start;
         public Vector3 Entry2 => Segment.End;
-        //public Cargo Cargo { get => cargoHandler.Cargo; set => cargoHandler.Cargo = value; }
 
         public IPlayer Owner
         {
@@ -72,6 +71,26 @@ namespace Trains
             segmentPts.AddRange(originalPoints);
             Segment.Owner = owner;
             Segment.UpdateMeshAndCollider(segmentPts);
+        }
+
+        public void TurnOnProfitBuildingDetector()
+        {
+            //ProfitBuildingDetector.gameObject.GetComponent<MeshCollider>().enabled = true;
+
+            if(ProfitBuildingDetector.gameObject.TryGetComponent(out MeshCollider mc))
+            {
+                mc.enabled = true;
+            }
+        }
+
+        public void TurnOffProfitBuildingDetector()
+        {
+            //ProfitBuildingDetector.gameObject.GetComponent<MeshCollider>().enabled = false;
+
+            if (ProfitBuildingDetector.gameObject.TryGetComponent(out MeshCollider mc))
+            {
+                mc.enabled = false;
+            }
         }
 
         public void CopyInfoFrom(Station original)

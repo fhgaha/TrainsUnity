@@ -11,8 +11,8 @@ namespace Trains
     {
         [field: SerializeField] public Cargo Supply { get; set; } = new();
         [field: SerializeField] public Cargo Demand { get; set; } = new();
-        private int average = 15;
-        private int avgStep = 1;
+        private static int average = 50;
+        private static int avgStep = 1;
 
         private void OnEnable()
         {
@@ -37,22 +37,6 @@ namespace Trains
         {
             Supply.Add(car.Cargo);
             car.Cargo.Erase();
-        }
-
-        //this is triggered on train creation on scene start
-        private void OnTriggerEnter(Collider other)
-        {
-            HandleTrainEnter(other);
-        }
-
-        private void HandleTrainEnter(Collider collider)
-        {
-            if (collider.TryGetComponent(out LocomotiveMove locMove))
-            {
-                //unload and load train
-
-
-            }
         }
 
         private void Tick(object sender, EventArgs e)

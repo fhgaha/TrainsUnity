@@ -23,12 +23,10 @@ namespace Trains
         [SerializedDictionary("Cargo Type", "Amnt")]
         public SerializedDictionary<CargoType, int> Amnts = new();
 
-        //public Dictionary<CargoType, int> MaxAmnts = new()
-        //{
-        //    [CargoType.Passengers] = 15,
-        //    [CargoType.Mail] = 20,
-        //    [CargoType.Wood] = 50
-        //};
+        public Cargo()
+        {
+            Erase();
+        }
 
         public void Add(CarCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
 
@@ -42,8 +40,8 @@ namespace Trains
         public void Erase()
         {
             Amnts[CargoType.Passengers] = 0;
-            Amnts[CargoType.Mail] = 0;
-            Amnts[CargoType.Logs] = 0;
+            Amnts[CargoType.Mail]       = 0;
+            Amnts[CargoType.Logs]       = 0;
         }
 
         public Cargo With(CargoType cargoType, int amnt)
