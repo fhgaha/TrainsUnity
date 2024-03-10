@@ -35,7 +35,7 @@ namespace Trains
 
         public void SendGoodsToStation(StationCargoHandler sch)
         {
-            int toSend = UnityEngine.Random.Range(1, 3);
+            int toSend = UnityEngine.Random.Range(1, 4);
             if (Amnt >= toSend)
             {
                 Amnt -= toSend;

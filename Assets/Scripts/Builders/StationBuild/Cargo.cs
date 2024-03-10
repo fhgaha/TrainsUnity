@@ -21,7 +21,12 @@ namespace Trains
         }
 
         [SerializedDictionary("Cargo Type", "Amnt")]
-        public SerializedDictionary<CargoType, int> Amnts = new();
+        public SerializedDictionary<CargoType, int> Amnts = new()
+        {
+            [CargoType.Passengers] = 0,
+            [CargoType.Mail]       = 0,
+            [CargoType.Logs]       = 0,
+        };
 
         public Cargo()
         {
