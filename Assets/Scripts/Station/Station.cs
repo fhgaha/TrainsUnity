@@ -33,13 +33,14 @@ namespace Trains
         [SerializeField] private List<Vector3> originalPoints;
         private StationVisual visual;
         private StationMovement mover;
-
+        private ProfitBuildingDetector profitBuildingDetector;
 
         private void Awake()
         {
             mover = GetComponent<StationMovement>();
             cargoHandler = GetComponent<StationCargoHandler>();
             visual = GetComponentInChildren<StationVisual>().Configure(this);
+            profitBuildingDetector = GetComponentInChildren<ProfitBuildingDetector>().Configure(this);
             Segment = GetComponentInChildren<RoadSegment>();
             Segment.name = $"Station's {Segment}";
             Segment.Owner = owner;

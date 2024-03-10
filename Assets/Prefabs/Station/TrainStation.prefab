@@ -253,8 +253,9 @@ GameObject:
   - component: {fileID: 6123791110483797505}
   - component: {fileID: 7301461035995992903}
   - component: {fileID: 3112404819095696440}
-  m_Layer: 11
-  m_Name: BuildingCollider_Sender
+  - component: {fileID: 7836073571569826760}
+  m_Layer: 0
+  m_Name: ProfitBuildingDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -346,6 +347,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7836073571569826760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7716814983591567511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1e98c2584c2a6499020c5aab4cfe53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2239627190200705747
 PrefabInstance:
   m_ObjectHideFlags: 0

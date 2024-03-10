@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public class Building : MonoBehaviour
+    public class BuildingToPushAway : MonoBehaviour
     {
         public bool IsBlueprint = false;
     }

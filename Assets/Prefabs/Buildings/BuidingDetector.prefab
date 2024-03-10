@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8535488743712630813}
   - component: {fileID: 7578113228683877308}
   m_Layer: 11
-  m_Name: BuidingCollider_Reciever
+  m_Name: BuidingDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5440380528251630467}
+  - component: {fileID: 1485845433311595163}
+  - component: {fileID: 414260767819807664}
   m_Layer: 0
   m_Name: LoggingCamp
   m_TagString: Untagged
@@ -33,6 +35,41 @@ Transform:
   - {fileID: 4662981367056774747}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1485845433311595163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2741953747911476950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8857947b996e83645a460bb4b19a2404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Type: 2
+  Amnt: 0
+--- !u!65 &414260767819807664
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2741953747911476950}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 5, z: 0}
 --- !u!1 &7718304500560779997
 GameObject:
   m_ObjectHideFlags: 0
@@ -45,7 +82,7 @@ GameObject:
   - component: {fileID: 5385721015141968875}
   - component: {fileID: 5115707755547083111}
   m_Layer: 0
-  m_Name: BuidingCollider
+  m_Name: BuidingToPush
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,7 +148,6 @@ GameObject:
   - component: {fileID: 4662981367056774747}
   - component: {fileID: 7999788720389163464}
   - component: {fileID: 3267562166323331172}
-  - component: {fileID: 1536486013582532040}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -184,24 +220,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &1536486013582532040
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8030243134140430195}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}

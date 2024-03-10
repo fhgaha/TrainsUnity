@@ -16,7 +16,7 @@ namespace Trains
         private MeshRenderer meshRend;
         private List<Station> stationsEntered = new();
         private List<RoadSegment> segmentsEntered = new();
-        private List<Building> buildingsEntered = new();
+        private List<BuildingToPushAway> buildingsEntered = new();
 
         public StationVisual Configure(Station station)
         {
@@ -104,7 +104,7 @@ namespace Trains
 
         public void HandleBuildingEnter(Collider collider)
         {
-            if (!collider.TryGetComponent(out Building other)) return;
+            if (!collider.TryGetComponent(out BuildingToPushAway other)) return;
 
             if (station.IsBlueprint && !other.IsBlueprint)
             {
@@ -115,7 +115,7 @@ namespace Trains
 
         public void HandleBuildingExit(Collider collider)
         {
-            if (!collider.TryGetComponent(out Building other)) return;
+            if (!collider.TryGetComponent(out BuildingToPushAway other)) return;
 
             if (station.IsBlueprint && !other.IsBlueprint)
             {
