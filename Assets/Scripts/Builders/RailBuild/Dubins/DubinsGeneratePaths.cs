@@ -387,7 +387,7 @@ namespace Trains
             }
             else
             {
-                MyMath.CalcFillStraightLine(second, pathData.tangent1, pathData.tangent2, DubinsMath.driveDistance);
+                MyMath.FillWithStraightLine(second, pathData.tangent1, pathData.tangent2, DubinsMath.driveDistance);
 
                 if (second.Count >= 2)
                 {

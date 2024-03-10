@@ -33,7 +33,12 @@ namespace Trains
         [SerializeField] private List<Vector3> originalPoints;
         private StationVisual visual;
         private StationMovement mover;
+        
+        public ProfitBuildingDetector ProfitBuildingDetector => profitBuildingDetector;
         private ProfitBuildingDetector profitBuildingDetector;
+
+        public StationCollider StCollider => stCollider;
+        private StationCollider stCollider;
 
         private void Awake()
         {
@@ -41,6 +46,7 @@ namespace Trains
             cargoHandler = GetComponent<StationCargoHandler>();
             visual = GetComponentInChildren<StationVisual>().Configure(this);
             profitBuildingDetector = GetComponentInChildren<ProfitBuildingDetector>().Configure(this);
+            stCollider = transform.GetComponentInChildren<StationCollider>().Configure(this);
             Segment = GetComponentInChildren<RoadSegment>();
             Segment.name = $"Station's {Segment}";
             Segment.Owner = owner;
@@ -60,7 +66,7 @@ namespace Trains
             originalPoints = new();
             Vector3 p1 = new() { x = 0, y = 0, z = 20 };
             Vector3 p2 = new() { x = 0, y = 0, z = -20 };
-            MyMath.CalcFillStraightLine(originalPoints, p1, p2, Global.Instance.DriveDistance);
+            MyMath.FillWithStraightLine(originalPoints, p1, p2, Global.Instance.DriveDistance);
 
             List<Vector3> segmentPts = new();
             segmentPts.AddRange(originalPoints);
@@ -84,18 +90,18 @@ namespace Trains
         public void ResetVisual() => visual.ResetColor();
         public void UnloadCargoFrom(Carriage car) => cargoHandler.UnloadCargoFrom(car);
 
-        private void OnTriggerEnter(Collider other)
+        public void OnColliderTriggerEnter(Collider other)
         {
             visual.HandleStatoinEnter(other);
             visual.HandleRoadEnter(other);
-            visual.HandleBuildingEnter(other);
+            //visual.HandleBuildingEnter(other);
         }
 
-        private void OnTriggerExit(Collider other)
+        public void OnColliderTriggerExit(Collider other)
         {
             visual.HandleStationExit(other);
             visual.HandleRoadExit(other);
-            visual.HandleBuildingExit(other);
+            //visual.HandleBuildingExit(other);
         }
 
     }

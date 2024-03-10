@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5440380528251630467}
   - component: {fileID: 1485845433311595163}
   - component: {fileID: 414260767819807664}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LoggingCamp
   m_TagString: Untagged
   m_Icon: {fileID: 0}

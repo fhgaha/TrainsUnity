@@ -213,7 +213,7 @@ namespace Trains
             start = new HeadedPoint(startPos, Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up));
             end = new HeadedPoint(endPos, Vector3.SignedAngle(Vector3.forward, endPos - startPos, Vector3.up));
 
-            MyMath.CalcFillStraightLine(Points, startPos, endPos, driveDist);
+            MyMath.FillWithStraightLine(Points, startPos, endPos, driveDist);
             segment.UpdateMeshAndCollider(Points);
         }
 

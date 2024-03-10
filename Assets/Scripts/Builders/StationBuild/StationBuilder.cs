@@ -29,8 +29,9 @@ namespace Trains
         {
             Owner = owner;
             station.SetUpRoadSegment(Owner);
-            station.gameObject.AddComponent<Rigidbody>().useGravity = false;
-            station.GetComponent<BoxCollider>().isTrigger = true;
+            station.StCollider.gameObject.AddComponent<Rigidbody>().useGravity = false;
+            station.ProfitBuildingDetector.gameObject.AddComponent<Rigidbody>().useGravity = false;
+            station.StCollider.gameObject.GetComponent<BoxCollider>().isTrigger = true; 
         }
 
         public bool AssertConfigured()
@@ -83,9 +84,10 @@ namespace Trains
         {
             Station inst = stationContainer.Add(station);
             RouteManager.Instance.RegisterI(inst.Entry1, inst.Entry2, inst.Segment.GetApproxLength(), Owner);
-            inst.GetComponent<BoxCollider>().isTrigger = false;
+            inst.StCollider.Collider.isTrigger = false;
             inst.IsBlueprint = false;
-            Destroy(inst.GetComponent<Rigidbody>());
+            Destroy(inst.StCollider.Collider.GetComponent<Rigidbody>());
+            Destroy(inst.ProfitBuildingDetector.GetComponent<Rigidbody>());
 
             inst.Segment.PlaceFromStationBuilder();
 

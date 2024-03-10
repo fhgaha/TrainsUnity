@@ -56,15 +56,15 @@ namespace Trains
             List<CarCargo> res = new();
             List<Tuple<CargoType, int, decimal>> demand = StationTo.CargoHandler.Demand.Amnts
                 .Select(p => Tuple.Create(p.Key, p.Value, Prices.AsDict[p.Key]))
-                //.OrderByDescending(p => p.Item2 * p.Item3)
                 .OrderByDescending(p => PriceOfAmnt(p))
                 .ToList();
 
-            //Dictionary<CargoType, int> supply = StationFrom.CargoHandler.Supply.Amnts.ToDictionary(p => p.Key, p => p.Value);
+            //no keys, no values if station has no goods
             Dictionary<CargoType, int> supply = new(StationFrom.CargoHandler.Supply.Amnts);     //copy
 
             for (int i = 0; i < amnt; i++)
             {
+                if (supply.Count == 0) break;   //if this happens at first iteration the train will go empty
                 if (demand.Count == 0) break;
                 (CargoType desType, int desAmnt, decimal price) = demand[0];
                 int supAmnt = supply[desType];

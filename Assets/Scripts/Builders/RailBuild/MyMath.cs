@@ -10,7 +10,7 @@ namespace Trains
     public static class MyMath
     {
         //returns at least one point which is startPos
-        public static void CalcFillStraightLine(List<Vector3> pts, Vector3 startPos, Vector3 endPos, float driveDistance)
+        public static void FillWithStraightLine(List<Vector3> pts, Vector3 startPos, Vector3 endPos, float driveDistance)
         {
             pts.Clear();
             float dist = (endPos - startPos).magnitude;
@@ -169,7 +169,7 @@ namespace Trains
 
             List<Vector3> straight = new();
             Vector3 first = arc.Count > 0 ? arc[^1] : startPos;
-            CalcFillStraightLine(straight, first, endPos, driveDistance);
+            FillWithStraightLine(straight, first, endPos, driveDistance);
             if (arc.Count > 0 && straight.Count > 1) straight.RemoveAt(0);
 
             resultPoints.AddRange(arc);

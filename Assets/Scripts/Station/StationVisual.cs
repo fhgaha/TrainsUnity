@@ -12,7 +12,7 @@ namespace Trains
         [SerializeField] private Material defaultMaterial;
         [SerializeField] private Material forbiddenMaterial;
 
-        private Station station;
+        private Station parent;
         private MeshRenderer meshRend;
         private List<Station> stationsEntered = new();
         private List<RoadSegment> segmentsEntered = new();
@@ -20,7 +20,7 @@ namespace Trains
 
         public StationVisual Configure(Station station)
         {
-            this.station = station;
+            this.parent = station;
             meshRend = GetComponent<MeshRenderer>();
             return this;
         }
@@ -28,27 +28,27 @@ namespace Trains
         public void BecomeGreen()
         {
             meshRend.material = allowedMaterial;
-            station.Segment.PaintGreen();
+            parent.Segment.PaintGreen();
         }
 
         public void BecomeRed()
         {
             meshRend.material = forbiddenMaterial;
-            station.Segment.PaintRed();
+            parent.Segment.PaintRed();
         }
 
         public void BecomeDefaultColor()
         {
             meshRend.material = defaultMaterial;
-            station.Segment.PaintDefaultColor();
+            parent.Segment.PaintDefaultColor();
         }
 
         public void HandleStatoinEnter(Collider collider)
         {
             Station other = collider.GetComponent<Station>();
-            if (other is null) return;
+            if (other is null || other == parent) return;
 
-            if (station.IsBlueprint && !other.IsBlueprint)
+            if (parent.IsBlueprint && !other.IsBlueprint)
             {
                 stationsEntered.Add(other);
                 BecomeRed();
@@ -58,9 +58,9 @@ namespace Trains
         public void HandleStationExit(Collider collider)
         {
             Station other = collider.GetComponent<Station>();
-            if (other is null) return;
+            if (other is null || other == parent) return;
 
-            if (station.IsBlueprint && !other.IsBlueprint)
+            if (parent.IsBlueprint && !other.IsBlueprint)
             {
                 if (!stationsEntered.Contains(other))
                     throw new Exception($"Station {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
@@ -75,9 +75,9 @@ namespace Trains
         public void HandleRoadEnter(Collider collider)
         {
             RoadSegment other = collider.GetComponent<RoadSegment>();
-            if (other is null) return;
+            if (other is null || other == parent.Segment) return;
 
-            if (station.IsBlueprint)
+            if (parent.IsBlueprint)
             {
                 //Debug.Log($"{this}: HandleRoadEnter: {other}");
                 segmentsEntered.Add(other);
@@ -88,9 +88,9 @@ namespace Trains
         public void HandleRoadExit(Collider collider)
         {
             RoadSegment other = collider.GetComponent<RoadSegment>();
-            if (other is null) return;
+            if (other is null || other == parent.Segment) return;
 
-            if (station.IsBlueprint)
+            if (parent.IsBlueprint)
             {
                 if (!segmentsEntered.Contains(other))
                     throw new Exception($"Road segment {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
@@ -106,7 +106,7 @@ namespace Trains
         {
             if (!collider.TryGetComponent(out BuildingToPushAway other)) return;
 
-            if (station.IsBlueprint && !other.IsBlueprint)
+            if (parent.IsBlueprint && !other.IsBlueprint)
             {
                 buildingsEntered.Add(other);
                 BecomeRed();
@@ -117,7 +117,7 @@ namespace Trains
         {
             if (!collider.TryGetComponent(out BuildingToPushAway other)) return;
 
-            if (station.IsBlueprint && !other.IsBlueprint)
+            if (parent.IsBlueprint && !other.IsBlueprint)
             {
                 Assert.IsTrue(buildingsEntered.Contains(other), $"Building {other} was not detected by OnTriggerEntered, but was somehow detected by OnTriggerExit");
                 buildingsEntered.Remove(other);

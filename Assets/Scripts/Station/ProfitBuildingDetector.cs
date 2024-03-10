@@ -9,11 +9,11 @@ namespace Trains
     {
         public List<IProfitBuilding> Detected => detected;
         List<IProfitBuilding> detected = new();
-        Station station;
+        Station parent;
 
         public ProfitBuildingDetector Configure(Station station)
         {
-            this.station = station;
+            parent = station;
             return this;
         }
 
@@ -21,9 +21,10 @@ namespace Trains
         {
             if (!other.TryGetComponent(out IProfitBuilding building)) return;
 
-            //Debug.Log($"{this}: {building.gameObject.name}");
+            Debug.Log($"{this}: {building.gameObject.name}");
+
             Assert.IsTrue(!detected.Contains(building));
-            building.OwnedByStation = station;
+            building.OwnedByStation = parent;
             detected.Add(building);
         }
 
