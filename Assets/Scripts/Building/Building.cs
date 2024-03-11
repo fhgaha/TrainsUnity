@@ -1,16 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Trains
 {
-    public class LoggingCamp : MonoBehaviour, IProfitBuilding
+    public class Building : MonoBehaviour, IProfitBuilding
     {
-        //this is set to blueprint
-        //[field: SerializeField] public Station OwnedByStation { get; set; }
-        public CargoType CargoType { get; private set; } = CargoType.Logs;
-        public int Amnt { get; set; } = 0;
+        //set these in inspector for each prefab
+        [field: SerializeField] public Cargo Supply { get; set; }
+        [field: SerializeField] public Cargo Demand { get; set; }
         public MeshRenderer Visual { get; private set; }
 
         private void Awake()
@@ -30,28 +30,32 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
-            Amnt += 1;
+            foreach (CargoType ct in Supply.Amnts.Keys.ToList())
+            {
+                Supply.Amnts[ct] += 1;
+            }
+
         }
 
         public void SendGoodsToStation(StationCargoHandler sch)
         {
             int toSend = UnityEngine.Random.Range(1, 4);
-            if (Amnt >= toSend)
+            foreach (CargoType ct in Supply.Amnts.Keys.ToList())
             {
-                Amnt -= toSend;
-                Debug.Log($"old supplyValue: {sch.Supply.Amnts[CargoType] }");
-                sch.Supply.Amnts[CargoType] += toSend;
-                Debug.Log($"toSend: {toSend}, new supplyValue: {sch.Supply.Amnts[CargoType] }");
+                if (Supply.Amnts[ct] >= toSend)
+                {
+                    Supply.Amnts[ct] -= toSend;
+                    sch.Supply.Amnts[ct] += toSend;
+                }
             }
-        }
+        } 
 
     }
 
     public interface IProfitBuilding
     {
-        //public Station OwnedByStation { get; set; }
-        public CargoType CargoType { get; }
-        public int Amnt { get; set; }
+        public Cargo Supply { get; set; }
+        public Cargo Demand { get; set; }
         public MeshRenderer Visual { get; }
         public GameObject gameObject { get; }
 

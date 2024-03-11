@@ -13,6 +13,13 @@ namespace Trains
         [field: SerializeField] public Cargo Demand { get; set; } = new();
         private static int average = 50;
         private static int avgStep = 1;
+        private Station station;
+
+        public StationCargoHandler Configure(Station station)
+        {
+            this.station = station;
+            return this;
+        }
 
         private void OnEnable()
         {
@@ -41,13 +48,13 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
+            if (station.IsBlueprint) return;
+
             CalcDemand();
         }
 
         private void CalcDemand()
         {
-            //print($"{this}: Tick 3");
-
             //demand
             for (int i = 0; i < Demand.Amnts.Count; i++)
             {
@@ -62,18 +69,18 @@ namespace Trains
                 (CargoType ct, int amnt) = Supply.Amnts.ElementAt(i);
                 switch (ct)
                 {
-                    case CargoType.Passengers:
-                        if (amnt < average)
-                            Supply.Amnts[ct] += avgStep;
-                        break;
-                    case CargoType.Mail:
-                        if (amnt < average)
-                            Supply.Amnts[ct] += avgStep;
-                        break;
-                    case CargoType.Logs:
-                        if (amnt > 0)
-                            Supply.Amnts[ct] -= avgStep;
-                        break;
+                    //case CargoType.Passengers:
+                        //if (amnt < average)
+                        //    Supply.Amnts[ct] += avgStep;
+                        //break;
+                    //case CargoType.Mail:
+                        //if (amnt < average)
+                        //    Supply.Amnts[ct] += avgStep;
+                        //break;
+                    //case CargoType.Logs:
+                    //    if (amnt > 0)
+                    //        Supply.Amnts[ct] -= avgStep;
+                    //    break;
                 }
             }
 

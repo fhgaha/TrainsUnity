@@ -89,6 +89,8 @@ MonoBehaviour:
         Value: 0
       - Key: 2
         Value: 0
+      - Key: 3
+        Value: 0
   <Demand>k__BackingField:
     Amnts:
       _serializedList:
@@ -97,6 +99,8 @@ MonoBehaviour:
       - Key: 1
         Value: 0
       - Key: 2
+        Value: 0
+      - Key: 3
         Value: 0
 --- !u!1 &4795344077111895679
 GameObject:

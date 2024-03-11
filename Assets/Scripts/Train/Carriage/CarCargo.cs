@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Trains
 {
-    public enum CargoType { Passengers, Mail, Logs };
+    
 
     [Serializable]
     public class CarCargo
@@ -15,7 +15,8 @@ namespace Trains
         {
             [CargoType.Passengers] = 20,
             [CargoType.Mail] = 30,
-            [CargoType.Logs] = 40
+            [CargoType.Logs] = 40,
+            [CargoType.Lumber] = 60,
         };
 
         [field: SerializeField] public CargoType CargoType { get; set; }
@@ -27,7 +28,8 @@ namespace Trains
         {
             CargoType.Passengers => Amnt * Prices.PassengerPrice,
             CargoType.Mail => Amnt * Prices.MailPrice,
-            CargoType.Logs => Amnt * Prices.Wood,
+            CargoType.Logs => Amnt * Prices.Logs,
+            CargoType.Lumber => Amnt * Prices.Lumber,
             _ => throw new NotImplementedException()
         };
 

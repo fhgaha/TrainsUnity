@@ -42,7 +42,7 @@ namespace Trains
         private void Awake()
         {
             mover = GetComponent<StationMovement>();
-            cargoHandler = GetComponent<StationCargoHandler>();
+            cargoHandler = GetComponent<StationCargoHandler>().Configure(this);
             visual = GetComponentInChildren<StationVisual>().Configure(this);
             profitBuildingDetector = GetComponentInChildren<ProfitBuildingDetector>().Configure(this);
             stCollider = transform.GetComponentInChildren<StationCollider>().Configure(this);

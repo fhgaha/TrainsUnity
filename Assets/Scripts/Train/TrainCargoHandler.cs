@@ -9,6 +9,7 @@ namespace Trains
     public class TrainCargoHandler : MonoBehaviour
     {
         [SerializeField] bool debug = true;
+        public List<string> CarsCargoDisplay;
 
         Train train;
         float unloadTime = 3, loadTime = 3;
@@ -33,6 +34,8 @@ namespace Trains
                 }
             }
 
+            CarsCargoDisplay = cars.Select(c => c.Cargo).Select(c => $"{c.CargoType}, {c.Amnt}").ToList();
+
             yield return new WaitForSeconds(unloadTime);
         }
 
@@ -54,6 +57,8 @@ namespace Trains
                     yield return new WaitForSeconds(delay);
                 }
             }
+
+            CarsCargoDisplay = cars.Select(c => c.Cargo).Select(c => $"{c.CargoType}, {c.Amnt}").ToList();
 
             yield return new WaitForSeconds(loadTime);
         }

@@ -9,33 +9,6 @@ namespace Trains
     //https://gist.github.com/codeimpossible/2704498b7b78240ccb08e5234b6a557c
     public class Train : MonoBehaviour
     {
-        //[Serializable]
-        //abstract class SpeedDataBase
-        //{
-        //    public float slowSpeed = 20;
-        //    public float maxSpeed = 50;
-        //    public float speedStep = 0.1f;
-        //    public float curSpeed = 0;
-        //}
-
-        //[Serializable]
-        //class SpeedDatax1 : SpeedDataBase
-        //{
-        //    [SerializeField] public new float slowSpeed = 20;
-        //    [SerializeField] public new float maxSpeed = 50;
-        //    [SerializeField] public new float speedStep = 0.1f;
-        //    [SerializeField] public new float curSpeed = 0;
-        //}
-
-        //[Serializable]
-        //class SpeedDatax5 : SpeedDataBase
-        //{
-        //    [SerializeField] public new float slowSpeed = 20 * 5;
-        //    [SerializeField] public new float maxSpeed = 50 * 5;
-        //    [SerializeField] public new float speedStep = 0.1f * 5;
-        //    [SerializeField] public new float curSpeed = 0 * 5;
-        //}
-
         //google Steering Behavior Arrival
         [field: SerializeField] private bool debug = true;
         [field: SerializeField] public Route Route { get; private set; }
@@ -111,11 +84,8 @@ namespace Trains
             {
                 cars[i].Configure(cars[i - 1].Back, pathFwd[lenIdcs], startRot);
                 lenIdcs += cars[0].LengthIndeces;
-                //cars[i].Cargo = cargoes[i];
             }
             cars[0].Configure(loco.Back, pathFwd[lenIdcs], startRot);
-            //cars[0].Cargo = cargoes[0];
-
             loco.Configure(pathFwd[cars[0].LengthIndeces * cars.Count + loco.LengthIndeces], startRot);
         }
 

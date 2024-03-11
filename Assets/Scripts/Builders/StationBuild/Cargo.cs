@@ -10,27 +10,17 @@ namespace Trains
     [Serializable]
     public class Cargo
     {
-        public static Cargo Empty
-        {
-            get
-            {
-                Cargo c = new();
-                c.Erase();
-                return c;
-            }
-        }
+        public static Cargo Empty => new();
 
         [SerializedDictionary("Cargo Type", "Amnt")]
-        public SerializedDictionary<CargoType, int> Amnts = new()
-        {
-            [CargoType.Passengers] = 0,
-            [CargoType.Mail]       = 0,
-            [CargoType.Logs]       = 0,
-        };
+        public SerializedDictionary<CargoType, int> Amnts = new();
 
-        public Cargo()
+        public Cargo() => Erase();
+       
+        public void Erase()
         {
-            Erase();
+            foreach (CargoType ct in Enum.GetValues(typeof(CargoType)))
+                Amnts[ct] = 0;
         }
 
         public void Add(CarCargo toAdd) => Amnts[toAdd.CargoType] += toAdd.Amnt;
@@ -40,13 +30,6 @@ namespace Trains
             int toSubstract = Mathf.Clamp(Amnts[ct], 0, CarCargo.MaxAmnts[ct]);
             Amnts[ct] -= toSubstract;
             return toSubstract;
-        }
-
-        public void Erase()
-        {
-            Amnts[CargoType.Passengers] = 0;
-            Amnts[CargoType.Mail]       = 0;
-            Amnts[CargoType.Logs]       = 0;
         }
 
         public Cargo With(CargoType cargoType, int amnt)
