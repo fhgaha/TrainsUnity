@@ -74,7 +74,7 @@ namespace Trains
                     i--;
                     continue;
                 }
-                int maxAmnt = CarCargo.MaxAmnts[desType];
+                int maxAmnt = CargoValues.MaxAmntPerCar[desType];
                 int toLoad = supAmnt % maxAmnt;
                 if (supAmnt != 0 && toLoad == 0) toLoad = maxAmnt;
                 CarCargo r = new() { CargoType = desType, Amnt = 0 };
@@ -108,7 +108,7 @@ namespace Trains
                     continue;
                 }
                 res.Add(desType);
-                int maxAmnt = CarCargo.MaxAmnts[desType];
+                int maxAmnt = CargoValues.MaxAmntPerCar[desType];
                 int supAmnt = supply[desType];
                 int toLoadAmnt = supAmnt % maxAmnt;
                 if (toLoadAmnt == 0) toLoadAmnt = maxAmnt;
@@ -121,7 +121,7 @@ namespace Trains
         private int PriceOfAmnt(Tuple<CargoType, int, decimal> t)
         {
             (CargoType ct, int amnt, decimal price) = t;
-            int maxAmnt = CarCargo.MaxAmnts[ct];
+            int maxAmnt = CargoValues.MaxAmntPerCar[ct];
             if (amnt == 0)
                 return 0;
             if (amnt % maxAmnt == 0)

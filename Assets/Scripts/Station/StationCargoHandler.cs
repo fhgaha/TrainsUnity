@@ -67,21 +67,21 @@ namespace Trains
             for (int i = 0; i < Supply.Amnts.Count; i++)
             {
                 (CargoType ct, int amnt) = Supply.Amnts.ElementAt(i);
-                switch (ct)
-                {
-                    //case CargoType.Passengers:
-                        //if (amnt < average)
-                        //    Supply.Amnts[ct] += avgStep;
-                        //break;
-                    //case CargoType.Mail:
-                        //if (amnt < average)
-                        //    Supply.Amnts[ct] += avgStep;
-                        //break;
-                    //case CargoType.Logs:
-                    //    if (amnt > 0)
-                    //        Supply.Amnts[ct] -= avgStep;
-                    //    break;
-                }
+                //switch (ct)
+                //{
+                //    case CargoType.Passengers:
+                //        if (amnt < average)
+                //            Supply.Amnts[ct] += avgStep;
+                //        break;
+                //    case CargoType.Mail:
+                //        if (amnt < average)
+                //            Supply.Amnts[ct] += avgStep;
+                //        break;
+                //    case CargoType.Logs:
+                //        if (amnt > 0)
+                //            Supply.Amnts[ct] -= avgStep;
+                //        break;
+                //}
             }
 
         }

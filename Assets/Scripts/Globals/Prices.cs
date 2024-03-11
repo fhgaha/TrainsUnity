@@ -9,24 +9,25 @@ namespace Trains
     public static class Prices
     {
         //prices are per unit
-        public static decimal PassengerPrice => 10;
-        public static decimal MailPrice => 5;
-        public static decimal Logs => 6;
-        public static decimal Lumber => 10;
-
         public static Dictionary<CargoType, decimal> AsDict = new()
         {
-            [CargoType.Passengers] = PassengerPrice,
-            [CargoType.Mail] = MailPrice,
-            [CargoType.Logs] = Logs,
-            [CargoType.Lumber] = Lumber,
+            [CargoType.Passengers] = 10,
+            [CargoType.Mail] = 5,
+            [CargoType.Logs] = 6,
+            [CargoType.Lumber] = 10,
         };
+
+        public static decimal GetPrice(CargoType ct, int amnt) => AsDict[ct] * amnt;
     }
 
     public static class CargoValues
     {
-        public static Dictionary<CargoType, decimal> PricesAsDict;
-        //MaxAmntsPerCar
-
+        public static Dictionary<CargoType, int> MaxAmntPerCar { get; } = new()
+        {
+            [CargoType.Passengers] = 20,
+            [CargoType.Mail] = 30,
+            [CargoType.Logs] = 40,
+            [CargoType.Lumber] = 60,
+        };
     }
 }

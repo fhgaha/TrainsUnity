@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Trains
 {
@@ -11,6 +12,7 @@ namespace Trains
         //set these in inspector for each prefab
         [field: SerializeField] public Cargo Supply { get; set; }
         [field: SerializeField] public Cargo Demand { get; set; }
+        [SerializeField] CargoSelfMovingUnit cargoMovingUnitPrefab;
         public MeshRenderer Visual { get; private set; }
 
         private void Awake()
@@ -45,7 +47,13 @@ namespace Trains
                 if (Supply.Amnts[ct] >= toSend)
                 {
                     Supply.Amnts[ct] -= toSend;
-                    sch.Supply.Amnts[ct] += toSend;
+                    //sch.Supply.Amnts[ct] += toSend;
+
+                    if (cargoMovingUnitPrefab != null)
+                    {
+                        CargoSelfMovingUnit inst = Instantiate(cargoMovingUnitPrefab);
+                        inst.Configure(transform.position, sch);
+                    }
                 }
             }
         } 

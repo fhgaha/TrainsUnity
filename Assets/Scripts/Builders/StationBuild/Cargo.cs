@@ -27,7 +27,7 @@ namespace Trains
 
         public int SubtractFullCarAmnt(CargoType ct)
         {
-            int toSubstract = Mathf.Clamp(Amnts[ct], 0, CarCargo.MaxAmnts[ct]);
+            int toSubstract = Mathf.Clamp(Amnts[ct], 0, CargoValues.MaxAmntPerCar[ct]);
             Amnts[ct] -= toSubstract;
             return toSubstract;
         }
