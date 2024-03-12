@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -51,7 +52,13 @@ namespace Trains
             //https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@12.0/manual/renderer-feature-decal.html
             building.Visual.material.color = Color.yellow;
             detected.Add(building);
-            detectedDisplay.Add(building.ToString());
+            detectedDisplay = detected.Select(p => p.ToString()).ToList();
+            
+            if (!parent.IsBlueprint)
+            {
+                if (building is Building b)
+                    b.StationsInReach.Add(parent.CargoHandler);
+            }
         }
 
         private void UndetectProfitBuilding(Collider other)
@@ -61,10 +68,14 @@ namespace Trains
             //building.OwnedByStation = null;
             building.Visual.material.color = Color.blue;
             detected.Remove(building);
-            detectedDisplay.Remove(building.ToString());
+            detectedDisplay = detected.Select(p => p.ToString()).ToList();
+
+            if (!parent.IsBlueprint)
+            {
+                if (building is Building b)
+                    b.StationsInReach.Remove(parent.CargoHandler);
+            }
         }
-
-
 
         private void Tick(object sender, EventArgs e)
         {

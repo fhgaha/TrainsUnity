@@ -106,6 +106,13 @@ namespace Trains
             station.ProfitBuildingDetector.Detected.Clear();
             inst.Segment.PlaceFromStationBuilder();
 
+            //to calculate link to every other connected station?
+            //if (Global.Instance.StationContainer.Stations.Count > 1)
+            //{
+            //    var linkGameObj = new GameObject("Link");
+            //}
+
+
             return inst;
         }
 

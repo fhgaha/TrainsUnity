@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using UnityEngine.AI;
+using Unity.AI.Navigation;
 
 namespace Trains
 {
@@ -108,6 +110,15 @@ namespace Trains
             IsBlueprint = false;
             meshCollider.isTrigger = false;
             //meshCollider.convex = false;
+
+            //this will make it to go not to station but to the middle of road
+            //GameObject navMeshSurfaceGO = new GameObject("NavMeshSurf");
+            //navMeshSurfaceGO.transform.parent = transform;
+            //NavMeshSurface surfCmp = navMeshSurfaceGO.AddComponent<NavMeshSurface>();
+            //set Default area = Road
+            //surfCmp.BuildNavMesh();
+
+
         }
 
         public static float GetApproxLength(List<Vector3> points)

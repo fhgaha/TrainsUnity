@@ -13,6 +13,8 @@ namespace Trains
         [field: SerializeField] public Cargo Demand { get; set; } = new();
         private static int average = 50;
         private static int avgStep = 1;
+
+        public Station Station => station;
         private Station station;
 
         public StationCargoHandler Configure(Station station)

@@ -93,6 +93,58 @@ namespace Trains
             return shortest;
         }
 
+        public bool IsStationConnectedWithOtherStation(Station station, out Station other)
+        {
+            other = null;
+            List<Station> found = FindConnectedStations(station);
+            if (found.Count > 0)
+                other = found[0];
+            return found.Count > 0;
+        }
+
+        public Station FindStationConnectedWith(Station from)
+        {
+            List<Station> found = FindConnectedStations(from);
+            return found.FirstOrDefault();
+        }
+
+        public List<Station> FindConnectedStations(Station from)
+        {
+            List<Station> res = new();
+            (Node f1, Node f2) = (GetNode(from.Entry1), GetNode(from.Entry2));
+            List<(Station st, Node n1, Node n2)> othersAsTuples = Global.Instance.StationContainer.Stations
+                .Select(p => p.Value)
+                .Where(s => s != from)
+                .Select(s => (s, GetNode(s.Entry1), GetNode(s.Entry2))).ToList();
+            
+            foreach ((Station s, Node n1, Node n2) in othersAsTuples)
+            {
+                List<Vector3> found = graph.RunDijkstraGetPath(f1, n1);
+                if (found.Count == 0)
+                    found = graph.RunDijkstraGetPath(f1, n2);
+                if (found.Count == 0)
+                    found = graph.RunDijkstraGetPath(f2, n1);
+                if (found.Count == 0)
+                    found = graph.RunDijkstraGetPath(f2, n2);
+
+                if (found.Count > 0)
+                    res.Add(s);
+            }
+
+            return res;
+        }
+
+        private (Vector3 e1, Vector3 e2) FindNodesOfStation(Station s)
+        {
+            Node e1 = GetNode(s.Entry1);
+            Node e2 = GetNode(s.Entry2);
+            Edge e = GetEdge(e1, e2);
+            if (e == null)
+                return (Vector3.zero, Vector3.zero);
+            else
+                return (e1.Pos, e2.Pos);
+        }
+
         private void Awake()
         {
             if (Instance == null)

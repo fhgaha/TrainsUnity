@@ -58,6 +58,7 @@ namespace Trains
         public List<Node> AllNodes = new();
         public List<Edge> AllEdges = new();
 
+        /// <returns>Empty list if cant find path</returns>
         public List<Vector3> RunDijkstraGetPath(Node from, Node to)
         {
             RailContainer rc = Global.Instance.RailContainer;
