@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 
 namespace Trains
 {
-    public class StationCargoHandler : MonoBehaviour
+    public class StationCargoHandler : MonoBehaviour, ICargoUnitDestination
     {
         [field: SerializeField] public Cargo Supply { get; set; } = new();
         [field: SerializeField] public Cargo Demand { get; set; } = new();

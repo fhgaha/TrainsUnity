@@ -31,7 +31,7 @@ namespace Trains
             station.SetUpRoadSegment(Owner);
             station.StCollider.gameObject.AddComponent<Rigidbody>().useGravity = false;
             station.ProfitBuildingDetector.gameObject.AddComponent<Rigidbody>().useGravity = false;
-            station.StCollider.gameObject.GetComponent<BoxCollider>().isTrigger = true; 
+            station.StCollider.gameObject.GetComponent<BoxCollider>().isTrigger = true;
         }
 
         public bool AssertConfigured()
@@ -80,19 +80,30 @@ namespace Trains
             //rmb pressed is handled by ui
         }
 
+        Station lastCreatedStation;
+        private void FixedUpdate()
+        {
+            DoAfterInstantiation();
+        }
+
+        //OnTriggerEnter is not called on instantialtion. Have to do this to detected buildings
+        private void DoAfterInstantiation()
+        {
+            if (lastCreatedStation == null) return;
+
+            Destroy(lastCreatedStation.StCollider.Collider.GetComponent<Rigidbody>());
+            Destroy(lastCreatedStation.ProfitBuildingDetector.GetComponent<Rigidbody>());
+            lastCreatedStation = null;
+        }
+
         private Station PlaceStation()
         {
             Station inst = stationContainer.Add(station);
             RouteManager.Instance.RegisterI(inst.Entry1, inst.Entry2, inst.Segment.GetApproxLength(), Owner);
             inst.StCollider.Collider.isTrigger = false;
             inst.IsBlueprint = false;
-            inst.TurnOffProfitBuildingDetector();
-            Destroy(inst.StCollider.Collider.GetComponent<Rigidbody>());
-            Destroy(inst.ProfitBuildingDetector.GetComponent<Rigidbody>());
-
-            inst.ProfitBuildingDetector.Detected.AddRange(station.ProfitBuildingDetector.Detected);
+            lastCreatedStation = inst;
             station.ProfitBuildingDetector.Detected.Clear();
-
             inst.Segment.PlaceFromStationBuilder();
 
             return inst;

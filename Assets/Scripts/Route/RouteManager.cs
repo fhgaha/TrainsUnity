@@ -68,7 +68,7 @@ namespace Trains
             return new Route(stations, finalPath, finalPath.Reverse<Vector3>().ToList());
         }
 
-        private (List<Vector3> list, float len, Node fromNode, Node toNode) FindShortestPath(Station stationFrom, Station stationTo)
+        public (List<Vector3> list, float len, Node fromNode, Node toNode) FindShortestPath(Station stationFrom, Station stationTo)
         {
             Node fromEntry1 = graph.AllNodes.First(n => n.Pos == stationFrom.Entry1);
             Node fromEntry2 = graph.AllNodes.First(n => n.Pos == stationFrom.Entry2);

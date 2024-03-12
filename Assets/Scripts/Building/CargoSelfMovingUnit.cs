@@ -13,7 +13,7 @@ namespace Trains
         NavMeshAgent agent;
         Vector3[] points;
         int idx = 0;
-        StationCargoHandler destination;
+        ICargoUnitDestination destination;
 
         private void Awake()
         {
@@ -30,13 +30,13 @@ namespace Trains
             Global.OnTick -= Tick;
         }
 
-        public void Configure(Vector3 start, StationCargoHandler station)
+        public void Configure(Vector3 start, ICargoUnitDestination destination)
         {
             transform.position = start;
-            destination = station;
+            this.destination = destination;
             NavMeshPath path = new();
             int everythingMask = -1;
-            NavMesh.CalculatePath(start, station.transform.position, everythingMask, path);
+            NavMesh.CalculatePath(start, destination.transform.position, everythingMask, path);
             points = path.corners;
         }
 
