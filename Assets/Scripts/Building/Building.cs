@@ -13,7 +13,7 @@ namespace Trains
         //set these in inspector for each prefab
         [field: SerializeField] public Cargo Supply { get; set; }
         [field: SerializeField] public Cargo Demand { get; set; }
-        [SerializeField] CargoSelfMovingUnit cargoMovingUnitPrefab;
+        [SerializeField] FootCargo cargoMovingUnitPrefab;
         public List<StationCargoHandler> StationsInReach = new();
         public MeshRenderer Visual { get; private set; }
 
@@ -75,38 +75,65 @@ namespace Trains
             if (demands.Count == 0)
             {
                 //stockpile
+                station = null;
+                return false;
             }
 
-            foreach (Building d in demands)
+            float radius = 50;
+            var stationsInRadius = Global.Instance.StationContainer.Stations
+                .Where(p => Vector3.SqrMagnitude(p.Value.transform.position - transform.position) < radius * radius)
+                .Select(p => (station: p.Value, dist: Vector3.SqrMagnitude(p.Value.transform.position - transform.position)))
+                .OrderBy(t => t.dist).ToList();
+
+            List<(Vector3 start, float dist_start_station1,
+                Station station1, float dist_station1_station2,
+                Station station2, float dist_station2_target,
+                Building target, float dist_total)> paths = new();
+
+            foreach ((Station stationFrom, float start_StationFrom_Dist) in stationsInRadius)
             {
-                //calculate path to d 
-
+                List<Station> connected = RouteManager.Instance.FindConnectedStations(stationFrom);
+                foreach (Station stationTo in connected)
+                {
+                    float from_To_Dist = Vector3.SqrMagnitude(stationFrom.transform.position - stationTo.transform.position);
+                    foreach (Building d in demands)
+                    {
+                        float to_Target_Dist = Vector3.SqrMagnitude(stationTo.transform.position - d.transform.position);
+                        var path = (
+                            start: transform.position, dist_start_station1: start_StationFrom_Dist,
+                            station1: stationFrom, dist_station1_station2: from_To_Dist,
+                            station2: stationTo, dist_station2_target: to_Target_Dist,
+                            target: d, dist_total: start_StationFrom_Dist + from_To_Dist + to_Target_Dist);
+                        paths.Add(path);
+                    }
+                }
             }
 
+            if (paths.Count != 0)
+            {
+                //follow the path
+                var shortest = paths.OrderBy(p => p.dist_total).First();
+                station = shortest.station1.CargoHandler;
+                return true;
+            }
 
-
-            //foreach (StationCargoHandler st in StationsInReach)
-            //{
-            //    Station from = st.Station;
-            //    List<Station> connected = RouteManager.Instance.FindConnectedStations(from);
-
-            //    bool thereIsBuildingWithDemand = connected.Any(s => s.ProfitBuildingDetector.Detected.Any(d => d.Demand.Amnts.Keys.Contains(ct)));
-
-
-            //    //what the point of finding a station if it has all the demands?
-            //    //maybe stations should just 
-
-            //}
-
-
+            //go by foot
             station = null;
             return false;
         }
 
-        private bool TryFindBuildingDemanding(CargoType ct, out Building b)
+        private bool TryFindBuildingDemanding(CargoType ct, out Building building)
         {
-            b = null;
-            return false;
+            List<Building> demands = BuildingContainer.Instance.Buildings.Where(b => b.Demand.Amnts.Keys.Contains(ct)).ToList();
+            if (demands.Count == 0)
+            {
+                building = null;
+                return false;
+            }
+            
+            List<Building> ordered = demands.OrderBy(d => Vector3.SqrMagnitude(transform.position - d.transform.position)).ToList();
+            building = ordered[0];
+            return true;
         }
 
         public void SendGoodsToStation(StationCargoHandler sch)
@@ -128,7 +155,7 @@ namespace Trains
 
         public void SendCargoUnitTo(ICargoUnitDestination destiation)
         {
-            CargoSelfMovingUnit inst = Instantiate(cargoMovingUnitPrefab);
+            FootCargo inst = Instantiate(cargoMovingUnitPrefab);
             inst.Configure(transform.position, destiation);
         }
     }

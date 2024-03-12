@@ -6,7 +6,7 @@ using UnityEngine.AI;
 
 namespace Trains
 {
-    public class CargoSelfMovingUnit : MonoBehaviour
+    public class FootCargo : MonoBehaviour
     {
         [SerializeField] float speed;
         [SerializeField] float stepDist;
