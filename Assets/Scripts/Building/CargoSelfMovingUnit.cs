@@ -56,7 +56,7 @@ namespace Trains
                 idx++;
             }
 
-            if (idx >= points.Length - 1)
+            if (idx > points.Length - 1)
             {
                 //send cargo from this to station
                 Destroy(gameObject);

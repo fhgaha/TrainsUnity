@@ -9,13 +9,14 @@ namespace Trains
     {
         public static event EventHandler OnTick;
         public static event EventHandler OnTick_3;
+        public static event EventHandler OnTick_5;
         public static Global Instance { get; private set; }
         [field: SerializeField] public RailContainer RailContainer { get; set; }
         [field: SerializeField] public StationContainer StationContainer { get; set; }
         [field: SerializeField] public TrainContainer TrainContainer { get; set; }
         [field: SerializeField] public RailBuilder RailBuilder { get; set; }
         [field: SerializeField] public StationBuilder StationBuilder { get; set; }
-        
+
         public IPlayer MainPlayer { get; set; }
 
         public float DriveDistance { get; private set; } = 1f;
@@ -53,12 +54,8 @@ namespace Trains
                 tick = tick >= int.MaxValue ? 0 : tick + 1;
                 OnTick?.Invoke(this, EventArgs.Empty);
 
-
-                if (tick % 3 == 0)
-                {
-                    OnTick_3?.Invoke(this, EventArgs.Empty);
-                    //print($"{tick} tick 3");
-                }
+                if (tick % 3 == 0) OnTick_3?.Invoke(this, EventArgs.Empty);
+                if (tick % 5 == 0) OnTick_5?.Invoke(this, EventArgs.Empty);
             }
         }
     }
