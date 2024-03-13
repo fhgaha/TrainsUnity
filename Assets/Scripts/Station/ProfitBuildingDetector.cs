@@ -79,10 +79,10 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
-            foreach (IProfitBuilding build in detected)
-            {
-                build.SendGoodsToStation(parent.CargoHandler);
-            }
+            //foreach (IProfitBuilding build in detected)
+            //{
+            //    build.SendGoodsToStation(parent.CargoHandler);
+            //}
         }
 
     }

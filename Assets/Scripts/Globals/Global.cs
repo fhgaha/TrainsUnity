@@ -51,7 +51,6 @@ namespace Trains
             if (tickTimer >= tickDuration)
             {
                 tickTimer -= tickDuration;
-                tick = tick >= int.MaxValue ? 0 : tick + 1;
                 OnTick?.Invoke(this, EventArgs.Empty);
 
                 if (tick % 3 == 0) OnTick_3?.Invoke(this, EventArgs.Empty);

@@ -2,8 +2,9 @@
 
 namespace Trains
 {
-    public interface ICargoUnitDestination
+    public interface IFootCargoDestination
     {
+        public Cargo Supply { get; set; }
         public Transform transform { get; }
     }
 }

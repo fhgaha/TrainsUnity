@@ -10,10 +10,13 @@ namespace Trains
     {
         [SerializeField] float speed;
         [SerializeField] float stepDist;
+        public string destinationDisplay;
+        IFootCargoDestination destination;
+        CargoType cargoType;
+        int amnt;
         NavMeshAgent agent;
-        Vector3[] points;
+        Vector3[] path;
         int idx = 0;
-        ICargoUnitDestination destination;
 
         private void Awake()
         {
@@ -30,14 +33,17 @@ namespace Trains
             Global.OnTick -= Tick;
         }
 
-        public void Configure(Vector3 start, ICargoUnitDestination destination)
+        public void Configure(CargoType cargoType, int amnt, Vector3 start, IFootCargoDestination destination)
         {
             transform.position = start;
+            this.cargoType = cargoType;
+            this.amnt = amnt;
             this.destination = destination;
+            destinationDisplay = destination.ToString();
             NavMeshPath path = new();
             int everythingMask = -1;
             NavMesh.CalculatePath(start, destination.transform.position, everythingMask, path);
-            points = path.corners;
+            this.path = path.corners;
         }
 
         private void Tick(object sender, EventArgs e)
@@ -47,18 +53,27 @@ namespace Trains
 
         private void MovePerTick()
         {
-            if (idx > points.Length - 1) return;
+            if (idx > path.Length - 1) return;
 
-            transform.position = Vector3.MoveTowards(transform.position, points[idx], speed * Time.deltaTime);
-            if (Vector3.SqrMagnitude(transform.position - points[idx]) < stepDist * stepDist)
+            transform.position = Vector3.MoveTowards(transform.position, path[idx], speed * Time.deltaTime);
+            if (Vector3.SqrMagnitude(transform.position - path[idx]) < stepDist * stepDist)
             {
-                transform.position = points[idx];
+                transform.position = path[idx];
                 idx++;
             }
 
-            if (idx > points.Length - 1)
+            if (idx > path.Length - 1)
             {
-                //send cargo from this to station
+                //idx--;
+                OnReachedDestination();
+            }
+        }
+
+        private void OnReachedDestination()
+        {
+            if (Vector3.SqrMagnitude(transform.position - destination.transform.position) < 0.1f)
+            {
+                destination.Supply.Amnts[cargoType] += amnt;
                 Destroy(gameObject);
             }
         }

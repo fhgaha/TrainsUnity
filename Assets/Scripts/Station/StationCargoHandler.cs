@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 
 namespace Trains
 {
-    public class StationCargoHandler : MonoBehaviour, ICargoUnitDestination
+    public class StationCargoHandler : MonoBehaviour, IFootCargoDestination
     {
         [field: SerializeField] public Cargo Supply { get; set; } = new();
         [field: SerializeField] public Cargo Demand { get; set; } = new();
@@ -58,12 +58,12 @@ namespace Trains
         private void CalcDemand()
         {
             //demand
-            for (int i = 0; i < Demand.Amnts.Count; i++)
-            {
-                (CargoType ct, int amnt) = Demand.Amnts.ElementAt(i);
-                if (amnt < average)
-                    Demand.Amnts[ct] += avgStep;
-            }
+            //for (int i = 0; i < Demand.Amnts.Count; i++)
+            //{
+            //    (CargoType ct, int amnt) = Demand.Amnts.ElementAt(i);
+            //    if (amnt < average)
+            //        Demand.Amnts[ct] += avgStep;
+            //}
 
             //supply
             for (int i = 0; i < Supply.Amnts.Count; i++)
