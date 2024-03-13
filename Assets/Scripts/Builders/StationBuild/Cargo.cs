@@ -10,7 +10,7 @@ namespace Trains
     [Serializable]
     public class Cargo
     {
-        public static Cargo Empty => new();
+        public static Cargo AllZero => new();
 
         [SerializedDictionary("Cargo Type", "Amnt")]
         public SerializedDictionary<CargoType, int> Amnts = new();
@@ -27,7 +27,7 @@ namespace Trains
 
         public int SubtractFullCarAmnt(CargoType ct)
         {
-            int toSubstract = Mathf.Clamp(Amnts[ct], 0, CargoValues.MaxAmntPerCar[ct]);
+            int toSubstract = Mathf.Clamp(Amnts[ct], 0, CargoInfo.MaxAmntPerCar[ct]);
             Amnts[ct] -= toSubstract;
             return toSubstract;
         }

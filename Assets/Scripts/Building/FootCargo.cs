@@ -12,8 +12,8 @@ namespace Trains
         [SerializeField] float stepDist;
         public string destinationDisplay;
         IFootCargoDestination destination;
-        CargoType cargoType;
-        int amnt;
+        public CargoType CargoType;
+        public int Amnt;
         NavMeshAgent agent;
         Vector3[] path;
         int idx = 0;
@@ -36,8 +36,8 @@ namespace Trains
         public void Configure(CargoType cargoType, int amnt, Vector3 start, IFootCargoDestination destination)
         {
             transform.position = start;
-            this.cargoType = cargoType;
-            this.amnt = amnt;
+            this.CargoType = cargoType;
+            this.Amnt = amnt;
             this.destination = destination;
             destinationDisplay = destination.ToString();
             NavMeshPath path = new();
@@ -73,7 +73,9 @@ namespace Trains
         {
             if (Vector3.SqrMagnitude(transform.position - destination.transform.position) < 0.1f)
             {
-                destination.Supply.Amnts[cargoType] += amnt;
+                //destination.Supply.Amnts[cargoType] += amnt;
+                destination.OnFootCargoCame(this);
+                //destination.Consumption.Amnts[cargoType] += amnt;
                 Destroy(gameObject);
             }
         }

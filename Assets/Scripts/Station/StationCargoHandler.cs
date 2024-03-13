@@ -9,11 +9,8 @@ namespace Trains
 {
     public class StationCargoHandler : MonoBehaviour, IFootCargoDestination
     {
-        [field: SerializeField] public Cargo Supply { get; set; } = new();
-        [field: SerializeField] public Cargo Demand { get; set; } = new();
-        private static int average = 50;
-        private static int avgStep = 1;
-
+        [field: SerializeField] public Cargo Supply { get; set; } = Cargo.AllZero;
+        [field: SerializeField] public Cargo Demand { get; set; } = Cargo.AllZero;
         public Station Station => station;
         private Station station;
 
@@ -33,6 +30,11 @@ namespace Trains
             Global.OnTick_3 -= Tick;
         }
 
+        private void Tick(object sender, EventArgs e)
+        {
+
+        }
+
         public void LoadCargoTo(CarCargo carCargo)
         {
             //Assert.IsTrue(carCargo != null, $"car cargo should not be null");
@@ -42,50 +44,15 @@ namespace Trains
             carCargo.Amnt += subtrackted;
         }
 
-        public void UnloadCargoFrom(Carriage car)
+        public void UnloadCargoFrom(CarCargo car)
         {
-            Supply.Add(car.Cargo);
-            car.Cargo.Erase();
+            Supply.Add(car);
+            car.Erase();
         }
 
-        private void Tick(object sender, EventArgs e)
+        public void OnFootCargoCame(FootCargo footCargo)
         {
-            if (station.IsBlueprint) return;
-
-            CalcDemand();
-        }
-
-        private void CalcDemand()
-        {
-            //demand
-            //for (int i = 0; i < Demand.Amnts.Count; i++)
-            //{
-            //    (CargoType ct, int amnt) = Demand.Amnts.ElementAt(i);
-            //    if (amnt < average)
-            //        Demand.Amnts[ct] += avgStep;
-            //}
-
-            //supply
-            for (int i = 0; i < Supply.Amnts.Count; i++)
-            {
-                (CargoType ct, int amnt) = Supply.Amnts.ElementAt(i);
-                //switch (ct)
-                //{
-                //    case CargoType.Passengers:
-                //        if (amnt < average)
-                //            Supply.Amnts[ct] += avgStep;
-                //        break;
-                //    case CargoType.Mail:
-                //        if (amnt < average)
-                //            Supply.Amnts[ct] += avgStep;
-                //        break;
-                //    case CargoType.Logs:
-                //        if (amnt > 0)
-                //            Supply.Amnts[ct] -= avgStep;
-                //        break;
-                //}
-            }
-
+            Supply.Amnts[footCargo.CargoType] += footCargo.Amnt;
         }
     }
 }

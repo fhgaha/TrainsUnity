@@ -71,21 +71,21 @@ namespace Trains
                 sb.gameObject.SetActive(true);
 
                 Station from = BuildStationAt(new Vector3(-50, 0, -50), 30, "Station from");
-                from.CargoHandler.Supply = Cargo.Empty
+                from.CargoHandler.Supply = Cargo.AllZero
                     .With(CargoType.Passengers, 1)
                     .With(CargoType.Mail,       1)
                     .With(CargoType.Logs,       1);
-                from.CargoHandler.Demand = Cargo.Empty
+                from.CargoHandler.Demand = Cargo.AllZero
                     .With(CargoType.Passengers, 2)
                     .With(CargoType.Mail,       2)
                     .With(CargoType.Logs,       2);
 
                 Station to = BuildStationAt(new Vector3(30, 0, 30), -30, "Station to");
-                to.CargoHandler.Supply = Cargo.Empty
+                to.CargoHandler.Supply = Cargo.AllZero
                     .With(CargoType.Passengers, 3)
                     .With(CargoType.Mail,       3)
                     .With(CargoType.Logs,       3);
-                to.CargoHandler.Demand = Cargo.Empty
+                to.CargoHandler.Demand = Cargo.AllZero
                     .With(CargoType.Passengers, 4)
                     .With(CargoType.Mail,       4)
                     .With(CargoType.Logs,       4);

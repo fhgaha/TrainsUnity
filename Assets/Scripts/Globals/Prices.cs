@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace Trains
         public static decimal GetPrice(CargoType ct, int amnt) => AsDict[ct] * amnt;
     }
 
-    public static class CargoValues
+    public static class CargoInfo
     {
         public static Dictionary<CargoType, int> MaxAmntPerCar { get; } = new()
         {
@@ -28,6 +29,19 @@ namespace Trains
             [CargoType.Mail] = 30,
             [CargoType.Logs] = 40,
             [CargoType.Lumber] = 60,
+        };
+
+        public static Dictionary<CargoType, List<CargoType>> Convertions { get; } = new()
+        {
+            [CargoType.Passengers] = new(),
+            [CargoType.Mail] = new(),
+            [CargoType.Logs] = new() { CargoType.Lumber },
+            [CargoType.Lumber] = new(),
+        };
+
+        public static Dictionary<(CargoType, CargoType), int> ConvertionRatios { get; } = new()
+        {
+            [(CargoType.Logs, CargoType.Lumber)] = 3,
         };
     }
 }

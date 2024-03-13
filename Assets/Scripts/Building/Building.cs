@@ -13,7 +13,8 @@ namespace Trains
         //set these in inspector for each prefab
         [field: SerializeField] public Cargo Supply { get; set; }
         [field: SerializeField] public Cargo Demand { get; set; }
-        
+        [field: SerializeField] public Cargo Consumption { get; set; } = Cargo.AllZero;
+
         [SerializeField] FootCargo cargoMovingUnitPrefab;
         public List<StationCargoHandler> StationsInReach = new();
         public MeshRenderer Visual { get; private set; }
@@ -23,6 +24,7 @@ namespace Trains
         {
             Visual = GetComponentInChildren<MeshRenderer>();
             radius = transform.Find("DetectStations/Collider").GetComponent<CapsuleCollider>().radius;
+
         }
 
         private void OnEnable()
@@ -37,13 +39,40 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
+            UpdateCargos();
+
+            int sendStep = UnityEngine.Random.Range(0, 5);
             foreach ((CargoType ct, int amnt) in Supply.Amnts.ToList())
             {
+                if (amnt > sendStep)
+                {
+                    IFootCargoDestination trg = FindTarget(ct);
+                    if (trg != null)
+                        SendCargoByFootTo(ct, amnt, trg);
+                }
+            }
+        }
+
+        private void UpdateCargos()
+        {
+            foreach ((CargoType ct, int amnt) in Supply.Amnts.ToList())
                 Supply.Amnts[ct] += 1;
 
-                IFootCargoDestination trg = FindTarget(ct);
-                if (trg != null)
-                    SendCargoByFootTo(ct, amnt, trg);
+            //take from onsumption pool, convert, add to supply
+            int consStep = 3;
+            foreach (KeyValuePair<CargoType, int> cons in Consumption.Amnts.ToList())
+            {
+                if (CargoInfo.Convertions.ContainsKey(cons.Key))
+                {
+                    foreach (CargoType converted in CargoInfo.Convertions[cons.Key])
+                    {
+                        if (Supply.Amnts.ContainsKey(converted))
+                        {
+                            Consumption.Amnts[cons.Key] += consStep;
+                            Supply.Amnts[converted] += consStep * CargoInfo.ConvertionRatios[(cons.Key, converted)];
+                        }
+                    }
+                }
             }
 
         }
@@ -88,10 +117,6 @@ namespace Trains
             }
             else if (railPaths.Count != 0 && demandBuildings.Count == 0)
             {
-                //calc for railPaths
-                //var shortestRailPath = railPaths.OrderBy(p => p.dist_total).First();
-                //return shortestRailPath.station1.CargoHandler;
-
                 //dont go cause no demand building anywhere
                 return null;
             }
@@ -133,39 +158,16 @@ namespace Trains
             return true;
         }
 
-        //public void SendGoodsToStation(StationCargoHandler sch)
-        //{
-        //    int toSend = UnityEngine.Random.Range(1, 4);
-        //    foreach (CargoType ct in Supply.Amnts.Keys.ToList())
-        //    {
-        //        if (Supply.Amnts[ct] >= toSend)
-        //        {
-        //            Supply.Amnts[ct] -= toSend;
-        //            //sch.Supply.Amnts[ct] += toSend;
-
-        //            if (cargoMovingUnitPrefab != null)
-        //                SendCargoByFootTo(sch);
-
-        //        }
-        //    }
-        //}
-
         public void SendCargoByFootTo(CargoType cargoType, int amnt, IFootCargoDestination destiation)
         {
             FootCargo inst = Instantiate(cargoMovingUnitPrefab);
             inst.Configure(cargoType, amnt, transform.position, destiation);
         }
+
+        public void OnFootCargoCame(FootCargo footCargo)
+        {
+            Consumption.Amnts[footCargo.CargoType] += footCargo.Amnt;
+        }
     }
-
-    public interface IProfitBuilding
-    {
-        public Cargo Supply { get; set; }
-        public Cargo Demand { get; set; }
-        public MeshRenderer Visual { get; }
-        public GameObject gameObject { get; }
-
-        //public void SendGoodsToStation(StationCargoHandler sch);
-    }
-
 
 }
