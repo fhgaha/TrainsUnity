@@ -231,7 +231,7 @@ namespace Trains
         }
 
 
-        private void OnChildDetectedStation(object sender, DetChildEventArgs<Station> e)
+        private void OnChildDetectedStation(object sender, DetChildEventArgs<StationCollider> e)
         {
             //Debug.Log($"OnChildDetectedStation: {sender}, enter {e.IsEnter}, {e.CollidedWith}");
 
@@ -244,15 +244,15 @@ namespace Trains
                 UndetectStation(child, e.CollidedWith);
         }
 
-        private void DetectStation(DetChild sender, Station st)
+        private void DetectStation(DetChild sender, StationCollider st)
         {
             //Debug.Log($"Detector.DetectStation: {sender}   detected {st}");
 
             TryPaintGreen();
-            OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: st));
+            OnStationDetected?.Invoke(this, new StationDetectorEventArgs(station: st.Parent));
         }
 
-        void UndetectStation(DetChild sender, Station st)
+        void UndetectStation(DetChild sender, StationCollider st)
         {
             //Debug.Log($"Detector.UndetectStation: {sender} undetected {st}");
 
@@ -263,10 +263,10 @@ namespace Trains
         private bool TryPaintGreen()
         {
             //check colliding with station
-            List<Station> childrenDetectedStants = children.SelectMany(c => c.DetectedStations).ToList();
-            List<Station> otherChildrenStants = children.Where(c => c != mainChild).SelectMany(c => c.DetectedStations).ToList();
+            List<StationCollider> childrenDetectedStants = children.SelectMany(c => c.DetectedStations).ToList();
+            List<StationCollider> otherChildrenStants = children.Where(c => c != mainChild).SelectMany(c => c.DetectedStations).ToList();
 
-            if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Owner != Owner))
+            if (mainChild.DetectedStations.Count > 0 && mainChild.DetectedStations.Any(s => s.Parent.Owner != Owner))
             {
                 curSegm.PaintRed();
                 children.ForEach(c => c.PaintRed());

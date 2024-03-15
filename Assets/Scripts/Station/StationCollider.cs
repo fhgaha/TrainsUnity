@@ -7,6 +7,7 @@ namespace Trains
     public class StationCollider : MonoBehaviour
     {
         public Collider Collider { get; private set; }
+        public Station Parent => parent;
         Station parent;
 
         private void Awake()

@@ -22,7 +22,7 @@ namespace Trains
     public class DetChild : MonoBehaviour
     {
         public static event EventHandler<DetChildEventArgs<RoadSegment>> OnRoadDetected;
-        public static event EventHandler<DetChildEventArgs<Station>> OnStationDetected;
+        public static event EventHandler<DetChildEventArgs<StationCollider>> OnStationDetected;
         public override string ToString() => $"DetChild {GetInstanceID()}";
 
         [Header("to set")]
@@ -37,14 +37,14 @@ namespace Trains
         public List<RoadSegment> DetectedRoads => detectedRoads;
         [SerializeField] private List<RoadSegment> detectedRoads;     //should not be serialized
 
-        public List<Station> DetectedStations => detectedStations;
-        [SerializeField] private List<Station> detectedStations;     //should not be serialized
+        public List<StationCollider> DetectedStations => detectedStations;
+        [SerializeField] private List<StationCollider> detectedStations;     //should not be serialized
 
 
         private void Awake()
         {
             detectedRoads = new List<RoadSegment>();
-            detectedStations = new List<Station>();
+            detectedStations = new List<StationCollider>();
             name = ToString();
             meshRend = GetComponent<MeshRenderer>();
         }
@@ -105,21 +105,23 @@ namespace Trains
 
         private void DetectStation(Collider other)
         {
-            if (other.TryGetComponent<Station>(out var st))
+            if (other.TryGetComponent<StationCollider>(out var st))
             {
+                Debug.Log($"DetChild detected station: {other}");
+
                 Assert.IsTrue(!detectedStations.Contains(st), $"DetChild.DetectStation: {this} detectedStats already contains {st}");
                 detectedStations.Add(st);
-                OnStationDetected?.Invoke(this, new DetChildEventArgs<Station>(isEnter: true, collidedWith: st));
+                OnStationDetected?.Invoke(this, new DetChildEventArgs<StationCollider>(isEnter: true, collidedWith: st));
             }
         }
 
         private void UndetectStation(Collider other)
         {
-            if (other.TryGetComponent<Station>(out var st))
+            if (other.TryGetComponent<StationCollider>(out var st))
             {
                 Assert.IsTrue(detectedStations.Contains(st));
                 detectedStations.Remove(st);
-                OnStationDetected?.Invoke(this, new DetChildEventArgs<Station>(isEnter: false, collidedWith: st));
+                OnStationDetected?.Invoke(this, new DetChildEventArgs<StationCollider>(isEnter: false, collidedWith: st));
             }
         }
 
