@@ -6,13 +6,6 @@ using UnityEngine;
 
 namespace Trains
 {
-    public interface IPlayer
-    {
-        public int Id { get; set; }
-        public Color Color { get; set; }
-        public decimal AddProfitForDeliveredCargo(CarCargo cargo);
-    }
-
     public class AiPlayer : MonoBehaviour, IPlayer
     {
         public int Id { get; set; }
@@ -153,11 +146,10 @@ namespace Trains
         //    return worth;
         //}
 
-        public decimal AddProfitForDeliveredCargo(CarCargo cargo)
+        public decimal AddProfitForDeliveredCargo(decimal money)
         {
-            var worth = cargo.GetWorthValue();
-            MoneyBalance += worth;
-            return worth;
+            MoneyBalance += money;
+            return money;
         }
     }
 }

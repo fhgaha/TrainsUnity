@@ -1,16 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Trains
 {
-    //public class StationSelectedEventArgs : EventArgs
-    //{
-    //    public int from, to;
-    //}
-
     public enum UiState
     {
         None, BuildRailIsActive, BuildStationIsActive, SelectStationsIsActive
@@ -32,33 +28,41 @@ namespace Trains
         [SerializeField] private Toggle buildStation;
         [SerializeField] private Toggle selectStations;
         [SerializeField] private UiStationSelector stationSelector;
+        [SerializeField] private TextMeshProUGUI cash;
 
         private void Awake()
         {
             GetComponentInChildren<Canvas>().enabled = true;
+        }
 
-            //mode buttons
+        private void OnEnable()
+        {
             buildRail.onValueChanged.AddListener(delegate { BuildRailValueChanged(buildRail); });
             buildStation.onValueChanged.AddListener(delegate { BuildStationValueChanged(buildStation); });
             selectStations.onValueChanged.AddListener(delegate { SelectStationsValueChanged(selectStations); });
-
             stationSelector.OnStationsSelectedAcceptPressed += NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded += StationContainer_OnStationAdded;
+        }
+
+        private void OnDisable()
+        {
+            buildRail.onValueChanged.RemoveAllListeners();
+            selectStations.onValueChanged.RemoveAllListeners();
+            selectStations.onValueChanged.RemoveAllListeners();
+            stationSelector.OnStationsSelectedAcceptPressed -= NotifyStationsSelectedAcceptPressed;
+            sc.OnStationAdded -= StationContainer_OnStationAdded;
+        }
+
+        public void UpdateCashText(object sender, string value)
+        {
+            if (sender == Global.Instance.MainPlayer)
+                cash.text = $"$ {value}";
         }
 
         private void StationContainer_OnStationAdded(object sender, EventArgs e)
         {
             stationSelector.SetStationIcons(sc.Stations);
         }
-
-        private void Start()
-        {
-            //var stations = stationContainer.Stations;
-            //stationSelector.SetTooglesForStations(stations);
-
-        }
-
-        //TODO: would be nice if on rmb rb became untoggled
 
         private void BuildRailValueChanged(Toggle buildRail)
         {

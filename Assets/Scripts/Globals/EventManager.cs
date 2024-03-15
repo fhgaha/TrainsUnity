@@ -39,6 +39,7 @@ namespace Trains
             ui.OnBuildRailActivated += (sender, toggle) => OnBuildRailPressed?.Invoke(this, toggle);
             ui.OnBuildStationActivated += (sender, toggle) => stBuild.gameObject.SetActive(toggle.isOn);
             ui.OnStationsSelectedAcceptPressed += (sender, e) => CreateRouteAndSendTrain(e);
+            IPlayer.OnMoneyBalanceChanged += (sender, e) => ui.UpdateCashText(sender, e.MoneyBalance.ToString());
         }
 
         private void CreateRouteAndSendTrain(StationSelectorEventArgs e)

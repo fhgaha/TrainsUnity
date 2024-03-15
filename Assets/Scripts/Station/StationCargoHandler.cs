@@ -9,6 +9,10 @@ namespace Trains
 {
     public class StationCargoHandler : MonoBehaviour, IFootCargoDestination
     {
+        [Header("To Set")]
+        [SerializeField] FootCargo footCargoPrefab;
+
+        [field: Header("To Display")]
         [field: SerializeField] public Cargo Supply { get; set; } = Cargo.AllZero;
         [field: SerializeField] public Cargo Demand { get; set; } = Cargo.AllZero;
         public Station Station => station;
@@ -32,7 +36,10 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
+            foreach ((CargoType ct, int amnt) in Supply.Amnts)
+            {
 
+            }
         }
 
         public void LoadCargoTo(CarCargo carCargo)
@@ -53,6 +60,12 @@ namespace Trains
         public void OnFootCargoCame(FootCargo footCargo)
         {
             Supply.Amnts[footCargo.CargoType] += footCargo.Amnt;
+        }
+
+        public void SendCargoByFootTo(CargoType cargoType, int amnt, IFootCargoDestination destiation)
+        {
+            FootCargo inst = Instantiate(footCargoPrefab);
+            inst.Configure(cargoType, amnt, transform.position, destiation);
         }
     }
 }

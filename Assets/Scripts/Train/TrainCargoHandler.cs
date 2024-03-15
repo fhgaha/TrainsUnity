@@ -27,7 +27,8 @@ namespace Trains
             {
                 foreach (var car in cars)
                 {
-                    decimal worth = train.Owner.AddProfitForDeliveredCargo(car.Cargo);
+                    decimal worth  = car.Cargo.GetWorthValue();
+                    train.Owner.AddProfitForDeliveredCargo(worth);
                     train.Route.StationTo.UnloadCargoFrom(car);
                     car.PlayProfitAnim($"+{(int)worth}$");
                     yield return new WaitForSeconds(delay);
