@@ -1007,7 +1007,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.8565904
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1015,7 +1015,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -0.515997
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.z
@@ -1027,7 +1027,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -62.128
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1596,7 +1596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: 0, y: 89.97438, z: -44.9}
+  m_FollowOffset: {x: 0, y: 30, z: -44.9}
   m_XDamping: 0
   m_YDamping: 0
   m_ZDamping: 0
@@ -2355,8 +2355,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 884639973}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.52606094, y: 0.000000014633113, z: -0.000000009051606, w: 0.8504469}
-  m_LocalPosition: {x: -35.7, y: 89.97438, z: -103.2}
+  m_LocalRotation: {x: 0.2902757, y: -0.000000016465528, z: 0.0000000049945945, w: 0.9569431}
+  m_LocalPosition: {x: -35.7, y: 30, z: -103.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2882,7 +2882,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f9a378740c61e5a438c45fef577150e5, type: 2}
+  - {fileID: 2100000, guid: 0d0db0ccbaa81e54a8fa7a897a200f70, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3400,7 +3400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.88250875
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.x
@@ -3408,7 +3408,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0.47029594
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalRotation.z
@@ -3420,7 +3420,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 56.107
       objectReference: {fileID: 0}
     - target: {fileID: 5440380528251630467, guid: d5386a28f8a03fa4dbca4476194fe783, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -3495,8 +3495,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1353705423}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.52606094, y: 0.000000014633113, z: -0.000000009051606, w: 0.8504469}
-  m_LocalPosition: {x: -35.7, y: 89.97438, z: -103.2}
+  m_LocalRotation: {x: 0.2902757, y: -0.000000016465528, z: 0.0000000049945945, w: 0.9569431}
+  m_LocalPosition: {x: -35.7, y: 30, z: -103.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4390,6 +4390,7 @@ MonoBehaviour:
   buildStation: {fileID: 806258365}
   selectStations: {fileID: 1542005547}
   stationSelector: {fileID: 916876782}
+  cash: {fileID: 1015229995}
 --- !u!1 &1726111180
 GameObject:
   m_ObjectHideFlags: 0

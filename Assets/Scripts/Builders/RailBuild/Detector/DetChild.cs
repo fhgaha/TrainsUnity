@@ -107,7 +107,7 @@ namespace Trains
         {
             if (other.TryGetComponent<StationCollider>(out var st))
             {
-                Debug.Log($"DetChild detected station: {other}");
+                //Debug.Log($"DetChild detected station: {other}");
 
                 Assert.IsTrue(!detectedStations.Contains(st), $"DetChild.DetectStation: {this} detectedStats already contains {st}");
                 detectedStations.Add(st);
