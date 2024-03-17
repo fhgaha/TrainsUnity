@@ -18,7 +18,7 @@ namespace Trains
         [SerializeField] FootCargo cargoMovingUnitPrefab;
         public List<StationCargoHandler> StationsInReach = new();
         public MeshRenderer Visual { get; private set; }
-        float radius;
+        static float radius; //detect destination radius
 
         private void Awake()
         {
@@ -46,9 +46,8 @@ namespace Trains
             {
                 if (amnt > sendStep)
                 {
-                    IFootCargoDestination trg = FindTarget(ct);
-                    if (trg != null)
-                        SendCargoByFootTo(ct, amnt, trg);
+                    if (TryFindTarget(ct, transform.position, out IFootCargoDestination dest))
+                        SendCargoByFoot(ct, amnt, dest);
                 }
             }
         }
@@ -77,13 +76,13 @@ namespace Trains
 
         }
 
-        private IFootCargoDestination FindTarget(CargoType ct)
+        public static bool TryFindTarget(CargoType ct, Vector3 startPos, out IFootCargoDestination dest)
         {
             List<Building> demandBuildings = BuildingContainer.Instance.Buildings.Where(b => b.Demand.Amnts.Keys.Contains(ct)).ToList();
 
             var stationsInRadius = Global.Instance.StationContainer.Stations
-                .Where(p => Vector3.SqrMagnitude(p.Value.transform.position - transform.position) < radius * radius)
-                .Select(p => (station: p.Value, dist: Vector3.SqrMagnitude(p.Value.transform.position - transform.position)))
+                .Where(p => Vector3.SqrMagnitude(p.Value.transform.position - startPos) < radius * radius)
+                .Select(p => (station: p.Value, dist: Vector3.SqrMagnitude(p.Value.transform.position - startPos)))
                 .OrderBy(t => t.dist).ToList();
 
             List<(Vector3 start, float dist_start_station1,
@@ -101,7 +100,7 @@ namespace Trains
                     {
                         float to_Target_Dist = Vector3.SqrMagnitude(stationTo.transform.position - d.transform.position);
                         var path = (
-                            start: transform.position, dist_start_station1: start_StationFrom_Dist,
+                            start: startPos, dist_start_station1: start_StationFrom_Dist,
                             station1: stationFrom, dist_station1_station2: from_To_Dist,
                             station2: stationTo, dist_station2_target: to_Target_Dist,
                             target: d, dist_total: start_StationFrom_Dist + from_To_Dist + to_Target_Dist);
@@ -110,38 +109,41 @@ namespace Trains
                 }
             }
 
+            dest = null;
             if (railPaths.Count == 0 && demandBuildings.Count == 0)
             {
                 //stockpile
-                return null;
+                return false;
             }
             else if (railPaths.Count != 0 && demandBuildings.Count == 0)
             {
                 //dont go cause no demand building anywhere
-                return null;
+                return false;
             }
             else if (railPaths.Count == 0 && demandBuildings.Count != 0)
             {
                 //calc for demandBuildings
-                var closestBuilding = demandBuildings.OrderBy(d => Vector3.SqrMagnitude(transform.position - d.transform.position)).First();
-                return closestBuilding;
+                var closestBuilding = demandBuildings.OrderBy(d => Vector3.SqrMagnitude(startPos - d.transform.position)).First();
+                dest = closestBuilding;
+                return true;
             }
             else
             {
                 var shortestRailPath = railPaths.OrderBy(p => p.dist_total).First();
                 shortestRailPath.dist_total *= 0.1f;
-                var closestBuilding = demandBuildings.OrderBy(d => Vector3.SqrMagnitude(transform.position - d.transform.position)).First();
+                var closestBuilding = demandBuildings.OrderBy(d => Vector3.SqrMagnitude(startPos - d.transform.position)).First();
 
                 float railPathCost = shortestRailPath.dist_total / shortestRailPath.target.Demand.Amnts[ct] * (float)Prices.AsDict[ct];
                 float footPathCost =
-                    Vector3.SqrMagnitude(transform.position - closestBuilding.transform.position) / closestBuilding.Demand.Amnts[ct] * (float)Prices.AsDict[ct];
+                    Vector3.SqrMagnitude(startPos - closestBuilding.transform.position) / closestBuilding.Demand.Amnts[ct] * (float)Prices.AsDict[ct];
 
                 if (railPathCost < footPathCost)
-                    return shortestRailPath.station1.CargoHandler;
+                    dest = shortestRailPath.station1.CargoHandler;
                 else
-                    return closestBuilding;
-            }
+                    dest = closestBuilding;
 
+                return true;
+            }
         }
 
         private bool TryFindBuildingDemanding(CargoType ct, out Building building)
@@ -158,7 +160,7 @@ namespace Trains
             return true;
         }
 
-        public void SendCargoByFootTo(CargoType cargoType, int amnt, IFootCargoDestination destiation)
+        public void SendCargoByFoot(CargoType cargoType, int amnt, IFootCargoDestination destiation)
         {
             FootCargo inst = Instantiate(cargoMovingUnitPrefab);
             inst.Configure(cargoType, amnt, transform.position, destiation);

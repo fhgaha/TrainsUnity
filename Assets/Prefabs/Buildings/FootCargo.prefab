@@ -176,3 +176,5 @@ MonoBehaviour:
   speed: 400
   stepDist: 1
   destinationDisplay: 
+  CargoType: 0
+  Amnt: 0

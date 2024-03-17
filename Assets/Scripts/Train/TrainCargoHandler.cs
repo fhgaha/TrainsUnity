@@ -29,7 +29,7 @@ namespace Trains
                 {
                     decimal worth  = car.Cargo.GetWorthValue();
                     train.Owner.AddProfitForDeliveredCargo(worth);
-                    train.Route.StationTo.UnloadCargoFrom(car);
+                    train.Route.StationTo.CargoHandler.UnloadCargoFrom(car.Cargo);
                     car.PlayProfitAnim($"+{(int)worth}$");
                     yield return new WaitForSeconds(delay);
                 }

@@ -10,6 +10,7 @@ namespace Trains
     {
         [SerializeField] float speed;
         [SerializeField] float stepDist;
+        public bool ShouldContinueGoingAfterTrain;
         public string destinationDisplay;
         IFootCargoDestination destination;
         public CargoType CargoType;

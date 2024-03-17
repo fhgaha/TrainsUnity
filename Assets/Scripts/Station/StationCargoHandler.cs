@@ -38,7 +38,14 @@ namespace Trains
         {
             foreach ((CargoType ct, int amnt) in Supply.Amnts)
             {
-
+                //send supply to consumer or wait for a train to pick up the cargo whatever is profitable
+                int thresh = 5;
+                if (amnt >= thresh
+                    && Building.TryFindTarget(ct, transform.position, out IFootCargoDestination dest) 
+                    && dest is Building)
+                {
+                    SendCargoByFoot(ct, amnt, dest);
+                }
             }
         }
 
@@ -62,7 +69,7 @@ namespace Trains
             Supply.Amnts[footCargo.CargoType] += footCargo.Amnt;
         }
 
-        public void SendCargoByFootTo(CargoType cargoType, int amnt, IFootCargoDestination destiation)
+        public void SendCargoByFoot(CargoType cargoType, int amnt, IFootCargoDestination destiation)
         {
             FootCargo inst = Instantiate(footCargoPrefab);
             inst.Configure(cargoType, amnt, transform.position, destiation);
