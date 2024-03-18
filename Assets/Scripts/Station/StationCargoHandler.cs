@@ -15,6 +15,7 @@ namespace Trains
         [field: Header("To Display")]
         [field: SerializeField] public Cargo Supply { get; set; } = Cargo.AllZero;
         [field: SerializeField] public Cargo Demand { get; set; } = Cargo.AllZero;
+        [field: SerializeField] public Cargo ToSendByFoot { get; set; } = Cargo.AllZero;
         public Station Station => station;
         private Station station;
 
@@ -36,14 +37,15 @@ namespace Trains
 
         private void Tick(object sender, EventArgs e)
         {
-            foreach ((CargoType ct, int amnt) in Supply.Amnts)
+            foreach ((CargoType ct, int amnt) in ToSendByFoot.Amnts.ToList())
             {
                 //send supply to consumer or wait for a train to pick up the cargo whatever is profitable
                 int thresh = 5;
                 if (amnt >= thresh
-                    && Building.TryFindTarget(ct, transform.position, out IFootCargoDestination dest) 
+                    && Building.TryFindTarget(ct, transform.position, out IFootCargoDestination dest)
                     && dest is Building)
                 {
+                    ToSendByFoot.Amnts[ct] -= amnt;
                     SendCargoByFoot(ct, amnt, dest);
                 }
             }
@@ -60,8 +62,21 @@ namespace Trains
 
         public void UnloadCargoFrom(CarCargo car)
         {
-            Supply.Add(car);
+            if (car.Amnt <= 0) return;
+
+            if (Building.TryFindTarget(car.CargoType, transform.position, out IFootCargoDestination dest) && dest is Building)
+            {
+                ToSendByFoot.Add(car);
+            }
+            else
+            {
+                Supply.Add(car);
+            }
+
             car.Erase();
+
+            //Supply.Add(car);
+            //car.Erase();
         }
 
         public void OnFootCargoCame(FootCargo footCargo)
