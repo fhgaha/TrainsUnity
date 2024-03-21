@@ -29,10 +29,13 @@ namespace Trains
         [SerializeField] private Toggle selectStations;
         [SerializeField] private UiStationSelector stationSelector;
         [SerializeField] private TextMeshProUGUI cash;
+        [SerializeField] private RectTransform selectedBuilding;
 
         private void Awake()
         {
             GetComponentInChildren<Canvas>().enabled = true;
+
+            selectedBuilding.gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -42,6 +45,7 @@ namespace Trains
             selectStations.onValueChanged.AddListener(delegate { SelectStationsValueChanged(selectStations); });
             stationSelector.OnStationsSelectedAcceptPressed += NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded += StationContainer_OnStationAdded;
+            SelectableBuilding.OnBuildingSelected += ShowSelectedPanel;
         }
 
         private void OnDisable()
@@ -51,12 +55,20 @@ namespace Trains
             selectStations.onValueChanged.RemoveAllListeners();
             stationSelector.OnStationsSelectedAcceptPressed -= NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded -= StationContainer_OnStationAdded;
+            SelectableBuilding.OnBuildingSelected += ShowSelectedPanel;
         }
 
         public void UpdateCashText(object sender, string value)
         {
             if (sender == Global.Instance.MainPlayer)
                 cash.text = $"$ {value}";
+        }
+
+        public void ShowSelectedPanel(object sender, EventArgs e)
+        {
+            var sb = (SelectableBuilding)sender;
+            Debug.Log($"-- {sb.transform.parent.name}");
+            selectedBuilding.gameObject.SetActive(sb.Selected);
         }
 
         private void StationContainer_OnStationAdded(object sender, EventArgs e)
