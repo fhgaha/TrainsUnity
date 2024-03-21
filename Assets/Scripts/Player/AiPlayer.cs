@@ -48,7 +48,7 @@ namespace Trains
             //railGen.BuildAndDestroyAllSeveralTimes(10);
 
             //BuildTwoStationsCurvyRoadSendTrain();
-            BuildTwoStationsStraightRoadSendTrain();
+            //BuildTwoStationsStraightRoadSendTrain();
 
             //to prevent collisions with ai detector
             //rb.gameObject.SetActive(false);

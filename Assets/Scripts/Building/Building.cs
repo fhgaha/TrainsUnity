@@ -162,7 +162,7 @@ namespace Trains
 
         public void SendCargoByFoot(CargoType cargoType, int amnt, IFootCargoDestination destiation)
         {
-            FootCargo inst = Instantiate(cargoMovingUnitPrefab);
+            FootCargo inst = Instantiate(cargoMovingUnitPrefab, Global.Instance.FootCargos.transform);
             inst.Configure(cargoType, amnt, transform.position, destiation);
         }
 

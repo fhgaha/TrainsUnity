@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Road
   - Station
+  - SelectableBuilding
   layers:
   - Default
   - TransparentFX

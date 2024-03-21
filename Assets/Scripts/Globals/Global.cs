@@ -16,6 +16,7 @@ namespace Trains
         [field: SerializeField] public TrainContainer TrainContainer { get; set; }
         [field: SerializeField] public RailBuilder RailBuilder { get; set; }
         [field: SerializeField] public StationBuilder StationBuilder { get; set; }
+        [field: SerializeField] public GameObject FootCargos { get; set; }
 
         public IPlayer MainPlayer { get; set; }
 
