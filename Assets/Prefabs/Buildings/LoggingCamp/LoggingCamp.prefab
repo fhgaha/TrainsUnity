@@ -102,6 +102,7 @@ MonoBehaviour:
         Value: 0
       - Key: 3
         Value: 0
+  <BuildingType>k__BackingField: Logging Camp
   cargoMovingUnitPrefab: {fileID: 967273832132318, guid: a8a1e792c87a70c459aa21f6a82ca63d, type: 3}
   StationsInReach: []
 --- !u!65 &414260767819807664

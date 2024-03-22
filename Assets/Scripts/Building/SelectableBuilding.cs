@@ -14,7 +14,7 @@ namespace Trains
         public static event EventHandler OnBuildingSelected;
         static SelectableBuilding curSelected;
 
-        public string BuildingName => building.name;
+        public string BuildingType => building.BuildingType;
         public string ProduceType => string.Join(", ", building.Supply.Amnts.Keys.Select(ct => ct.ToString()));
         public string ConsumeType => string.Join(", ", building.Demand.Amnts.Keys.Select(ct => ct.ToString()));
 
@@ -72,23 +72,20 @@ namespace Trains
 
                         Select();
                     }
-                    else if (curSelected == this)
-                    {
-                        Deselect();
-                    }
                     else
                     {
                         Deselect();
                         Dehover();
                     }
                 }
-                else if (!hovered && curSelected)
+                else if (curSelected)
+                {
                     return;
+                }
             }
 
             if (Selected && (Input.GetMouseButtonUp(1) || Input.GetKeyUp(KeyCode.Escape)))
             {
-                //hovered = false;
                 Deselect();
                 Dehover();
             }

@@ -14,9 +14,11 @@ namespace Trains
         [field: SerializeField] public Cargo Supply { get; set; }
         [field: SerializeField] public Cargo Demand { get; set; }
         [field: SerializeField] public Cargo Consumption { get; set; } = Cargo.AllZero;
+        [field: SerializeField] public string BuildingType { get; set; }
 
         [SerializeField] FootCargo cargoMovingUnitPrefab;
         public List<StationCargoHandler> StationsInReach = new();
+
         public MeshRenderer Visual { get; private set; }
         static float radius; //detect destination radius
 

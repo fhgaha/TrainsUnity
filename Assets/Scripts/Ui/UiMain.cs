@@ -70,7 +70,7 @@ namespace Trains
             selectedBuilding.gameObject.SetActive(sb.Selected);
             if (sb.Selected)
             {
-                selectedBuilding.Set(sb.BuildingName, sb.ConsumeType, sb.ProduceType);
+                selectedBuilding.Set(sb.BuildingType, sb.ConsumeType, sb.ProduceType);
             }
         }
 

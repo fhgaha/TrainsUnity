@@ -71,6 +71,7 @@ MonoBehaviour:
         Value: 0
       - Key: 3
         Value: 0
+  <BuildingType>k__BackingField: Lumber Mill
   cargoMovingUnitPrefab: {fileID: 0}
   StationsInReach: []
 --- !u!65 &414260767819807664
