@@ -25,6 +25,9 @@ namespace Trains
             Visual = GetComponentInChildren<MeshRenderer>();
             radius = transform.Find("DetectStations/Collider").GetComponent<CapsuleCollider>().radius;
 
+            var cmp = GetComponentInChildren<SelectableBuilding>();
+            if (cmp != null)
+                cmp.Configure(this);
         }
 
         private void OnEnable()

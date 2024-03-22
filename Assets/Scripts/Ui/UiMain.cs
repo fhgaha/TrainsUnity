@@ -29,7 +29,7 @@ namespace Trains
         [SerializeField] private Toggle selectStations;
         [SerializeField] private UiStationSelector stationSelector;
         [SerializeField] private TextMeshProUGUI cash;
-        [SerializeField] private RectTransform selectedBuilding;
+        [SerializeField] private SelectedBuildingUi selectedBuilding;
 
         private void Awake()
         {
@@ -45,7 +45,7 @@ namespace Trains
             selectStations.onValueChanged.AddListener(delegate { SelectStationsValueChanged(selectStations); });
             stationSelector.OnStationsSelectedAcceptPressed += NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded += StationContainer_OnStationAdded;
-            SelectableBuilding.OnBuildingSelected += ShowSelectedPanel;
+            SelectableBuilding.OnBuildingSelected += ShowSelectedObjectPanel;
         }
 
         private void OnDisable()
@@ -55,7 +55,7 @@ namespace Trains
             selectStations.onValueChanged.RemoveAllListeners();
             stationSelector.OnStationsSelectedAcceptPressed -= NotifyStationsSelectedAcceptPressed;
             sc.OnStationAdded -= StationContainer_OnStationAdded;
-            SelectableBuilding.OnBuildingSelected += ShowSelectedPanel;
+            SelectableBuilding.OnBuildingSelected += ShowSelectedObjectPanel;
         }
 
         public void UpdateCashText(object sender, string value)
@@ -64,11 +64,14 @@ namespace Trains
                 cash.text = $"$ {value}";
         }
 
-        public void ShowSelectedPanel(object sender, EventArgs e)
+        public void ShowSelectedObjectPanel(object sender, EventArgs e)
         {
             var sb = (SelectableBuilding)sender;
-            Debug.Log($"-- {sb.transform.parent.name}");
             selectedBuilding.gameObject.SetActive(sb.Selected);
+            if (sb.Selected)
+            {
+                selectedBuilding.Set(sb.BuildingName, sb.ConsumeType, sb.ProduceType);
+            }
         }
 
         private void StationContainer_OnStationAdded(object sender, EventArgs e)

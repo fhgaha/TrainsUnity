@@ -13,6 +13,10 @@ namespace Trains
         public static event EventHandler OnBuildingSelected;
         static SelectableBuilding curSelected;
 
+        public string BuildingName => building.name;
+        public string ProduceType => string.Join(", ", building.Supply.Amnts.Keys.Select(ct => ct.ToString()));
+        public string ConsumeType => string.Join(", ", building.Demand.Amnts.Keys.Select(ct => ct.ToString()));
+
         [Header("To Set")]
         [SerializeField] Outline outline;
         [SerializeField] MeshRenderer rend;
@@ -21,7 +25,13 @@ namespace Trains
         public bool Selected = false;
         [SerializeField] bool hovered = false;
 
+        Building building;
         List<SelectableBuilding> selectables;
+
+        public void Configure(Building building)
+        {
+            this.building = building;
+        }
 
         private void Start()
         {
