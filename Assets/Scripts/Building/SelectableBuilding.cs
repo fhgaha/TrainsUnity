@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 
 namespace Trains
@@ -35,6 +36,8 @@ namespace Trains
 
         private void Start()
         {
+            Assert.IsTrue(transform.parent != null && transform.parent.TryGetComponent(out Building b), $"{this} should have parent of type Building");
+
             selectables = BuildingContainer.Instance.Buildings.Select(b => b.GetComponentInChildren<SelectableBuilding>()).Where(s => s != null).ToList();
         }
 
