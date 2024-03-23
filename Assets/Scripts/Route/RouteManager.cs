@@ -45,7 +45,7 @@ namespace Trains
             for (int i = 0; i < stations.Count - 1; i++)
             {
                 (List<Vector3> list, float len, Node fromNode, Node toNode) = FindShortestPath(stations[i], stations[i + 1]);
-                if (list.Count == 0 || len == 0f)
+                if (list == null || len == 0f)
                 {
                     Debug.LogError("Can't find path");
                     return new Route();
