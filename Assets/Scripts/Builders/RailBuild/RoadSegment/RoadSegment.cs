@@ -277,15 +277,29 @@ namespace Trains
                 meshRenderer.sharedMaterial = allowedMaterial;
         }
 
-        public bool IsGreen => meshRenderer.sharedMaterial == allowedMaterial;
-
+        public bool IsGreen
+        {
+            get
+            {
+                if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+                return meshRenderer.sharedMaterial == allowedMaterial;
+            }
+        }
+         
         public void PaintRed()
         {
             if (!IsRed)
                 meshRenderer.sharedMaterial = forbiddenMaterial;
         }
 
-        public bool IsRed => meshRenderer.sharedMaterial == forbiddenMaterial;
+        public bool IsRed
+        {
+            get
+            {
+                if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+                return meshRenderer.sharedMaterial == forbiddenMaterial;
+            }
+        }
 
         public void PaintDefaultColor()
         {
@@ -293,7 +307,13 @@ namespace Trains
                 meshRenderer.sharedMaterial = defaultMaterial;
         }
 
-        public bool IsDefaultColor => meshRenderer.sharedMaterial == defaultMaterial;
-
+        public bool IsDefaultColor
+        {
+            get
+            {
+                if (meshRenderer == null) meshRenderer = GetComponent<MeshRenderer>();
+                return meshRenderer.sharedMaterial == defaultMaterial;
+            }
+        }
     }
 }

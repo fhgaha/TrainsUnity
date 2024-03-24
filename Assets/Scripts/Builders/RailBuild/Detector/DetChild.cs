@@ -128,18 +128,21 @@ namespace Trains
 
         public void PaintBlue()
         {
+            if (meshRend == null) meshRend = GetComponent<MeshRenderer>();
             if (meshRend.material != blue)
                 meshRend.material = blue;
         }
 
         public void PaintGreen()
         {
+            if (meshRend == null) meshRend = GetComponent<MeshRenderer>();
             if (meshRend.material != green)
                 meshRend.material = green;
         }
 
         public void PaintRed()
         {
+            if (meshRend == null) meshRend = GetComponent<MeshRenderer>();
             if (meshRend.material != red)
                 meshRend.material = red;
         }
